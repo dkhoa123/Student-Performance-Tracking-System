@@ -52,7 +52,7 @@ namespace TCP_Server
                     // gửi phản hồi đến client
                     byte[] responseData = Encoding.UTF8.GetBytes(data);
                     await stream.WriteAsync(responseData, 0, responseData.Length);
-                    Console.WriteLine("Đang gửi phản hồi đến Client: " + responseData);
+                    Console.WriteLine("Gửi phản hồi đến Client: " + data);
                     }
                 }
                 catch (IOException ex)
