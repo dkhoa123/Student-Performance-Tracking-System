@@ -19,7 +19,7 @@ namespace TCP_Client
             int clientPort = 5000;
 
             var client = new TcpClient();
-            client.Connect(IPAddress.Parse(clientHost), clientPort);
+            await client.ConnectAsync(IPAddress.Parse(clientHost), clientPort);
             Console.WriteLine($"Đã kết nối đến server {clientHost} với port:{clientPort}");
 
             using NetworkStream stream = client.GetStream();
