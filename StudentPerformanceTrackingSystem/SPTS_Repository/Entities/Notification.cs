@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace SPTS_Repository.Entities;
+
+public partial class Notification
+{
+    public int NotificationId { get; set; }
+
+    public int UserId { get; set; }
+
+    public string Title { get; set; } = null!;
+
+    public string Content { get; set; } = null!;
+
+    public int? RelatedAlertId { get; set; }
+
+    public bool IsRead { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+
+    public virtual Alert? RelatedAlert { get; set; }
+
+    public virtual User User { get; set; } = null!;
+}
