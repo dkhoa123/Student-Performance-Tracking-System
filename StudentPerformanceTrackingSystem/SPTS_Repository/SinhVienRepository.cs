@@ -34,5 +34,10 @@ namespace SPTS_Repository
                 .Select(s => s.StudentCode)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<User?> TimEmail(string email)
+        {
+            return await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
     }
 }

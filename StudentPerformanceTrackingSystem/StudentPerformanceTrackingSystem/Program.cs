@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SPTS_Repository;
 using SPTS_Repository.Entities;
 using SPTS_Repository.Interface;
@@ -14,6 +16,17 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<SptsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectedDb"))
 );
+
+//Authentication & Authorization
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(opt =>
+    {
+        opt.LoginPath = "/Home/Login";
+        opt.AccessDeniedPath = "/Home/Login";
+        opt.ExpireTimeSpan = TimeSpan.FromDays(7);
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ISinhVienRepository, SinhVienRepository>();
 builder.Services.AddScoped<ISinhVienService, SinhVienService>();
@@ -32,6 +45,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

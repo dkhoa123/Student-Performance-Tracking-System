@@ -1,7 +1,7 @@
 ﻿using SPTS_Repository.Entities;
 using SPTS_Repository.Interface;
 using SPTS_Service.Interface;
-using StudentPerformanceTrackingSystem.Models;
+using SPTS_Service.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,10 +23,11 @@ namespace SPTS_Service
                 throw new Exception("Mật khẩu xác nhận không khớp.");
             try
             {
+                var email = model.Email.Trim().ToLower();
                 var user = new User
                 {
                     FullName = model.FullName,
-                    Email = model.Email,
+                    Email = email,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
                     Role = "STUDENT",
                     Status = "ACTIVE",
@@ -67,6 +68,22 @@ namespace SPTS_Service
             }
 
             return $"{prefix}{nextSeq:D5}"; // "23202500001"
+        }
+
+        public async Task<User> DangNhap(string emailSv, string matKhau)
+        {
+            var user = await _SVre.TimEmail(emailSv);
+
+            if (user == null)
+                throw new Exception("Email hoặc mật khẩu không đúng.");
+
+            if (user.Status != "ACTIVE")
+                throw new Exception("Tài khoản đang bị khóa hoặc chưa kích hoạt.");
+
+            if (!BCrypt.Net.BCrypt.Verify(matKhau, user.PasswordHash))
+                throw new Exception("Email hoặc mật khẩu không đúng.");
+
+            return user;
         }
     }
 }

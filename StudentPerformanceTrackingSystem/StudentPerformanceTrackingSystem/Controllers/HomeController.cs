@@ -1,8 +1,11 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using SPTS_Service;
 using SPTS_Service.Interface;
+using SPTS_Service.ViewModel;
 using StudentPerformanceTrackingSystem.Models;
+using System.Diagnostics;
+using System.Security.Claims;
 
 namespace StudentPerformanceTrackingSystem.Controllers
 {
@@ -10,6 +13,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ISinhVienService _svSer;
+
         public HomeController(ILogger<HomeController> logger, ISinhVienService svSer)
         {
             _logger = logger;
@@ -32,7 +36,47 @@ namespace StudentPerformanceTrackingSystem.Controllers
         }
         public IActionResult Login()
         {
-            return View();
+            return View(new DangNhapModel());
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(DangNhapModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            try
+            {
+                var user = await _svSer.DangNhap(model.Email, model.Password);
+
+                var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.FullName ?? user.Email),
+                new Claim(ClaimTypes.Role, user.Role ?? "")
+            };
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    principal,
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = model.RememberMe,
+                        ExpiresUtc = model.RememberMe
+                            ? DateTimeOffset.UtcNow.AddDays(7)
+                            : DateTimeOffset.UtcNow.AddHours(2)
+                    });
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
         }
 
         public IActionResult SignUp()
@@ -48,6 +92,15 @@ namespace StudentPerformanceTrackingSystem.Controllers
             return RedirectToAction("Login");
         }
 
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

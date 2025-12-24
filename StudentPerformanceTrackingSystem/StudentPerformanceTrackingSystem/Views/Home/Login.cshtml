@@ -1,6 +1,6 @@
-﻿@{
+﻿@model SPTS_Service.ViewModel.DangNhapModel
+@{
     Layout = null;
-    ViewBag.Title = "Login";
 }
 <!DOCTYPE html>
 
@@ -106,16 +106,16 @@
                         <h2 class="text-[#111418] dark:text-white tracking-tight text-2xl font-bold leading-tight">Đăng nhập tài khoản</h2>
                         <p class="mt-2 text-[#617589] dark:text-gray-400 text-sm">Nhập thông tin xác thực của bạn để truy cập.</p>
                     </div>
-                    <form class="flex flex-col gap-6" onsubmit="event.preventDefault();">
+                    <form asp-action="Index" asp-controller="Home" method="post" class="flex flex-col gap-6">
                         <!-- Username Field -->
                         <div class="flex flex-col gap-2">
                             <label class="text-[#111418] dark:text-gray-200 text-sm font-medium leading-normal">
-                                Tên đăng nhập / Mã sinh viên
+                                Email Sinh Viên
                             </label>
                             <div class="relative flex items-center">
-                                <input class="form-input flex w-full rounded-lg border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 h-12 px-4 pl-11 text-[#111418] dark:text-white placeholder:text-[#617589] dark:placeholder:text-gray-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-base font-normal leading-normal" placeholder="Ví dụ: SV20241234" type="text" value="" />
+                                <input asp-for="Email" class="form-input flex w-full rounded-lg border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 h-12 px-4 pl-11 text-[#111418] dark:text-white placeholder:text-[#617589] dark:placeholder:text-gray-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-base font-normal leading-normal" placeholder="Ví dụ: SV20241234" type="text" value="" />
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#617589] dark:text-gray-400 pointer-events-none flex items-center">
-                                    <span class="material-symbols-outlined text-[20px]">person</span>
+                                    <span asp-validation-for="Email" class="material-symbols-outlined text-[20px]">person</span>
                                 </div>
                             </div>
                         </div>
@@ -126,9 +126,9 @@
                                 <a class="text-primary text-sm font-semibold hover:underline" href="#">Quên mật khẩu?</a>
                             </label>
                             <div class="relative flex items-center">
-                                <input class="form-input flex w-full rounded-lg border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 h-12 px-4 pl-11 pr-11 text-[#111418] dark:text-white placeholder:text-[#617589] dark:placeholder:text-gray-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-base font-normal leading-normal" placeholder="Nhập mật khẩu của bạn" type="password" value="" />
+                                <input asp-for="Password" class="form-input flex w-full rounded-lg border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 h-12 px-4 pl-11 pr-11 text-[#111418] dark:text-white placeholder:text-[#617589] dark:placeholder:text-gray-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-base font-normal leading-normal" placeholder="Nhập mật khẩu của bạn" type="password" value="" />
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#617589] dark:text-gray-400 pointer-events-none flex items-center">
-                                    <span class="material-symbols-outlined text-[20px]">lock</span>
+                                    <span asp-validation-for="Password" class="material-symbols-outlined text-[20px]">lock</span>
                                 </div>
                                 <button class="absolute right-3 top-1/2 -translate-y-1/2 text-[#617589] dark:text-gray-400 hover:text-primary transition-colors flex items-center cursor-pointer" type="button">
                                     <span class="material-symbols-outlined text-[20px]">visibility_off</span>
@@ -136,7 +136,7 @@
                             </div>
                         </div>
                         <!-- Login Button -->
-                        <button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-primary hover:bg-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] transition-colors shadow-md mt-2">
+                        <button type="submit" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-primary hover:bg-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] transition-colors shadow-md mt-2">
                             <span class="truncate">Đăng nhập</span>
                         </button>
                         <!-- Divider -->
@@ -149,10 +149,10 @@
                             </div>
                         </div>
                         <!-- Register Link -->
-                        <div class="flex justify-center gap-2 text-sm">
+                        @* <div class="flex justify-center gap-2 text-sm">
                             <span class="text-[#617589] dark:text-gray-400">Chưa có tài khoản?</span>
                             <a class="text-primary font-bold hover:underline" href="#">Đăng ký ngay</a>
-                        </div>
+                        </div> *@
                     </form>
                 </div>
             </div>

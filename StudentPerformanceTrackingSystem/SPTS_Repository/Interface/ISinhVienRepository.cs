@@ -11,5 +11,6 @@ namespace SPTS_Repository.Interface
     {
         Task DangKysv(User user, Student student);
         Task<string?> LayMaLonNhat(string prefix);
+        Task<User?> TimEmail(string email);
     }
 }

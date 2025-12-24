@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace StudentPerformanceTrackingSystem.Models
+namespace SPTS_Service.ViewModel
 {
     public class DangKySinhVien
     {

@@ -1,10 +1,6 @@
 ﻿using SPTS_Repository.Entities;
-using StudentPerformanceTrackingSystem.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SPTS_Service.ViewModel;
+
 
 namespace SPTS_Service.Interface
 {
@@ -12,5 +8,7 @@ namespace SPTS_Service.Interface
     {
         Task DangKysv(DangKySinhVien model);
         Task<string?> CreateStuCode(int? CohortYear);
+        Task<User> DangNhap(string emailSv, string matKhau);
+        
     }
 }
