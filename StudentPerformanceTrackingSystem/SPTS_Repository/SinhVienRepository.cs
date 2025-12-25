@@ -37,7 +37,9 @@ namespace SPTS_Repository
 
         public async Task<User?> TimEmail(string email)
         {
-            return await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _db.Users
+                .Include(u => u.Student)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SPTS_Repository.Entities;
 using SPTS_Service.Interface;
 using SPTS_Service.ViewModel;
 using StudentPerformanceTrackingSystem.Models;
+using System.Data;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -19,10 +22,18 @@ namespace StudentPerformanceTrackingSystem.Controllers
             _logger = logger;
             _svSer = svSer;
         }
-
+        [Authorize]
         public IActionResult Index()
         {
-            return View();
+            var sv = new SinhVien()
+            {
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                FullName = User.FindFirstValue(ClaimTypes.Name),
+                Email = User.FindFirstValue(ClaimTypes.Email),
+                StudentCode = User.FindFirstValue("StudentCode"),
+            };
+
+            return View(sv);
         }
         
         public IActionResult BangDiemSinhVien()
@@ -49,12 +60,19 @@ namespace StudentPerformanceTrackingSystem.Controllers
                 var user = await _svSer.DangNhap(model.Email, model.Password);
 
                 var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.FullName ?? user.Email),
-                new Claim(ClaimTypes.Role, user.Role ?? "")
-            };
+                {
+                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                 new Claim(ClaimTypes.Email, user.Email),
+                 new Claim(ClaimTypes.Name, user.FullName ?? user.Email),
+                 new Claim(ClaimTypes.Role, user.Role ?? "")
+                };
+
+                // nếu là sinh viên
+                if (user.Student != null)
+                {
+                    claims.Add(new Claim("StudentId", user.Student.StudentId.ToString()));
+                    claims.Add(new Claim("StudentCode", user.Student.StudentCode));
+                }
 
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
