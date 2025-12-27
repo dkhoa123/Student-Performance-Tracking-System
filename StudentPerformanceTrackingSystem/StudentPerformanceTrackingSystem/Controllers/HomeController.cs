@@ -23,17 +23,16 @@ namespace StudentPerformanceTrackingSystem.Controllers
             _svSer = svSer;
         }
         [Authorize]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var sv = new SinhVien()
-            {
-                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                FullName = User.FindFirstValue(ClaimTypes.Name),
-                Email = User.FindFirstValue(ClaimTypes.Email),
-                StudentCode = User.FindFirstValue("StudentCode"),
-            };
+            var studentIdClaim = User.FindFirstValue("StudentId");
+            if (string.IsNullOrWhiteSpace(studentIdClaim))
+                return Forbid();
 
-            return View(sv);
+            int studentId = int.Parse(studentIdClaim);
+
+            var vm = await _svSer.GetDashboardAsync(studentId);
+            return View(vm);
         }
         
         public IActionResult BangDiemSinhVien()

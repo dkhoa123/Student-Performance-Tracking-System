@@ -1,4 +1,6 @@
-﻿@model SPTS_Service.ViewModel.SinhVien
+﻿@using SPTS_Service.ViewModel
+@model SPTS_Service.ViewModel.SinhVien
+
 <main class="flex flex-1 flex-col h-full overflow-hidden relative">
     <header class="flex h-16 items-center justify-between border-b border-[#e5e7eb] dark:border-[#1f2937] bg-white dark:bg-[#111418] px-6 lg:px-10 shrink-0 z-10">
         <button class="lg:hidden mr-4 p-2 text-gray-600">
@@ -30,7 +32,7 @@
     <div class="flex-1 overflow-y-auto p-6 lg:p-10 scroll-smooth">
         <div class="mx-auto max-w-6xl flex flex-col gap-8">
             <div>
-                <h2 class="text-[#111418] dark:text-white text-3xl font-bold tracking-tight">Welcome back, Minh 👋</h2>
+                <h2 class="text-[#111418] dark:text-white text-3xl font-bold tracking-tight">Welcome back, @Model.FullName.</h2>
                 <p class="text-[#617589] dark:text-[#9ca3af] mt-1">Here's an overview of your academic performance.</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -39,42 +41,38 @@
                         <p class="text-[#617589] dark:text-[#9ca3af] text-sm font-medium">Cumulative GPA</p>
                         <span class="material-symbols-outlined text-primary bg-primary/10 p-1.5 rounded-lg text-[20px]">school</span>
                     </div>
-                    <p class="text-[#111418] dark:text-white text-2xl font-bold">3.6 / 4.0</p>
-                    <p class="text-[#078838] text-xs font-medium flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[16px]">trending_up</span>
-                        +0.2% vs last sem
-                    </p>
+                    <p class="text-[#111418] dark:text-white text-2xl font-bold">@(Model.CumulativeGpa?.ToString("0.00") ?? "-") / 4.0</p>
                 </div>
                 <div class="flex flex-col gap-1 rounded-xl bg-white dark:bg-[#111418] p-6 border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-2">
                         <p class="text-[#617589] dark:text-[#9ca3af] text-sm font-medium">Credits Completed</p>
                         <span class="material-symbols-outlined text-primary bg-primary/10 p-1.5 rounded-lg text-[20px]">check_circle</span>
                     </div>
-                    <p class="text-[#111418] dark:text-white text-2xl font-bold">84</p>
-                    <p class="text-[#078838] text-xs font-medium flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[16px]">add</span>
-                        12 new credits
-                    </p>
+                    <p class="text-[#111418] dark:text-white text-2xl font-bold">@Model.CreditsEarned</p>
+
                 </div>
                 <div class="flex flex-col gap-1 rounded-xl bg-white dark:bg-[#111418] p-6 border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-2">
                         <p class="text-[#617589] dark:text-[#9ca3af] text-sm font-medium">Attendance</p>
                         <span class="material-symbols-outlined text-primary bg-primary/10 p-1.5 rounded-lg text-[20px]">diversity_3</span>
                     </div>
-                    <p class="text-[#111418] dark:text-white text-2xl font-bold">95%</p>
-                    <p class="text-[#078838] text-xs font-medium flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[16px]">check</span>
-                        Excellent standing
-                    </p>
+                    <p class="text-[#111418] dark:text-white text-2xl font-bold">-</p>
+                   
                 </div>
                 <div class="flex flex-col gap-1 rounded-xl bg-white dark:bg-[#111418] p-6 border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-2">
                         <p class="text-[#617589] dark:text-[#9ca3af] text-sm font-medium">Academic Alert</p>
                         <span class="material-symbols-outlined text-red-500 bg-red-100 dark:bg-red-900/30 p-1.5 rounded-lg text-[20px]">priority_high</span>
                     </div>
-                    <p class="text-[#111418] dark:text-white text-2xl font-bold">1</p>
+                    <p class="text-[#111418] dark:text-white text-2xl font-bold">@Model.AcademicAlertCount</p>
+                        @{
+                            var topAlert = Model.Alerts?.FirstOrDefault();
+                            var alertText = topAlert != null
+                            ? $"{topAlert.AlertType}" + (string.IsNullOrWhiteSpace(topAlert.CourseCode) ? "" : $" in {topAlert.CourseCode}")
+                            : "No alerts";
+                        }
                     <p class="text-[#d32f2f] text-xs font-medium flex items-center gap-1">
-                        Low grade in CS202
+                        @alertText
                     </p>
                 </div>
             </div>
@@ -92,27 +90,42 @@
                             </select>
                         </div>
                         <div class="w-full h-[220px] relative">
-                            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 478 150">
-                                <defs>
-                                    <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-                                        <stop offset="0%" stop-color="#137fec" stop-opacity="0.2"></stop>
-                                        <stop offset="100%" stop-color="#137fec" stop-opacity="0"></stop>
-                                    </linearGradient>
-                                </defs>
-                                <path d="M0 109C18.15 109 18.15 45 36.3 45C54.46 45 54.46 65 72.6 65C90.77 65 90.77 103 108.9 103C127.1 103 127.1 53 145.2 53C163.4 53 163.4 111 181.5 111C199.7 111 199.7 71 217.8 71C236 71 236 55 254.2 55C272.3 55 272.3 121 290.5 121C308.6 121 308.6 139 326.8 139C344.9 139 344.9 21 363.1 21C381.2 21 381.2 91 399.4 91C417.5 91 417.5 129 435.7 129C453.8 129 453.8 35 472 35V150H0V109Z" fill="url(#chartGradient)"></path>
-                                <path d="M0 109C18.15 109 18.15 45 36.3 45C54.46 45 54.46 65 72.6 65C90.77 65 90.77 103 108.9 103C127.1 103 127.1 53 145.2 53C163.4 53 163.4 111 181.5 111C199.7 111 199.7 71 217.8 71C236 71 236 55 254.2 55C272.3 55 272.3 121 290.5 121C308.6 121 308.6 139 326.8 139C344.9 139 344.9 21 363.1 21C381.2 21 381.2 91 399.4 91C417.5 91 417.5 129 435.7 129C453.8 129 453.8 35 472 35" fill="none" stroke="#137fec" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
-                                <circle cx="36.3" cy="45" fill="white" r="4" stroke="#137fec" stroke-width="2"></circle>
-                                <circle cx="145.2" cy="53" fill="white" r="4" stroke="#137fec" stroke-width="2"></circle>
-                                <circle cx="254.2" cy="55" fill="white" r="4" stroke="#137fec" stroke-width="2"></circle>
-                                <circle cx="363.1" cy="21" fill="white" r="4" stroke="#137fec" stroke-width="2"></circle>
-                                <circle cx="472" cy="35" fill="white" r="4" stroke="#137fec" stroke-width="2"></circle>
-                            </svg>
-                            <div class="flex justify-between text-xs font-medium text-[#617589] mt-2 px-2">
-                                <span>Sem 1</span>
-                                <span>Sem 2</span>
-                                <span>Sem 3</span>
-                                <span>Sem 4</span>
-                                <span>Sem 5 (Current)</span>
+                            @{
+                                // GPA hệ 4.0 (0..4)
+                                var gpa = (double)(Model.TermGpa ?? 0m);
+                                gpa = Math.Clamp(gpa, 0.0, 4.0);
+
+                                // map GPA -> vị trí theo chiều dọc (top=0, bottom=100)
+                                // GPA cao thì dot nằm cao
+                                var topPercent = (1.0 - (gpa / 4.0)) * 100.0;
+                            }
+
+                            <div class="w-full h-[220px] relative">
+                                <!-- trục nền -->
+                                <div class="absolute inset-0 flex flex-col justify-between py-2">
+                                    <div class="border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                                    <div class="border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                                    <div class="border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                                    <div class="border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                                </div>
+
+                                <!-- dot -->
+                                <div class="absolute left-1/2 -translate-x-1/2"
+                                     style="top: calc(@topPercent% - 6px);">
+                                    <div class="h-3 w-3 rounded-full bg-primary ring-4 ring-primary/20"></div>
+                                    <div class="mt-2 -translate-x-1/2 text-center text-xs font-semibold text-[#111418] dark:text-white whitespace-nowrap">
+                                        GPA: @gpa.ToString("0.00")
+                                    </div>
+                                </div>
+
+                                <!-- label dưới -->
+                                <div class="absolute bottom-0 left-0 right-0 flex justify-center text-xs font-medium text-[#617589] pb-2">
+                                    <span>@(Model.CurrentTermName ?? "Current term")</span>
+                                </div>
+
+                                <!-- nhãn trục (tuỳ chọn) -->
+                                <div class="absolute top-2 left-2 text-[11px] text-[#617589]">4.0</div>
+                                <div class="absolute bottom-8 left-2 text-[11px] text-[#617589]">0.0</div>
                             </div>
                         </div>
                     </div>
@@ -122,69 +135,56 @@
                             <a class="text-sm font-medium text-primary hover:underline" href="#">View All</a>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-all">
-                                <div class="h-32 w-full bg-cover bg-center" data-alt="Abstract blue geometric pattern representing mathematics" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPIfoQlNVCnsxn_ei4hRyYqoLFadgDjbOtrocDrJK_2WGTLBx1H_rHhDRLS_dHDNM36uZSXzCHUwRsdK8EJCCJZTULsRWxl5rzP2eJOdn269jz7Voj7ulfxMWAmQb03N4vEhOkqkJDecutGgrgHAPSJ3FKAVRehs408Vlk1Hrqal1GDbxvZ9kWA7KU3pmU3k3hO9c7-bABgfGPXJ-lh82z25qAEQQCNPtzK15j1oAUJGGEpWf1YYDEusPQ5wPtpOSVZHJ3f0dB3Fo');">
-                                    <div class="absolute top-3 right-3 bg-white/90 dark:bg-black/70 px-2 py-1 rounded text-xs font-bold backdrop-blur-sm">MATH101</div>
-                                </div>
-                                <div class="p-4 flex flex-col flex-1">
-                                    <h4 class="text-base font-bold text-[#111418] dark:text-white line-clamp-1">Advanced Calculus II</h4>
-                                    <p class="text-sm text-[#617589] mt-1 mb-4">Prof. Sarah Jenkins</p>
-                                    <div class="mt-auto">
-                                        <div class="flex justify-between text-xs mb-1.5">
-                                            <span class="font-medium text-[#111418] dark:text-gray-300">Grade Forecast</span>
-                                            <span class="font-bold text-green-600">A</span>
+                            @foreach (var c in Model.CurrentCourses ?? new List<CourseProgressVm>())
+                            {
+                                var score10 = c.TotalScore ?? 0m;                           // 0..10
+                                var percent = (int)Math.Clamp((double)score10 * 10, 0, 100); // 0..100
+                                var isRisk = score10 > 0 && score10 < 5;
+
+                                <div class="group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-all
+            @(isRisk ? "border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/20" : "")">
+
+                                    <div class="h-32 w-full bg-cover bg-center"
+                                         style="background-image:url('https://picsum.photos/seed/@c.CourseCode/800/300');">
+                                        <div class="absolute top-3 right-3 bg-white/90 dark:bg-black/70 px-2 py-1 rounded text-xs font-bold backdrop-blur-sm
+                    @(isRisk ? "text-red-600 dark:text-red-400" : "")">
+                                            @c.CourseCode
                                         </div>
-                                        <div class="h-2 w-full rounded-full bg-[#f0f2f4] dark:bg-[#1f2937] overflow-hidden">
-                                            <div class="h-full bg-green-500 rounded-full" style="width: 85%"></div>
+                                    </div>
+
+                                    <div class="p-4 flex flex-col flex-1">
+                                        <h4 class="text-base font-bold text-[#111418] dark:text-white line-clamp-1">@c.CourseName</h4>
+                                        <p class="text-sm text-[#617589] mt-1 mb-4">@c.TeacherName</p>
+
+                                        <div class="mt-auto">
+                                            <div class="flex justify-between text-xs mb-1.5">
+                                                <span class="font-medium text-[#111418] dark:text-gray-300">Total Score</span>
+                                                <span class="font-bold @(isRisk ? "text-red-600" : "text-green-600")">
+                                                    @(c.TotalScore?.ToString("0.0") ?? "—") / 10
+                                                </span>
+                                            </div>
+
+                                            <div class="h-2 w-full rounded-full bg-[#f0f2f4] dark:bg-[#1f2937] overflow-hidden">
+                                                <div class="h-full rounded-full @(isRisk ? "bg-red-500" : "bg-green-500")" style="width:@percent%"></div>
+                                            </div>
+
+                                            @if (isRisk)
+                                            {
+                                                <p class="text-xs text-red-600 mt-2 font-medium flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[14px]">warning</span>
+                                                    Risk of failing
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-xs text-[#617589] mt-2">
+                                                    GPA point: @(c.GpaPoint?.ToString("0.0") ?? "—")
+                                                </p>
+                                            }
                                         </div>
-                                        <p class="text-xs text-[#617589] mt-2">Current Score: 85/100</p>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-all border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/20">
-                                <div class="h-32 w-full bg-cover bg-center" data-alt="Computer screen with code snippets representing programming" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDP7HTTDsm1gfejSqEpiKB_8WrCPofsVtHgaIYhnE6XKB_EdoKlcA8kaUWS7oL6EgV1NfnpkLqLvQ2vfdMGY47LDqqJbrXieaVG5IYlCFGv_dHuZ8cZf_XMkR80EHfGAi82oy9XYs82Y8Ak7slCd7sep43ggd6HEStz7qA7cz6zbX6rjZqcnBeQIhFJbhY6u2GOXEN9X4JUnQZkbytjpkAr_QcdIuIAa9G5jgluqwsEQ7zU7IUz0uRA5j56GDGV5Td9dpvzvIh3ke8');">
-                                    <div class="absolute top-3 right-3 bg-white/90 dark:bg-black/70 px-2 py-1 rounded text-xs font-bold backdrop-blur-sm text-red-600 dark:text-red-400">CS202</div>
-                                </div>
-                                <div class="p-4 flex flex-col flex-1">
-                                    <h4 class="text-base font-bold text-[#111418] dark:text-white line-clamp-1">Data Structures &amp; Algorithms</h4>
-                                    <p class="text-sm text-[#617589] mt-1 mb-4">Dr. Alan Turing</p>
-                                    <div class="mt-auto">
-                                        <div class="flex justify-between text-xs mb-1.5">
-                                            <span class="font-medium text-[#111418] dark:text-gray-300">Grade Forecast</span>
-                                            <span class="font-bold text-red-600">C-</span>
-                                        </div>
-                                        <div class="h-2 w-full rounded-full bg-[#f0f2f4] dark:bg-[#1f2937] overflow-hidden">
-                                            <div class="h-full bg-red-500 rounded-full" style="width: 45%"></div>
-                                        </div>
-                                        <p class="text-xs text-red-600 mt-2 font-medium flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">warning</span> Risk of failing</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-all">
-                                <div class="h-32 w-full bg-cover bg-center" data-alt="Color palettes and wireframes representing UI design" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDeA8Hc6OtGTNjcXEyTGZkSJ3iRbq0llPwYWfQV7LEX5F-FDDGT6OVKnBhwHPoaQr_A9mDvNyfmjYPZFsD3dfShMrL9LUnDra3rlTONXl8gGhx7crhwkUFi7KG7kYzpV4qXMWowTePRaejPEKZG9Yfl09ac7Pub5OarkFGgMLe0NamxMkLayvPkS25xqjlN7ai2kqCWnfgW-7-cljywzlAgAJD9tTBIBQRMzaKmqlw5FNBb1OYWSCAxACoU0-aZKFLsrTHjldzOT84');">
-                                    <div class="absolute top-3 right-3 bg-white/90 dark:bg-black/70 px-2 py-1 rounded text-xs font-bold backdrop-blur-sm">DES101</div>
-                                </div>
-                                <div class="p-4 flex flex-col flex-1">
-                                    <h4 class="text-base font-bold text-[#111418] dark:text-white line-clamp-1">UI/UX Design Principles</h4>
-                                    <p class="text-sm text-[#617589] mt-1 mb-4">Ms. Emily Chen</p>
-                                    <div class="mt-auto">
-                                        <div class="flex justify-between text-xs mb-1.5">
-                                            <span class="font-medium text-[#111418] dark:text-gray-300">Grade Forecast</span>
-                                            <span class="font-bold text-green-600">A+</span>
-                                        </div>
-                                        <div class="h-2 w-full rounded-full bg-[#f0f2f4] dark:bg-[#1f2937] overflow-hidden">
-                                            <div class="h-full bg-green-500 rounded-full" style="width: 90%"></div>
-                                        </div>
-                                        <p class="text-xs text-[#617589] mt-2">Current Score: 92/100</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <a class="flex flex-col items-center justify-center rounded-xl bg-[#f0f2f4] dark:bg-[#1f2937]/50 border border-dashed border-[#cbd5e1] dark:border-[#374151] p-4 hover:bg-gray-200 dark:hover:bg-[#1f2937] transition-colors min-h-[250px]" href="#">
-                                <div class="h-12 w-12 rounded-full bg-white dark:bg-[#111418] flex items-center justify-center shadow-sm mb-3">
-                                    <span class="material-symbols-outlined text-primary">arrow_forward</span>
-                                </div>
-                                <span class="text-sm font-bold text-[#111418] dark:text-white">View Full Grade Report</span>
-                            </a>
+                            }
                         </div>
                     </div>
                 </div>
@@ -198,35 +198,24 @@
                             <button class="text-xs text-primary font-medium hover:underline">View All</button>
                         </div>
                         <div class="p-2">
-                            <div class="flex flex-col">
-                                <div class="group flex gap-3 p-3 rounded-lg hover:bg-[#f9fafb] dark:hover:bg-[#1f2937] transition-colors cursor-pointer bg-red-50 dark:bg-red-900/10">
-                                    <div class="flex flex-col items-center justify-center h-12 w-12 bg-red-100 dark:bg-red-900/30 rounded-lg shrink-0">
-                                        <span class="material-symbols-outlined text-red-600 dark:text-red-400">warning</span>
+                            @foreach (var a in Model.Alerts)
+                            {
+                                <div class="group flex gap-3 p-3 rounded-lg hover:bg-[#f9fafb] ...">
+                                    <div class="flex flex-col items-center justify-center h-12 w-12 rounded-lg shrink-0
+                                @(a.Severity == "HIGH" ? "bg-red-100 dark:bg-red-900/30" : "bg-blue-50 dark:bg-blue-900/20")">
+                                        <span class="material-symbols-outlined
+                                @(a.Severity == "HIGH" ? "text-red-600 dark:text-red-400" : "text-blue-600 dark:text-blue-400")">warning</span>
                                     </div>
                                     <div>
-                                        <h5 class="text-sm font-bold text-[#111418] dark:text-white group-hover:text-primary transition-colors">Grade Alert: CS202</h5>
-                                        <p class="text-xs text-[#617589] mt-1 line-clamp-2">Your current grade has dropped below passing threshold. Contact advisor.</p>
-                                    </div>
-                                </div>
-                                <div class="group flex gap-3 p-3 rounded-lg hover:bg-[#f9fafb] dark:hover:bg-[#1f2937] transition-colors cursor-pointer">
-                                    <div class="flex flex-col items-center justify-center h-12 w-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg shrink-0">
-                                        <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">grade</span>
-                                    </div>
-                                    <div>
-                                        <h5 class="text-sm font-bold text-[#111418] dark:text-white group-hover:text-primary transition-colors">Midterm Grades Published</h5>
-                                        <p class="text-xs text-[#617589] mt-1 line-clamp-2">Midterm grades for Fall 2024 are now available for viewing.</p>
-                                    </div>
-                                </div>
-                                <div class="group flex gap-3 p-3 rounded-lg hover:bg-[#f9fafb] dark:hover:bg-[#1f2937] transition-colors cursor-pointer">
-                                    <div class="flex flex-col items-center justify-center h-12 w-12 bg-orange-50 dark:bg-orange-900/20 rounded-lg shrink-0">
-                                        <span class="material-symbols-outlined text-orange-600 dark:text-orange-400">history_edu</span>
-                                    </div>
-                                    <div>
-                                        <h5 class="text-sm font-bold text-[#111418] dark:text-white group-hover:text-primary transition-colors">Transcript Update</h5>
-                                        <p class="text-xs text-[#617589] mt-1 line-clamp-2">Your official transcript has been updated with summer credits.</p>
-                                    </div>
+                                        <h5 class="text-sm font-bold ...">
+                                            @a.AlertType@if(!string.IsNullOrWhiteSpace(a.CourseCode)){
+                                            <text>: @a.CourseCode</text>
+                                        }
+                                    </h5>
+                                    <p class="text-xs ... mt-1 line-clamp-2">@a.Reason</p>
                                 </div>
                             </div>
+                                                        }
                         </div>
                     </div>
                     <div class="rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm flex flex-col h-fit">
@@ -240,28 +229,28 @@
                                 <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
                                     <div class="h-full bg-green-500 rounded-full" style="width: 60%"></div>
                                 </div>
-                                <div class="w-8 text-xs text-right text-[#617589]">3</div>
+                                <div class="w-8 text-xs text-right text-[#617589]">@Model.GradeDistribution.A</div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="w-8 text-sm font-bold text-[#111418] dark:text-white">B</div>
                                 <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
                                     <div class="h-full bg-blue-500 rounded-full" style="width: 20%"></div>
                                 </div>
-                                <div class="w-8 text-xs text-right text-[#617589]">1</div>
+                                <div class="w-8 text-xs text-right text-[#617589]">@Model.GradeDistribution.B</div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="w-8 text-sm font-bold text-[#111418] dark:text-white">C</div>
                                 <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
                                     <div class="h-full bg-yellow-500 rounded-full" style="width: 20%"></div>
                                 </div>
-                                <div class="w-8 text-xs text-right text-[#617589]">1</div>
+                                <div class="w-8 text-xs text-right text-[#617589]">@Model.GradeDistribution.C</div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="w-8 text-sm font-bold text-[#111418] dark:text-white">D/F</div>
                                 <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
                                     <div class="h-full bg-red-500 rounded-full" style="width: 0%"></div>
                                 </div>
-                                <div class="w-8 text-xs text-right text-[#617589]">0</div>
+                                <div class="w-8 text-xs text-right text-[#617589]">@Model.GradeDistribution.DF</div>
                             </div>
                         </div>
                     </div>

@@ -9,6 +9,7 @@ namespace SPTS_Service.Interface
         Task DangKysv(DangKySinhVien model);
         Task<string?> CreateStuCode(int? CohortYear);
         Task<User> DangNhap(string emailSv, string matKhau);
-        
+
+        Task<SinhVien> GetDashboardAsync(int studentId, int? termId = null);
     }
 }

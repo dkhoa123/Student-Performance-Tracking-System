@@ -85,5 +85,78 @@ namespace SPTS_Service
 
             return user;
         }
+
+        public async Task<SinhVien> GetDashboardAsync(int studentId, int? termId = null)
+        {
+
+            string? termName = null;
+
+            if (termId == null)
+            {
+                var cur = await _SVre.GetCurrentTermAsync()
+                          ?? throw new Exception("Không tìm thấy term hiện tại.");
+                termId = cur.TermId;
+                termName = cur.TermName;
+            }
+            else
+            {
+                // nếu bạn truyền termId từ ngoài vào, mà vẫn muốn termName
+                // thì hoặc query thêm, hoặc bỏ trống
+            }
+
+            termId ??= await _SVre.GetCurrentTermIdAsync();
+
+            var info = await _SVre.GetStudentIdentityAsync(studentId);
+            var tg = await _SVre.GetTermGpaAsync(studentId, termId.Value);
+            var courses = await _SVre.GetCourseProgressAsync(studentId, termId.Value);
+            var alerts = await _SVre.GetAlertsAsync(studentId, termId.Value, take: 10);
+            var cumulative = await _SVre.GetCumulativeGpaAsync(studentId);
+            var creditsEarnedCumulative = await _SVre.GetCreditsEarnedCumulativeAsync(studentId);
+
+            var dist = new GradeDistributionVm
+            {
+                A = courses.Count(x => x.GpaPoint == 4),
+                B = courses.Count(x => x.GpaPoint == 3),
+                C = courses.Count(x => x.GpaPoint == 2),
+                DF = courses.Count(x => x.GpaPoint != null && x.GpaPoint <= 1)
+            };
+
+            return new SinhVien
+            {
+                UserId = info.StudentId,
+                FullName = info.FullName,
+                Email = info.Email,
+                StudentCode = info.StudentCode,
+                
+                TermGpa = tg?.GpaValue,
+                CreditsAttempted = tg?.CreditsAttempted ?? 0,
+                CreditsEarned = creditsEarnedCumulative,
+
+                CumulativeGpa = cumulative?.GpaValue,
+                CurrentTermName = termName,
+
+                CurrentCourses = courses.Select(x => new CourseProgressVm
+                {
+                    CourseCode = x.CourseCode,
+                    CourseName = x.CourseName,
+                    TeacherName = x.TeacherName,
+                    TotalScore = x.TotalScore,
+                    GpaPoint = x.GpaPoint
+                }).ToList(),
+
+                Alerts = alerts.Select(x => new AlertVm
+                {
+                    AlertId = x.AlertId,
+                    AlertType = x.AlertType,
+                    Severity = x.Severity,
+                    CourseCode = x.CourseCode,
+                    Reason = x.Reason,
+                    CreatedAt = x.CreatedAt
+                }).ToList(),
+
+                AcademicAlertCount = alerts.Count,
+                GradeDistribution = dist
+            };
+        }
     }
 }
