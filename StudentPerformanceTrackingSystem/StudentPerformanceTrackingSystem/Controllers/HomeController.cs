@@ -34,7 +34,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
             var vm = await _svSer.GetDashboardAsync(studentId);
             return View(vm);
         }
-        
+        [Authorize]
         public async Task<IActionResult> BangDiemSinhVien(int? termId)
         {
             var studentIdClaim = User.FindFirstValue("StudentId");
@@ -46,11 +46,19 @@ namespace StudentPerformanceTrackingSystem.Controllers
             var vm = await _svSer.GetDashboardAsync(studentId, termId);
             return View(vm);
         }
-
-        public IActionResult CaNhan()
+        [Authorize]
+        public async Task<IActionResult> CaNhan()
         {
-            return View();
+            var studentIdClaim = User.FindFirstValue("StudentId");
+            if (string.IsNullOrWhiteSpace(studentIdClaim))
+                return Forbid();
+
+            int studentId = int.Parse(studentIdClaim);
+
+            var vm = await _svSer.GetDashboardAsync(studentId);
+            return View(vm);
         }
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View(new DangNhapModel());
@@ -123,6 +131,10 @@ namespace StudentPerformanceTrackingSystem.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Xóa cookie COMPASS thủ công (phòng trường hợp SignOutAsync không xóa)
+            Response.Cookies.Delete("COMPASS");
+
             return RedirectToAction("Login");
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

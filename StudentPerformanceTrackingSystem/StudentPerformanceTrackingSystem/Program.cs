@@ -21,12 +21,13 @@ builder.Services.AddDbContext<SptsContext>(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt =>
     {
-        opt.Cookie.Name = "COMPASS";      
+        opt.Cookie.Name = "COMPASS";
         opt.LoginPath = "/Home/Login";
         opt.AccessDeniedPath = "/Home/Login";
-        opt.ExpireTimeSpan = TimeSpan.FromDays(7);
 
-        // rất hay gây lỗi ở localhost nếu không set:
+        // opt.ExpireTimeSpan = TimeSpan.FromDays(7);
+
+        opt.SlidingExpiration = true; // Cookie tự gia hạn khi user active
         opt.Cookie.SameSite = SameSiteMode.Lax;
         opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         opt.Cookie.HttpOnly = true;

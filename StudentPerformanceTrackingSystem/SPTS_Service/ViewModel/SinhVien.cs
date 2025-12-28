@@ -13,6 +13,12 @@ namespace SPTS_Service.ViewModel
         public string? Email { get; set; }
         public string? StudentCode { get; set; }
         public string? Major{ get; set; }
+         public string? Status { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
+        public string? Gender { get; set; }
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
+
         // Cards
         public decimal? TermGpa { get; set; }          // TermGpa.gpa_value
         public decimal? CumulativeGpa { get; set; }    // tính từ Grades toàn bộ term

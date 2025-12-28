@@ -130,8 +130,14 @@ namespace SPTS_Repository
                                u.FullName,
                                u.Email,
                                st.Major,
+                               st.DateOfBirth,
+                               st.Gender,
+                               st.Phone,
+                               st.Address,
+                               u.Status
                           }).SingleAsync();
-            return new StudentIdentityDto(x.StudentId, x.StudentCode, x.FullName, x.Email, x.Major);
+            return new StudentIdentityDto(x.StudentId, x.StudentCode,
+                x.FullName, x.Email, x.Major, x.DateOfBirth, x.Gender, x.Phone, x.Address, x.Status);
         }
 
         public Task<TermGpaDto?> GetTermGpaAsync(int studentId, int termId)

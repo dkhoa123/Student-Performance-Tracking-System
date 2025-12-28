@@ -130,6 +130,11 @@ namespace SPTS_Service
                 Email = info.Email,
                 StudentCode = info.StudentCode,
                 Major = info.Major,
+                DateOfBirth = info.DateOfBirth,
+                Gender = info.Gender,
+                Phone = info.Phone,
+                Address = info.Address,
+                Status = info.status,
 
                 TermGpa = tg?.GpaValue,
                 CreditsAttempted = tg?.CreditsAttempted ?? 0,

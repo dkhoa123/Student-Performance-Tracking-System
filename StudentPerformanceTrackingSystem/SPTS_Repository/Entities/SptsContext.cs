@@ -349,10 +349,13 @@ public partial class SptsContext : DbContext
             entity.Property(e => e.StudentId)
                 .ValueGeneratedNever()
                 .HasColumnName("student_id");
+            entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.CohortYear).HasColumnName("cohort_year");
+            entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.Major)
                 .HasMaxLength(100)
                 .HasColumnName("major");
+            entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.StudentCode)
                 .HasMaxLength(30)
                 .IsUnicode(false)
