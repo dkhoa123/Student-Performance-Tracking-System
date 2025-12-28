@@ -28,7 +28,7 @@ namespace SPTS_Repository.Interface
 
         Task<CurrentTermDto?> GetCurrentTermAsync();
     }
-    public record StudentIdentityDto(int StudentId, string StudentCode, string FullName, string Email);
+    public record StudentIdentityDto(int StudentId, string StudentCode, string FullName, string Email, string Major);
     public record TermGpaDto(decimal? GpaValue, int? CreditsAttempted, int? CreditsEarned);
     public record CourseProgressDto(string CourseCode, string CourseName, string TeacherName, decimal? TotalScore, decimal? GpaPoint);
     public record AlertDto(int AlertId, string AlertType, string Severity, string? CourseCode, string? Reason, DateTime CreatedAt);

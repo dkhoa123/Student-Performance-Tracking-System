@@ -127,7 +127,8 @@ namespace SPTS_Service
                 FullName = info.FullName,
                 Email = info.Email,
                 StudentCode = info.StudentCode,
-                
+                Major = info.Major,
+
                 TermGpa = tg?.GpaValue,
                 CreditsAttempted = tg?.CreditsAttempted ?? 0,
                 CreditsEarned = creditsEarnedCumulative,

@@ -117,9 +117,10 @@ namespace SPTS_Repository
                                st.StudentId,
                                st.StudentCode,
                                u.FullName,
-                               u.Email
+                               u.Email,
+                               st.Major,
                           }).SingleAsync();
-            return new StudentIdentityDto(x.StudentId, x.StudentCode, x.FullName, x.Email);
+            return new StudentIdentityDto(x.StudentId, x.StudentCode, x.FullName, x.Email, x.Major);
         }
 
         public Task<TermGpaDto?> GetTermGpaAsync(int studentId, int termId)

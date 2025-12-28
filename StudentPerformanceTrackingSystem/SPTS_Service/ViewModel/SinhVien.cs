@@ -12,6 +12,7 @@ namespace SPTS_Service.ViewModel
         public string? FullName { get; set; }
         public string? Email { get; set; }
         public string? StudentCode { get; set; }
+        public string? Major{ get; set; }
         // Cards
         public decimal? TermGpa { get; set; }          // TermGpa.gpa_value
         public decimal? CumulativeGpa { get; set; }    // tính từ Grades toàn bộ term

@@ -35,9 +35,16 @@ namespace StudentPerformanceTrackingSystem.Controllers
             return View(vm);
         }
         
-        public IActionResult BangDiemSinhVien()
+        public async Task<IActionResult> BangDiemSinhVien()
         {
-            return View();
+            var studentIdClaim = User.FindFirstValue("StudentId");
+            if (string.IsNullOrWhiteSpace(studentIdClaim))
+                return Forbid();
+
+            int studentId = int.Parse(studentIdClaim);
+
+            var vm = await _svSer.GetDashboardAsync(studentId);
+            return View(vm);
         }
 
         public IActionResult CaNhan()
