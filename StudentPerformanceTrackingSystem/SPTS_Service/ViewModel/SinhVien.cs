@@ -25,6 +25,9 @@ namespace SPTS_Service.ViewModel
         public List<CourseProgressVm> CurrentCourses { get; set; } = [];
         public List<AlertVm> Alerts { get; set; } = [];
         public GradeDistributionVm GradeDistribution { get; set; } = new();
+
+        public List<TermOptionVm> Terms { get; set; } = [];
+        public int? SelectedTermId { get; set; } // term đang chọn (để selected đúng)
     }
 
     public class CourseProgressVm
@@ -32,6 +35,10 @@ namespace SPTS_Service.ViewModel
         public string CourseCode { get; set; } = "";
         public string CourseName { get; set; } = "";
         public string TeacherName { get; set; } = "";
+        public int Credit { get; set; }              // Courses.credit
+        public decimal? ProcessScore { get; set; }   // Grades.process_score
+
+        public decimal? FinalScore { get; set; }     // Grades.final_score
         public decimal? TotalScore { get; set; }   // Grades.total_score
         public decimal? GpaPoint { get; set; }     // Grades.gpa_point
         public string? Letter { get; set; }        // từ GpaScales (optional)
@@ -55,4 +62,9 @@ namespace SPTS_Service.ViewModel
         public int DF { get; set; }
     }
 
+    public class TermOptionVm
+    {
+        public int TermId { get; set; }
+        public string TermName { get; set; } = "";
+    }
 }

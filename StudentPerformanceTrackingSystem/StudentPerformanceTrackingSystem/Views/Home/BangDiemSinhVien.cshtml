@@ -1,6 +1,33 @@
 ﻿@using SPTS_Service.ViewModel
 @model SPTS_Service.ViewModel.SinhVien
 <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+    <header class="flex h-16 items-center justify-between border-b border-[#e5e7eb] dark:border-[#1f2937] bg-white dark:bg-[#111418] px-6 lg:px-10 shrink-0 z-10">
+        <button class="lg:hidden mr-4 p-2 text-gray-600">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+        <div class="flex flex-1 max-w-md">
+            <div class="relative w-full">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#617589]">
+                    <span class="material-symbols-outlined text-[20px]">search</span>
+                </div>
+                <input class="block w-full rounded-lg border-none bg-[#f0f2f4] dark:bg-[#1f2937] py-2 pl-10 pr-4 text-sm text-[#111418] dark:text-white placeholder-[#617589] focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-[#111418] transition-all" placeholder="Search for courses, documents..." type="text" />
+            </div>
+        </div>
+        <div class="flex items-center gap-4 ml-6">
+            <button class="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#f0f2f4] dark:bg-[#1f2937] hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-[#111418] dark:text-white">
+                <span class="material-symbols-outlined text-[20px]">notifications</span>
+                <span class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#111418]"></span>
+            </button>
+            <div class="flex items-center gap-3 pl-2 border-l border-gray-200 dark:border-gray-700">
+                <div class="text-right hidden sm:block">
+                    <p class="text-sm font-medium leading-none text-[#111418] dark:text-white">@Model.FullName</p>
+                    <p class="text-xs text-[#617589]">Student ID: @Model.StudentCode</p>
+                </div>
+                <div class="bg-center bg-no-repeat bg-cover rounded-full h-10 w-10 ring-2 ring-white dark:ring-[#1f2937] shadow-sm cursor-pointer" data-alt="Profile picture of student Minh Nguyen" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA6fAlG2VJGNTuQDINbNh-gbgHzqarKXDeEk5e3gK5wq9MsIFblSqN8P7twuOUTOKZWdqyHqTeqZtOAJC6kvx1TaAEUC7I_fVnpRlr9ZmC66Ibxa0tmwWL-q8WwFoWboDjcv7ve8N2eli91RiDjGctf_3trdJdWYmkPx03fps014iWtDN6cJoT0aWzRYjxH_s6D1tKwUZZjErC2BFcgmOcNVg6CBQT4x-6VAaamL_-IB8CPmygIghlFO3IvrxJ2BBKpkinjHpEy4Nk");'>
+                </div>
+            </div>
+        </div>
+    </header>
     <div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-4 md:p-8">
         <div class="max-w-[1200px] mx-auto flex flex-col gap-6">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -27,7 +54,7 @@
                                 <span class="material-symbols-outlined text-primary">filter_list</span>
                                 Chọn học kỳ
                             </span>
-                            <div class="relative">
+                            @* <div class="relative">
                                 <select class="appearance-none flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe0e6] dark:border-[#354150] bg-white dark:bg-[#151c24] h-12 px-4 pr-10 text-base font-normal leading-normal transition-shadow cursor-pointer">
                                     <option selected="" value="2023-2024-1">Học kỳ 1 - 2023-2024</option>
                                     <option value="2022-2023-2">Học kỳ 2 - 2022-2023</option>
@@ -37,7 +64,20 @@
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#617589]">
                                     <span class="material-symbols-outlined">expand_more</span>
                                 </div>
-                            </div>
+                            </div> *@
+                            <form method="get" asp-action="BangDiemSinhVien" asp-controller="Home">
+                                <select name="termId" onchange="this.form.submit()" class="...">
+                                    @foreach (var t in Model.Terms)
+                                    {
+                                        <option value="@t.TermId" selected="@(t.TermId == Model.SelectedTermId)">
+                                            @t.TermName
+                                        </option>
+                                    }
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#617589]">
+                                    <span class="material-symbols-outlined">expand_more</span>
+                                </div>
+                            </form>
                         </label>
                     </div>
                     <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-[#dbe0e6] dark:border-[#2a3441] shadow-sm flex flex-col gap-2 relative overflow-hidden group">
@@ -50,7 +90,9 @@
                             </div>
                             <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">GPA Tích lũy</p>
                         </div>
-                        <p class="text-[#111418] dark:text-white text-3xl font-black mt-2">3.6<span class="text-lg text-[#617589] font-medium">/4.0</span></p>
+                        <p class="text-[#111418] dark:text-white text-3xl font-black mt-2">
+                            @(Model.CumulativeGpa?.ToString("0.00") ?? "-")
+                            <span class="text-lg text-[#617589] font-medium">/4.0</span></p>
                     </div>
                     <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-[#dbe0e6] dark:border-[#2a3441] shadow-sm flex flex-col gap-2 relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-10 dark:opacity-5 group-hover:scale-110 transition-transform duration-500">
@@ -62,7 +104,7 @@
                             </div>
                             <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">Tín chỉ đạt</p>
                         </div>
-                        <p class="text-[#111418] dark:text-white text-3xl font-black mt-2">85</p>
+                        <p class="text-[#111418] dark:text-white text-3xl font-black mt-2">@Model.CreditsAttempted</p>
                     </div>
                     <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-[#dbe0e6] dark:border-[#2a3441] shadow-sm flex flex-col gap-2 relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-10 dark:opacity-5 group-hover:scale-110 transition-transform duration-500">
@@ -74,7 +116,18 @@
                             </div>
                             <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">Xếp loại</p>
                         </div>
-                        <p class="text-[#111418] dark:text-white text-2xl font-black mt-2">Xuất sắc</p>
+                        @{
+                            string xepLoai = Model.CumulativeGpa switch
+                            {
+                                null => "-",
+                                >= 3.6m => "Xuất sắc",
+                                >= 3.2m => "Giỏi",
+                                >= 2.5m => "Khá",
+                                >= 2.0m => "Trung bình",
+                                _ => "Yếu"
+                            };
+                        }
+                        <p class="text-[#111418] dark:text-white text-2xl font-black mt-2">@xepLoai</p>
                     </div>
                 </div>
                 <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-[#dbe0e6] dark:border-[#2a3441] shadow-sm overflow-hidden flex flex-col">
@@ -102,67 +155,30 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-[#f0f2f4] dark:divide-[#2a3441]">
-                                <tr class="hover:bg-gray-50 dark:hover:bg-[#202b36] transition-colors">
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">INT3301</td>
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">Lập trình Web</td>
-                                    <td class="px-5 py-4 text-sm text-[#617589] dark:text-gray-400 text-center">3</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">9.3</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">9.0</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-primary text-center">9.0</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">4.0</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">A</td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 dark:hover:bg-[#202b36] transition-colors">
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">INT3306</td>
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">Cấu trúc dữ liệu và giải thuật</td>
-                                    <td class="px-5 py-4 text-sm text-[#617589] dark:text-gray-400 text-center">3</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">8.8</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">8.5</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-primary text-center">8.6</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">4.0</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">A</td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 dark:hover:bg-[#202b36] transition-colors">
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">MAT1042</td>
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">Toán rời rạc</td>
-                                    <td class="px-5 py-4 text-sm text-[#617589] dark:text-gray-400 text-center">3</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">8.8</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">8.0</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-primary text-center">8.2</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">3.5</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">B+</td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 dark:hover:bg-[#202b36] transition-colors">
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">ENG2001</td>
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">Tiếng Anh chuyên ngành 1</td>
-                                    <td class="px-5 py-4 text-sm text-[#617589] dark:text-gray-400 text-center">4</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">9.5</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">9.5</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-primary text-center">9.4</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">4.0</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">A+</td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 dark:hover:bg-[#202b36] transition-colors">
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">PHY1010</td>
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">Vật lý đại cương</td>
-                                    <td class="px-5 py-4 text-sm text-[#617589] dark:text-gray-400 text-center">3</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">6.5</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">5.5</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-primary text-center">5.8</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">2.0</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">C</td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 dark:hover:bg-[#202b36] transition-colors">
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">PE101</td>
-                                    <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">Giáo dục thể chất 1</td>
-                                    <td class="px-5 py-4 text-sm text-[#617589] dark:text-gray-400 text-center">2</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">-</td>
-                                    <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">-</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-primary text-center">-</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">-</td>
-                                    <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">-</td>
-                                </tr>
+                         
+                                @foreach (var item in Model.CurrentCourses)
+                                {
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-[#202b36] transition-colors">
+                                        <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">@item.CourseCode</td>
+                                        <td class="px-5 py-4 text-sm font-medium text-[#111418] dark:text-white">@item.CourseName</td>
+
+                                        <td class="px-5 py-4 text-sm text-[#617589] dark:text-gray-400 text-center">@item.Credit</td>
+                                        <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">@item.ProcessScore</td>
+                                        <td class="px-5 py-4 text-sm text-[#111418] dark:text-white text-center">@item.FinalScore</td>
+
+                                        <td class="px-5 py-4 text-sm font-bold text-primary text-center">
+                                            @(item.TotalScore?.ToString("0.0") ?? "-")
+                                        </td>
+                                        <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">
+                                            @(item.GpaPoint?.ToString("0.0") ?? "-")
+                                        </td>
+                                        <td class="px-5 py-4 text-sm font-bold text-[#111418] dark:text-white text-center">
+                                            @(item.Letter ?? "-")
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
+                            
                         </table>
                     </div>
                     <div class="p-4 border-t border-[#f0f2f4] dark:border-[#2a3441] flex items-center justify-between">

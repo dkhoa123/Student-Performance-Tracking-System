@@ -104,6 +104,8 @@ namespace SPTS_Service
                 // thì hoặc query thêm, hoặc bỏ trống
             }
 
+            var terms = await _SVre.GetTermsAsync();
+
             termId ??= await _SVre.GetCurrentTermIdAsync();
 
             var info = await _SVre.GetStudentIdentityAsync(studentId);
@@ -141,8 +143,12 @@ namespace SPTS_Service
                     CourseCode = x.CourseCode,
                     CourseName = x.CourseName,
                     TeacherName = x.TeacherName,
+                    Credit = x.Credit,
+                    ProcessScore = x.ProcessScore,
+                    FinalScore = x.FinalScore,
                     TotalScore = x.TotalScore,
-                    GpaPoint = x.GpaPoint
+                    GpaPoint = x.GpaPoint,
+                    Letter = x.Letter
                 }).ToList(),
 
                 Alerts = alerts.Select(x => new AlertVm
@@ -156,8 +162,18 @@ namespace SPTS_Service
                 }).ToList(),
 
                 AcademicAlertCount = alerts.Count,
-                GradeDistribution = dist
+                GradeDistribution = dist,
+
+                Terms = terms.Select(t => new TermOptionVm
+                {
+                    TermId = t.TermId,
+                    TermName = t.TermName
+                }).ToList(),
+
+                SelectedTermId = termId,
             };
+
+
         }
     }
 }

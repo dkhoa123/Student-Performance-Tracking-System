@@ -35,7 +35,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
             return View(vm);
         }
         
-        public async Task<IActionResult> BangDiemSinhVien()
+        public async Task<IActionResult> BangDiemSinhVien(int? termId)
         {
             var studentIdClaim = User.FindFirstValue("StudentId");
             if (string.IsNullOrWhiteSpace(studentIdClaim))
@@ -43,7 +43,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
             int studentId = int.Parse(studentIdClaim);
 
-            var vm = await _svSer.GetDashboardAsync(studentId);
+            var vm = await _svSer.GetDashboardAsync(studentId, termId);
             return View(vm);
         }
 

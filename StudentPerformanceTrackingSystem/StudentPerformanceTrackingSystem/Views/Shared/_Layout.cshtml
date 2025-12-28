@@ -68,18 +68,30 @@
                 <p class="text-[#617589] dark:text-[#9ca3af] text-xs font-normal">Academic Portal</p>
             </div>
         </div>
+        @{
+            var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+            var action = ViewContext.RouteData.Values["action"]?.ToString();
+        }
+
         <div class="flex flex-col gap-2 p-4">
-            <!-- Active State -->
-            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary" href="~/Home">
-                <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+            <!-- Tổng quan -->
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(action == "Index" ? "bg-primary/10 text-primary" : "text-[#111418] dark:text-[#e5e7eb] hover:bg-[#f0f2f4] dark:hover:bg-[#1f2937] transition-colors")"
+               href="~/Home">
+                <span class="material-symbols-outlined" style="@(action == "Index" ? "font-variation-settings: 'FILL' 1;" : "")">dashboard</span>
                 <span class="text-sm font-medium">Tổng quan</span>
             </a>
-            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#111418] dark:text-[#e5e7eb] hover:bg-[#f0f2f4] dark:hover:bg-[#1f2937] transition-colors" href="~/Home/BangDiemSinhVien">
-                <span class="material-symbols-outlined">school</span>
+
+            <!-- Điểm số -->
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(action == "BangDiemSinhVien" ? "bg-primary/10 text-primary" : "text-[#111418] dark:text-[#e5e7eb] hover:bg-[#f0f2f4] dark:hover:bg-[#1f2937] transition-colors")"
+               href="~/Home/BangDiemSinhVien">
+                <span class="material-symbols-outlined" style="@(action == "BangDiemSinhVien" ? "font-variation-settings: 'FILL' 1;" : "")">school</span>
                 <span class="text-sm font-medium">Điểm số</span>
             </a>
-            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#111418] dark:text-[#e5e7eb] hover:bg-[#f0f2f4] dark:hover:bg-[#1f2937] transition-colors" href="~/Home/CaNhan">
-                <span class="material-symbols-outlined">person</span>
+
+            <!-- Cá nhân -->
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg @(action == "CaNhan" ? "bg-primary/10 text-primary" : "text-[#111418] dark:text-[#e5e7eb] hover:bg-[#f0f2f4] dark:hover:bg-[#1f2937] transition-colors")"
+               href="~/Home/CaNhan">
+                <span class="material-symbols-outlined" style="@(action == "CaNhan" ? "font-variation-settings: 'FILL' 1;" : "")">person</span>
                 <span class="text-sm font-medium">Cá nhân</span>
             </a>
         </div>

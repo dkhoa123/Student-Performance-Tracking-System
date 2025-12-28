@@ -71,13 +71,24 @@ namespace SPTS_Repository
                 join c in _db.Courses on s.CourseId equals c.CourseId
                 join t in _db.Teachers on s.TeacherId equals t.TeacherId
                 join tu in _db.Users on t.TeacherId equals tu.UserId
+
+                    from scale in _db.GpaScales
+                   .Where(sc => g.TotalScore != null
+                             && g.TotalScore >= sc.MinScore
+                             && g.TotalScore <= sc.MaxScore)
+                   .DefaultIfEmpty()
+
                 where g.StudentId == studentId && s.TermId == termId
                 select new CourseProgressDto(
                     c.CourseCode,
                     c.CourseName,
                     tu.FullName,
+                    c.Credits,
+                    g.ProcessScore,
+                    g.FinalScore,
                     g.TotalScore,
-                    g.GpaPoint
+                    g.GpaPoint,
+                    scale.Letter
                 )).ToListAsync();
         }
 
@@ -151,6 +162,14 @@ namespace SPTS_Repository
                 .OrderByDescending(t => t.StartDate)
                 .Select(t => new CurrentTermDto(t.TermId, t.TermName))
                 .FirstOrDefaultAsync();
+        }
+
+        public Task<List<TermOptionDto>> GetTermsAsync()
+        {
+            return _db.Terms
+            .OrderByDescending(t => t.StartDate)
+            .Select(t => new TermOptionDto(t.TermId, t.TermName))
+            .ToListAsync();
         }
     }
 }

@@ -27,12 +27,16 @@ namespace SPTS_Repository.Interface
         public Task<int> GetCreditsEarnedCumulativeAsync(int studentId);
 
         Task<CurrentTermDto?> GetCurrentTermAsync();
+
+        Task<List<TermOptionDto>> GetTermsAsync();
     }
     public record StudentIdentityDto(int StudentId, string StudentCode, string FullName, string Email, string Major);
     public record TermGpaDto(decimal? GpaValue, int? CreditsAttempted, int? CreditsEarned);
-    public record CourseProgressDto(string CourseCode, string CourseName, string TeacherName, decimal? TotalScore, decimal? GpaPoint);
+    public record CourseProgressDto(string CourseCode, string CourseName, string TeacherName, int Credit, decimal? ProcessScore, decimal? FinalScore, decimal? TotalScore, decimal? GpaPoint, string? Letter);
     public record AlertDto(int AlertId, string AlertType, string Severity, string? CourseCode, string? Reason, DateTime CreatedAt);
     public record CumulativeGpaDto(decimal? GpaValue);
     // DTO
     public record CurrentTermDto(int TermId, string TermName);
+
+    public record TermOptionDto(int TermId, string TermName);
 }
