@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SPTS_Repository.Entities;
 using SPTS_Repository.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SPTS_Repository
 {
@@ -177,5 +172,23 @@ namespace SPTS_Repository
             .Select(t => new TermOptionDto(t.TermId, t.TermName))
             .ToListAsync();
         }
+
+        public async Task UpdateStudentAsync(StudentIdentityDto dto)
+        {
+            var student = await _db.Students.FindAsync(dto.StudentId);
+            var user = await _db.Users.FindAsync(dto.StudentId);
+
+            if (student == null || user == null)
+                throw new Exception("Không tìm thấy sinh viên.");
+
+            user.FullName = dto.FullName;
+            student.DateOfBirth = dto.DateOfBirth;
+            student.Gender = dto.Gender;
+            student.Phone = dto.Phone;
+            student.Address = dto.Address;
+
+            await _db.SaveChangesAsync();
+        }
+
     }
 }

@@ -2,11 +2,6 @@
 using SPTS_Repository.Interface;
 using SPTS_Service.Interface;
 using SPTS_Service.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SPTS_Service
 {
@@ -180,5 +175,24 @@ namespace SPTS_Service
 
 
         }
+
+        public async Task CapNhatThongTinSinhVien(SinhVien model)
+        {
+            var dto = new StudentIdentityDto(
+                model.UserId,
+                model.StudentCode,
+                model.FullName,
+                model.Email,
+                model.Major,
+                model.DateOfBirth,
+                model.Gender,
+                model.Phone,
+                model.Address,
+                model.Status
+            );
+
+            await _SVre.UpdateStudentAsync(dto);
+        }
+
     }
 }

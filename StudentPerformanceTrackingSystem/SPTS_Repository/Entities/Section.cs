@@ -23,6 +23,8 @@ public partial class Section
 
     public virtual ICollection<Grade> Grades { get; set; } = new List<Grade>();
 
+    public virtual ICollection<SectionSchedule> SectionSchedules { get; set; } = new List<SectionSchedule>();
+
     public virtual ICollection<SectionStudent> SectionStudents { get; set; } = new List<SectionStudent>();
 
     public virtual Teacher Teacher { get; set; } = null!;

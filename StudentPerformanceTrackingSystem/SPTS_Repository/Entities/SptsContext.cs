@@ -33,6 +33,8 @@ public partial class SptsContext : DbContext
 
     public virtual DbSet<Section> Sections { get; set; }
 
+    public virtual DbSet<SectionSchedule> SectionSchedules { get; set; }
+
     public virtual DbSet<SectionStudent> SectionStudents { get; set; }
 
     public virtual DbSet<Student> Students { get; set; }
@@ -304,6 +306,30 @@ public partial class SptsContext : DbContext
                 .HasForeignKey(d => d.TermId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Sections_Terms");
+        });
+
+        modelBuilder.Entity<SectionSchedule>(entity =>
+        {
+            entity.HasKey(e => e.ScheduleId).HasName("PK__SectionS__C46A8A6FE9074464");
+
+            entity.Property(e => e.ScheduleId).HasColumnName("schedule_id");
+            entity.Property(e => e.DayOfWeek)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("day_of_week");
+            entity.Property(e => e.EndPeriod).HasColumnName("end_period");
+            entity.Property(e => e.EndTime).HasColumnName("end_time");
+            entity.Property(e => e.Room)
+                .HasMaxLength(50)
+                .HasColumnName("room");
+            entity.Property(e => e.SectionId).HasColumnName("section_id");
+            entity.Property(e => e.StartPeriod).HasColumnName("start_period");
+            entity.Property(e => e.StartTime).HasColumnName("start_time");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.SectionSchedules)
+                .HasForeignKey(d => d.SectionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SectionSchedules_Sections");
         });
 
         modelBuilder.Entity<SectionStudent>(entity =>

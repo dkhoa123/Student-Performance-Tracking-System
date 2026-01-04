@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\js\Chart.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SPTS_Service\SPTS_Service.csproj" />
   </ItemGroup>
 

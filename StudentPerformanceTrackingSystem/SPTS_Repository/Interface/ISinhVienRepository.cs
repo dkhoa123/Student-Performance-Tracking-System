@@ -1,9 +1,4 @@
 ﻿using SPTS_Repository.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SPTS_Repository.Interface
 {
@@ -29,8 +24,10 @@ namespace SPTS_Repository.Interface
         Task<CurrentTermDto?> GetCurrentTermAsync();
 
         Task<List<TermOptionDto>> GetTermsAsync();
+
+        Task UpdateStudentAsync(StudentIdentityDto dto);
     }
-    public record StudentIdentityDto(int StudentId, string StudentCode, string FullName, string Email, string Major, DateOnly? DateOfBirth, string? Gender, string? Phone, string? Address, string status);
+    public record StudentIdentityDto(int? StudentId, string StudentCode, string FullName, string Email, string Major, DateOnly? DateOfBirth, string? Gender, string? Phone, string? Address, string status);
     public record TermGpaDto(decimal? GpaValue, int? CreditsAttempted, int? CreditsEarned);
     public record CourseProgressDto(string CourseCode, string CourseName, string TeacherName, int Credit, decimal? ProcessScore, decimal? FinalScore, decimal? TotalScore, decimal? GpaPoint, string? Letter);
     public record AlertDto(int AlertId, string AlertType, string Severity, string? CourseCode, string? Reason, DateTime CreatedAt);

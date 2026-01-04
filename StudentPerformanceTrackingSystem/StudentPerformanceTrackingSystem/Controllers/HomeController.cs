@@ -2,11 +2,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SPTS_Repository.Entities;
 using SPTS_Service.Interface;
 using SPTS_Service.ViewModel;
 using StudentPerformanceTrackingSystem.Models;
-using System.Data;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -22,7 +20,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
             _logger = logger;
             _svSer = svSer;
         }
-        [Authorize]
+        [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> Index()
         {
             var studentIdClaim = User.FindFirstValue("StudentId");
@@ -34,7 +32,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
             var vm = await _svSer.GetDashboardAsync(studentId);
             return View(vm);
         }
-        [Authorize]
+        [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> BangDiemSinhVien(int? termId)
         {
             var studentIdClaim = User.FindFirstValue("StudentId");
@@ -46,7 +44,8 @@ namespace StudentPerformanceTrackingSystem.Controllers
             var vm = await _svSer.GetDashboardAsync(studentId, termId);
             return View(vm);
         }
-        [Authorize]
+        [HttpGet]
+        [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> CaNhan()
         {
             var studentIdClaim = User.FindFirstValue("StudentId");
@@ -58,6 +57,24 @@ namespace StudentPerformanceTrackingSystem.Controllers
             var vm = await _svSer.GetDashboardAsync(studentId);
             return View(vm);
         }
+
+
+        // POST: lưu chỉnh sửa
+        [HttpPost]
+        [Authorize(Roles = "STUDENT")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CaNhan(SinhVien model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            await _svSer.CapNhatThongTinSinhVien(model);
+
+            TempData["Success"] = "Cập nhật thông tin thành công";
+            return RedirectToAction(nameof(CaNhan));
+        }
+
+
         [AllowAnonymous]
         public IActionResult Login()
         {
@@ -102,7 +119,13 @@ namespace StudentPerformanceTrackingSystem.Controllers
                             : DateTimeOffset.UtcNow.AddHours(2)
                     });
 
-                return RedirectToAction("Index");
+                return user.Role?.ToUpper() switch
+                {
+                    "STUDENT" => RedirectToAction("Index", "Home"),
+                    "TEACHER" => RedirectToAction("Index", "Giangvien"),
+                    "ADMIN" => RedirectToAction("Index", "Admin"),
+                    _ => RedirectToAction("Index", "Home") // Mặc định
+                };
             }
             catch (Exception ex)
             {

@@ -73,7 +73,7 @@
                                 <div class="col-span-1 md:col-span-2">
                                     <label class="block text-sm font-medium text-[#111418] dark:text-gray-200 mb-2" for="fullname">Họ và tên</label>
                                     <div class="relative">
-                                        <input class="w-full rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-[#111418] dark:text-white placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" id="fullname" type="text" value="@Model.FullName" />
+                                        <input asp-for="FullName" class="w-full rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-[#111418] dark:text-white placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" id="fullname" type="text" />
                                     </div>
                                 </div>
                                 <!-- Date of Birth -->
@@ -138,7 +138,7 @@
                                         <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none text-gray-500">
                                             <span class="material-symbols-outlined text-[20px]">location_on</span>
                                         </div>
-<textarea asp-for="Address" class="w-full rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 pl-10 pr-4 py-3 text-[#111418] dark:text-white placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors resize-none" id="address" rows="3">@Model.Address</textarea>
+                                        <textarea asp-for="Address" class="w-full rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 pl-10 pr-4 py-3 text-[#111418] dark:text-white placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors resize-none" id="address" rows="3">@Model.Address</textarea>
                                     </div>
                                 </div>
                             </div>
