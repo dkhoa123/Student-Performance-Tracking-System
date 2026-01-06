@@ -1,4 +1,5 @@
-﻿using SPTS_Repository.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SPTS_Repository.Entities;
 
 namespace SPTS_Repository.Interface
 {
@@ -17,6 +18,11 @@ namespace SPTS_Repository.Interface
         //bieu do
         Task<List<ChartDataViewModelDto>> GetGpaChartDataByTeacherAsync(int teacherId, int? TermId = null);
         Task<int> GetActiveSectionsCountAsync(int teacherId);
+
+        Task<ChiTietLopDto> GetSectionDetailAsync(int sectionId);
+        Task<int> GetAlertCountBySectionAsync(int sectionId);
+        Task<GradeRule?> GetActiveGradeRuleBySectionAsync(int sectionId);
+        Task UpsertGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total);
     }
     //DTO
     public record SectionCardViewModelDto(
@@ -39,4 +45,24 @@ namespace SPTS_Repository.Interface
  );
     public record AlertViewModelDto(string StudentName, string AlertType, string Message, string Severity, string IconName, string IconColor, DateTime CreatedAt);
     public record ChartDataViewModelDto(int TermId, string TermName, decimal AverageGpa);
+    public record ChiTietLopDto(
+    int SectionId,
+    string CourseCode,
+    string CourseName,
+    string TermName,
+    string Room,
+    string ScheduleText,
+    string SectionStatus,
+    List<StudentGradeRowDto> Students
+);
+
+    public record StudentGradeRowDto(
+        int StudentId,
+        string StudentCode,
+        string FullName,
+        DateOnly? DateOfBirth,
+        decimal? ProcessScore,
+        decimal? FinalScore,
+        decimal? TotalScore
+    );
 }

@@ -61,4 +61,34 @@ namespace SPTS_Service.ViewModel
         public string TermName { get; set; } = string.Empty;
         public decimal AverageGpa { get; set; }
     }
+
+    public class ChiTietLopVm
+    {
+        public int SectionId { get; set; }
+        public string CourseCode { get; set; } = "";
+        public string CourseName { get; set; } = "";
+        public string TermName { get; set; } = "";
+        public string Room { get; set; } = "";
+        public string ScheduleText { get; set; } = "";
+
+        public string SectionStatus { get; set; } = "";  // OPEN/UPCOMING/FINISHED
+        public int StudentCount { get; set; }
+        public decimal? AverageScore { get; set; }       // TB TotalScore
+        public decimal PassRatePercent { get; set; }     // % qua môn
+        public int AlertCount { get; set; }              // số cảnh báo của lớp
+
+        public List<StudentGradeRowVm> Students { get; set; } = new();
+    }
+
+    public class StudentGradeRowVm
+    {
+        public int StudentId { get; set; }
+        public string StudentCode { get; set; } = "";
+        public string FullName { get; set; } = "";
+        public DateOnly? DateOfBirth { get; set; }
+
+        public decimal? ProcessScore { get; set; }
+        public decimal? FinalScore { get; set; }
+        public decimal? TotalScore { get; set; }
+    }
 }

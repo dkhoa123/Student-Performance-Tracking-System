@@ -121,6 +121,7 @@ namespace SPTS_Repository
                            where st.StudentId == studentId
                            select new {
                                st.StudentId,
+                               u.UserId,
                                st.StudentCode,
                                u.FullName,
                                u.Email,
@@ -131,7 +132,7 @@ namespace SPTS_Repository
                                st.Address,
                                u.Status
                           }).SingleAsync();
-            return new StudentIdentityDto(x.StudentId, x.StudentCode,
+            return new StudentIdentityDto(x.StudentId,x.UserId, x.StudentCode,
                 x.FullName, x.Email, x.Major, x.DateOfBirth, x.Gender, x.Phone, x.Address, x.Status);
         }
 
@@ -176,7 +177,7 @@ namespace SPTS_Repository
         public async Task UpdateStudentAsync(StudentIdentityDto dto)
         {
             var student = await _db.Students.FindAsync(dto.StudentId);
-            var user = await _db.Users.FindAsync(dto.StudentId);
+            var user = await _db.Users.FindAsync(dto.UserId);
 
             if (student == null || user == null)
                 throw new Exception("Không tìm thấy sinh viên.");

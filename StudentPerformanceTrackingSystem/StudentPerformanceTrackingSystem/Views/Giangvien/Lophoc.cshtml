@@ -243,7 +243,10 @@
                                         }
                                     </div>
 
-                                    <a href="@Url.Action("ChitietLop", "Giangvien", new { id = sec.SectionId })" class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors">
+                                    <a asp-controller="Giangvien"
+                                       asp-action="ChitietLop"
+                                       asp-route-id="@sec.SectionId"
+                                       class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors">
                                         <span>Xem chi tiết</span>
                                         <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                                     </a>

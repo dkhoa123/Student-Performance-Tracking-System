@@ -120,7 +120,8 @@ namespace SPTS_Service
 
             return new SinhVien
             {
-                UserId = info.StudentId,
+                StudentId = info.StudentId,
+                UserId = info.UserId,
                 FullName = info.FullName,
                 Email = info.Email,
                 StudentCode = info.StudentCode,
@@ -179,6 +180,7 @@ namespace SPTS_Service
         public async Task CapNhatThongTinSinhVien(SinhVien model)
         {
             var dto = new StudentIdentityDto(
+                model.StudentId,
                 model.UserId,
                 model.StudentCode,
                 model.FullName,

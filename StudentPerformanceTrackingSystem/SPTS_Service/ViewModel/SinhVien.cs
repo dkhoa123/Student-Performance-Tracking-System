@@ -4,6 +4,7 @@ namespace SPTS_Service.ViewModel
     public class SinhVien
     {
         public int? UserId { get; set; }
+        public int? StudentId { get; set; }
         public string? FullName { get; set; }
         public string? Email { get; set; }
         public string? StudentCode { get; set; }

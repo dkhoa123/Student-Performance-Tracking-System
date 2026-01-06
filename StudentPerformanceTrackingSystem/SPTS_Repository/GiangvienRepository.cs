@@ -253,5 +253,104 @@ namespace SPTS_Repository
                 .Distinct()
                 .CountAsync();
         }
+
+        public async Task<ChiTietLopDto> GetSectionDetailAsync(int sectionId)
+        {
+            var sec = await _context.Sections
+                .Include(x => x.Course)
+                .Include(x => x.Term)
+                .Include(x => x.SectionSchedules)
+                .SingleOrDefaultAsync(x => x.SectionId == sectionId);
+
+            if (sec == null) throw new Exception("Không tìm thấy lớp.");
+
+            // room + schedule (lấy cái đầu tiên, hoặc join string như bạn làm ở dashboard)
+            var room = sec.SectionSchedules
+                .OrderBy(ss => GetDayOrder(ss.DayOfWeek))
+                .ThenBy(ss => ss.StartPeriod)
+                .FirstOrDefault()?.Room ?? "TBA";
+
+            var scheduleText = sec.SectionSchedules.Any()
+                ? string.Join("; ", sec.SectionSchedules
+                    .OrderBy(ss => GetDayOrder(ss.DayOfWeek))
+                    .ThenBy(ss => ss.StartPeriod)
+                    .Select(ss => $"{GetDayNameVietnamese(ss.DayOfWeek)}, Tiết {ss.StartPeriod}-{ss.EndPeriod}"))
+                : "Chưa có lịch";
+
+            var students = await (from ss in _context.SectionStudents
+                                  join st in _context.Students on ss.StudentId equals st.StudentId
+                                  join u in _context.Users on st.StudentId equals u.UserId
+                                  join g in _context.Grades.Where(g => g.SectionId == sectionId)
+                                       on st.StudentId equals g.StudentId into gj
+                                  from g in gj.DefaultIfEmpty()
+                                  where ss.SectionId == sectionId && ss.Status == "ACTIVE"
+                                  orderby u.FullName
+                                  select new StudentGradeRowDto(
+                                      st.StudentId,
+                                      st.StudentCode,
+                                      u.FullName,
+                                      st.DateOfBirth,
+                                      g.ProcessScore,
+                                      g.FinalScore,
+                                      g.TotalScore
+                                  )).ToListAsync();
+
+            return new ChiTietLopDto(
+                sec.SectionId,
+                sec.Course.CourseCode,
+                sec.Course.CourseName,
+                sec.Term.TermName,
+                room,
+                scheduleText,
+                sec.Status,
+                students
+            );
+        }
+
+        public Task<int> GetAlertCountBySectionAsync(int sectionId)
+        {
+            return _context.Alerts
+                .Where(a => a.SectionId == sectionId && a.Status != "CLOSED")
+                .Select(a => a.StudentId)
+                .Distinct()
+                .CountAsync();
+        }
+
+        public async Task UpsertGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total)
+        {
+            var grade = await _context.Grades
+                .SingleOrDefaultAsync(g => g.SectionId == sectionId && g.StudentId == studentId);
+
+            if (grade == null)
+            {
+                grade = new Grade
+                {
+                    SectionId = sectionId,
+                    StudentId = studentId,
+                    ProcessScore = process,
+                    FinalScore = final,
+                    TotalScore = total
+                };
+                _context.Grades.Add(grade);
+            }
+            else
+            {
+                grade.ProcessScore = process;
+                grade.FinalScore = final;
+                grade.TotalScore = total;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<GradeRule?> GetActiveGradeRuleBySectionAsync(int sectionId)
+        {
+            // Lấy rule theo CourseId của Section
+            return await _context.GradeRules
+                .Where(r => r.Active
+                    && _context.Sections.Any(s => s.SectionId == sectionId && s.CourseId == r.CourseId))
+                .OrderByDescending(r => r.RuleId) // nếu có nhiều rule active, lấy rule mới nhất
+                .FirstOrDefaultAsync();
+        }
     }
 }

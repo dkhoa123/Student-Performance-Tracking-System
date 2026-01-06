@@ -85,6 +85,76 @@ namespace SPTS_Service
                     }).ToList()
                 };
             }
+
+        public async Task<ChiTietLopVm> GetSectionDetailAsync(int sectionId)
+        {
+            var dto = await _repo.GetSectionDetailAsync(sectionId);
+            var alertCount = await _repo.GetAlertCountBySectionAsync(sectionId);
+
+            var vm = new ChiTietLopVm
+            {
+                SectionId = dto.SectionId,
+                CourseCode = dto.CourseCode,
+                CourseName = dto.CourseName,
+                TermName = dto.TermName,
+                Room = dto.Room,
+                ScheduleText = dto.ScheduleText,
+                SectionStatus = dto.SectionStatus,
+                AlertCount = alertCount,
+
+                Students = dto.Students.Select(s => new StudentGradeRowVm
+                {
+                    StudentId = s.StudentId,
+                    StudentCode = s.StudentCode,
+                    FullName = s.FullName,
+                    DateOfBirth = s.DateOfBirth,
+                    ProcessScore = s.ProcessScore,
+                    FinalScore = s.FinalScore,
+                    TotalScore = s.TotalScore
+                }).ToList()
+            };
+
+            vm.StudentCount = vm.Students.Count;
+
+            var graded = vm.Students.Where(x => x.TotalScore.HasValue).ToList();
+            vm.AverageScore = graded.Any()
+                ? Math.Round(graded.Average(x => x.TotalScore!.Value), 1)
+                : (decimal?)null;
+
+            // % qua môn: tính trên những SV đã có TotalScore (cách phổ biến)
+            vm.PassRatePercent = graded.Any()
+                ? Math.Round((decimal)graded.Count(x => x.TotalScore >= 5m) * 100 / graded.Count, 0)
+                : 0;
+
+            return vm;
         }
+
+        public async Task SaveGradesAsync(int sectionId, List<StudentGradeRowVm> students)
+        {
+            var rule = await _repo.GetActiveGradeRuleBySectionAsync(sectionId);
+            if (rule == null)
+                throw new Exception("Môn học này chưa cấu hình tỉ trọng điểm (GradeRule).");
+
+            foreach (var s in students)
+            {
+                // không nhập gì thì bỏ qua
+                if (s.ProcessScore == null && s.FinalScore == null)
+                    continue;
+
+                decimal? total = null;
+
+                // chỉ tính total khi có đủ 2 cột (tuỳ bạn muốn: thiếu 1 cột thì total null)
+                if (s.ProcessScore.HasValue && s.FinalScore.HasValue)
+                {
+                    var raw = s.ProcessScore.Value * rule.ProcessWeight
+                            + s.FinalScore.Value * rule.FinalWeight;
+
+                    total = Math.Round(raw, rule.RoundingScale);
+                }
+
+                await _repo.UpsertGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total);
+            }
+        }
+    }
 
 }

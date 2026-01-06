@@ -33,12 +33,24 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
             return View(model);
         }
-       
-        public IActionResult ChitietLop()
+
+        [Authorize(Roles = "TEACHER")]
+        public async Task<IActionResult> ChitietLop(int id)
         {
-            return View();
+            // id = SectionId
+            var vm = await _gvSer.GetSectionDetailAsync(id);
+            return View(vm);
         }
-      
+        [HttpPost]
+        [Authorize(Roles = "TEACHER")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveGrades(SPTS_Service.ViewModel.ChiTietLopVm model)
+        {
+            await _gvSer.SaveGradesAsync(model.SectionId, model.Students);
+
+            TempData["Success"] = "Lưu bảng điểm thành công";
+            return RedirectToAction(nameof(ChitietLop), new { id = model.SectionId });
+        }
         public IActionResult DiemSo()
         {
             return View();
