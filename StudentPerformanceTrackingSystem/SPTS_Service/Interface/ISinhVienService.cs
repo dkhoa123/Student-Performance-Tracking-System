@@ -11,5 +11,11 @@ namespace SPTS_Service.Interface
         Task<User> DangNhap(string emailSv, string matKhau);
         Task CapNhatThongTinSinhVien(SinhVien model);
         Task<SinhVien> GetDashboardAsync(int studentId, int? termId = null);
+
+        Task<ThongBaoSinhVienVm> GetNotificationsPageAsync(int studentId, string filter = "all", int page = 1, int pageSize = 10);
+        Task MarkAsReadAsync(int notificationId, int studentId);
+        Task MarkAllAsReadAsync(int studentId);
     }
+
+   
 }

@@ -1,0 +1,119 @@
+﻿@model SPTS_Service.ViewModel.ThongBaoSinhVienVm
+
+<main class="flex flex-1 flex-col h-full overflow-hidden relative">
+    <div class="flex-1 overflow-y-auto p-6 lg:p-10 scroll-smooth">
+        <div class="mx-auto max-w-5xl flex flex-col gap-6">
+
+            @* Header *@
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-[#111418] dark:text-white">Thông báo & Cảnh báo</h1>
+                    <p class="text-[#617589] dark:text-[#9ca3af] text-sm mt-1">
+                        Cập nhật thông tin quan trọng về việc học tập của bạn
+                        @if (Model.UnreadCount > 0)
+                        {
+                            <span class="text-primary font-bold">(@Model.UnreadCount chưa đọc)</span>
+                        }
+                    </p>
+                </div>
+
+                @* Filter buttons *@
+                <div class="flex items-center gap-1 bg-white dark:bg-[#1f2937] p-1 rounded-lg border border-[#e5e7eb] dark:border-[#374151]">
+                    <a asp-action="ThongBao" asp-route-filter="all"
+                       class="@(Model.CurrentFilter == "all" ? "px-4 py-1.5 rounded-md bg-[#f0f2f4] dark:bg-[#374151] text-sm font-medium text-[#111418] dark:text-white shadow-sm" : "px-4 py-1.5 rounded-md text-sm font-medium text-[#617589] dark:text-[#9ca3af] hover:bg-[#f0f2f4] dark:hover:bg-[#374151] transition-colors")">
+                        Tất cả
+                    </a>
+                    <a asp-action="ThongBao" asp-route-filter="unread"
+                       class="@(Model.CurrentFilter == "unread" ? "px-4 py-1.5 rounded-md bg-[#f0f2f4] dark:bg-[#374151] text-sm font-medium text-[#111418] dark:text-white shadow-sm" : "px-4 py-1.5 rounded-md text-sm font-medium text-[#617589] dark:text-[#9ca3af] hover:bg-[#f0f2f4] dark:hover:bg-[#374151] transition-colors")">
+                        Chưa đọc
+                    </a>
+                    <a asp-action="ThongBao" asp-route-filter="alert"
+                       class="@(Model.CurrentFilter == "alert" ? "px-4 py-1.5 rounded-md bg-[#f0f2f4] dark:bg-[#374151] text-sm font-medium text-[#111418] dark:text-white shadow-sm" : "px-4 py-1.5 rounded-md text-sm font-medium text-[#617589] dark:text-[#9ca3af] hover:bg-[#f0f2f4] dark:hover:bg-[#374151] transition-colors")">
+                        Cảnh báo
+                    </a>
+                </div>
+            </div>
+
+            @* Notifications list *@
+            <div class="flex flex-col gap-3">
+                @if (!Model.Notifications.Any())
+                {
+                    <div class="text-center py-12 text-[#617589]">
+                        <span class="material-symbols-outlined text-6xl mb-4 opacity-30">notifications_off</span>
+                        <p>Không có thông báo nào. </p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var n in Model.Notifications)
+                    {
+                        <div class="group relative flex flex-col sm:flex-row gap-4 p-5 rounded-xl bg-white dark:bg-[#1f2937] border @(string.IsNullOrEmpty(n.BorderColor) ? "border-[#e5e7eb] dark:border-[#374151]" : $"border-l-4 {n.BorderColor} border-y-[#e5e7eb] border-r-[#e5e7eb] dark:border-y-[#374151] dark:border-r-[#374151]") shadow-sm hover:shadow-md transition-all cursor-pointer @(n.IsRead ? "opacity-80 hover:opacity-100" : "")"
+                             onclick="markAsRead(@n.NotificationId)">
+                            <div class="shrink-0">
+                                <div class="h-12 w-12 rounded-full @n.IconColor flex items-center justify-center">
+                                    <span class="material-symbols-outlined" @(n.Severity == "HIGH" ? "style=font-variation-settings: 'FILL' 1;" : "")>
+                                        @n.IconName
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-1.5">
+                                    <h3 class="text-base @(n.IsRead ? "font-semibold" : "font-bold") text-[#111418] dark:text-white truncate pr-4">
+                                        @n.Title
+                                    </h3>
+                                    <span class="shrink-0 text-xs font-medium text-[#617589] whitespace-nowrap">@n.TimeAgo</span>
+                                </div>
+                                <p class="text-sm text-[#617589] dark:text-[#9ca3af] mb-3">@n.Content</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-@(n.Severity != null ? "bold" : "medium") @n.BadgeClass">
+                                        @n.BadgeText
+                                    </span>
+                                    @if (!n.IsRead)
+                                    {
+                                        <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                                        <span class="text-xs font-medium text-primary">Chưa đọc</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs font-medium text-[#617589]">Đã đọc</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            @* Pagination *@
+            @if (Model.TotalPages > 1)
+            {
+                <div class="flex justify-center items-center gap-2 mt-4">
+                    <a asp-action="ThongBao" asp-route-filter="@Model.CurrentFilter" asp-route-page="@(Model.CurrentPage - 1)"
+                       class="px-4 py-2 rounded-lg border @(Model.CurrentPage <= 1 ? "opacity-50 pointer-events-none" : "hover:bg-[#f0f2f4]")">
+                        Trước
+                    </a>
+                    <span class="text-sm text-[#617589]">Trang @Model.CurrentPage / @Model.TotalPages</span>
+                    <a asp-action="ThongBao" asp-route-filter="@Model.CurrentFilter" asp-route-page="@(Model.CurrentPage + 1)"
+                       class="px-4 py-2 rounded-lg border @(Model.CurrentPage >= Model.TotalPages ? "opacity-50 pointer-events-none" : "hover:bg-[#f0f2f4]")">
+                        Sau
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        function markAsRead(notificationId) {
+            fetch('/Sinhvien/MarkAsRead', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': '@Html.AntiForgeryToken()'
+                },
+                body: `id=${notificationId}`
+            }).then(() => location.reload());
+        }
+    </script>
+}

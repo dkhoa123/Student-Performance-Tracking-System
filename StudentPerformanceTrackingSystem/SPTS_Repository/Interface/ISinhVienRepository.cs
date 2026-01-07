@@ -26,6 +26,13 @@ namespace SPTS_Repository.Interface
         Task<List<TermOptionDto>> GetTermsAsync();
 
         Task UpdateStudentAsync(StudentIdentityDto dto);
+
+
+        Task<List<NotificationDto>> GetNotificationsAsync(int studentId, string filter, int skip, int take);
+        Task<int> GetNotificationCountAsync(int studentId, string filter);
+        Task<int> GetUnreadCountAsync(int studentId);
+        Task MarkAsReadAsync(int notificationId, int studentId);
+        Task MarkAllAsReadAsync(int studentId);
     }
     public record StudentIdentityDto(int? StudentId, int? UserId, string StudentCode, string FullName, string Email, string Major, DateOnly? DateOfBirth, string? Gender, string? Phone, string? Address, string status);
     public record TermGpaDto(decimal? GpaValue, int? CreditsAttempted, int? CreditsEarned);
@@ -36,4 +43,13 @@ namespace SPTS_Repository.Interface
     public record CurrentTermDto(int TermId, string TermName);
 
     public record TermOptionDto(int TermId, string TermName);
+    public record NotificationDto(
+    int NotificationId,
+    string Title,
+    string Content,
+    bool IsRead,
+    DateTime CreatedAt,
+    string? AlertType,
+    string? Severity
+);
 }

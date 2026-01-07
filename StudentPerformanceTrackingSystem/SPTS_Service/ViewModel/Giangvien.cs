@@ -91,4 +91,68 @@ namespace SPTS_Service.ViewModel
         public decimal? FinalScore { get; set; }
         public decimal? TotalScore { get; set; }
     }
+
+    public class SendSectionNotificationRequest
+    {
+        public int SectionId { get; set; }
+        public string Title { get; set; } = "Thông báo từ giảng viên";
+        public string Content { get; set; } = "";
+    }
+
+    public class SendStudentNotificationRequest
+    {
+        public int SectionId { get; set; }
+        public int StudentId { get; set; }   // cũng chính là UserId
+        public string Title { get; set; } = "Thông báo từ giảng viên";
+        public string Content { get; set; } = "";
+    }
+
+        public class ThongBaoPageVm
+        {
+            public int SectionId { get; set; }
+            public string CourseCode { get; set; } = "";
+            public string CourseName { get; set; } = "";
+            public string TermName { get; set; } = "";
+            public int StudentCount { get; set; }
+
+            // Danh sách các lớp của giảng viên (để render phần "Chọn Lớp Học")
+            public List<SectionOptionVm> AvailableSections { get; set; } = new();
+
+            // Gửi broadcast
+            public string? BroadcastTitle { get; set; }
+            public string? BroadcastContent { get; set; }
+
+            // Danh sách sinh viên
+            public List<StudentRowVm> Students { get; set; } = new();
+
+            // Phân trang
+            public int CurrentPage { get; set; } = 1;
+            public int TotalPages { get; set; } = 1;
+            public int PageSize { get; set; } = 10;
+        }
+
+        public class SectionOptionVm
+        {
+            public int SectionId { get; set; }
+            public string CourseCode { get; set; } = "";
+            public string CourseName { get; set; } = "";
+            public int StudentCount { get; set; }
+            public bool IsSelected { get; set; }
+        }
+
+        public class StudentRowVm
+        {
+            public int StudentId { get; set; }
+            public string StudentCode { get; set; } = "";
+            public string FullName { get; set; } = "";
+
+            // Tình trạng học tập
+            public string StatusLabel { get; set; } = "Bình thường";
+            public string StatusBadgeClass { get; set; } = "bg-slate-100";
+            public string StatusIcon { get; set; } = "remove";
+            public string StatusDetail { get; set; } = "";
+            public string StatusColorClass { get; set; } = "bg-slate-500";
+        }
+
+
 }

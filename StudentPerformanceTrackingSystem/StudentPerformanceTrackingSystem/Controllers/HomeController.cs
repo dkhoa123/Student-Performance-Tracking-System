@@ -148,7 +148,6 @@ namespace StudentPerformanceTrackingSystem.Controllers
         }
 
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -160,6 +159,41 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
             return RedirectToAction("Login");
         }
+
+        // GET: /Sinhvien/ThongBao? filter=all&page=1
+        public async Task<IActionResult> CanhBao(string filter = "all", int page = 1)
+        {
+            var studentId = GetCurrentStudentId();
+            var model = await _svSer.GetNotificationsPageAsync(studentId, filter, page);
+            return View(model);
+        }
+
+        // POST: Mark as read
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAsRead(int id)
+        {
+            var studentId = GetCurrentStudentId();
+            await _svSer.MarkAsReadAsync(id, studentId);
+            return Ok();
+        }
+
+        // POST: Mark all as read
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            var studentId = GetCurrentStudentId();
+            await _svSer.MarkAllAsReadAsync(studentId);
+            TempData["Success"] = "Đã đánh dấu tất cả thông báo là đã đọc. ";
+            return RedirectToAction(nameof(CanhBao));
+        }
+
+        private int GetCurrentStudentId()
+        {
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

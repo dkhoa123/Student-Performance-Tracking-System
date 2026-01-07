@@ -56,17 +56,22 @@
             </div>
             <!-- Navigation -->
             <nav class="flex flex-col gap-2 flex-1">
-                <a class="group flex items-center gap-3 rounded-lg bg-primary px-4 py-3 text-white shadow-md shadow-primary/20 transition-all" href="~/Giangvien">
+                <a asp-controller="Giangvien" asp-action="Index"
+                   class="group flex items-center gap-3 rounded-lg @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-primary text-white shadow-md shadow-primary/20" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") px-4 py-3 transition-all">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span class="font-medium">Tổng quan</span>
                 </a>
-                <a class="group flex items-center gap-3 rounded-lg px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="~/Giangvien/Lophoc">
+
+                <a asp-controller="Giangvien" asp-action="Lophoc"
+                   class="group flex items-center gap-3 rounded-lg @(ViewContext.RouteData.Values["Action"]?.ToString() == "Lophoc" ? "bg-primary text-white shadow-md shadow-primary/20" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") px-4 py-3 transition-colors">
                     <span class="material-symbols-outlined">class</span>
                     <span class="font-medium">Lớp học</span>
                 </a>
-                <a class="group flex items-center gap-3 rounded-lg px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="~/Giangvien/DiemSo">
-                    <span class="material-symbols-outlined">school</span>
-                    <span class="font-medium">Điểm số</span>
+
+                <a asp-controller="Giangvien" asp-action="ThongBao"
+                   class="group flex items-center gap-3 rounded-lg @(ViewContext.RouteData.Values["Action"]?.ToString() == "ThongBao" ? "bg-primary text-white shadow-md shadow-primary/20" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white") px-4 py-3 transition-colors">
+                    <span class="material-symbols-outlined">warning</span>
+                    <span class="font-medium">Thông báo</span>
                 </a>
             </nav>
             <!-- Bottom Action -->

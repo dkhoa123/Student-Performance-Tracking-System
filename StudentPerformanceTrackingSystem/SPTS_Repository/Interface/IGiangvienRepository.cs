@@ -23,6 +23,13 @@ namespace SPTS_Repository.Interface
         Task<int> GetAlertCountBySectionAsync(int sectionId);
         Task<GradeRule?> GetActiveGradeRuleBySectionAsync(int sectionId);
         Task UpsertGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total);
+
+        Task<List<SectionOptionDto>> GetSectionsForNotificationAsync(int teacherId);
+        Task<List<StudentNotificationDto>> GetStudentsWithAlertStatusAsync(int sectionId);
+
+        Task<int> SendToSectionAsync(int sectionId, string title, string content);
+        Task SendToStudentAsync(int sectionId, int studentId, string title, string content);
+
     }
     //DTO
     public record SectionCardViewModelDto(
@@ -65,4 +72,16 @@ namespace SPTS_Repository.Interface
         decimal? FinalScore,
         decimal? TotalScore
     );
+
+    public record SectionOptionDto(int SectionId, string CourseCode, string CourseName, int StudentCount);
+
+    public record StudentNotificationDto(
+        int StudentId,
+        string StudentCode,
+        string FullName,
+        string? AlertType,
+        string? Severity,
+        decimal? ActualValue
+    );
+
 }
