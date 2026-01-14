@@ -4,10 +4,6 @@ namespace SPTS_Repository.Interface
 {
     public interface ISinhVienRepository
     {
-        Task DangKysv(User user, Student student);
-        Task<string?> LayMaLonNhat(string prefix);
-        Task<User?> TimEmail(string email);
-
         Task<int> GetCurrentTermIdAsync();
 
         Task<StudentIdentityDto> GetStudentIdentityAsync(int studentId);

@@ -143,7 +143,7 @@ namespace SPTS_Service
 
                 decimal? total = null;
 
-                // chỉ tính total khi có đủ 2 cột (tuỳ bạn muốn: thiếu 1 cột thì total null)
+                // chỉ tính total khi có đủ 2 cột (thiếu 1 cột thì total null)
                 if (s.ProcessScore.HasValue && s.FinalScore.HasValue)
                 {
                     var raw = s.ProcessScore.Value * rule.ProcessWeight

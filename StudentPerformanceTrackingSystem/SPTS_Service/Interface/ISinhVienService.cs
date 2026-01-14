@@ -6,9 +6,6 @@ namespace SPTS_Service.Interface
 {
     public interface ISinhVienService
     {
-        Task DangKysv(DangKySinhVien model);
-        Task<string?> CreateStuCode(int? CohortYear);
-        Task<User> DangNhap(string emailSv, string matKhau);
         Task CapNhatThongTinSinhVien(SinhVien model);
         Task<SinhVien> GetDashboardAsync(int studentId, int? termId = null);
 

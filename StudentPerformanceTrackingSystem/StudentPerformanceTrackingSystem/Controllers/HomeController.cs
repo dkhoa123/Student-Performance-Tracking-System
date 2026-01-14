@@ -13,12 +13,14 @@ namespace StudentPerformanceTrackingSystem.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IAuthService _svAuth;
         private readonly ISinhVienService _svSer;
 
-        public HomeController(ILogger<HomeController> logger, ISinhVienService svSer)
+        public HomeController(ILogger<HomeController> logger, ISinhVienService svSer, IAuthService svAuth)
         {
             _logger = logger;
             _svSer = svSer;
+            _svAuth = svAuth;
         }
         [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> Index()
@@ -88,7 +90,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
             try
             {
-                var user = await _svSer.DangNhap(model.Email, model.Password);
+                var user = await _svAuth.DangNhap(model.Email, model.Password);
 
                 var claims = new List<Claim>
                 {
@@ -143,7 +145,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         public async Task<IActionResult> SignUp(DangKySinhVien model)
         {
             if(!ModelState.IsValid) return View();
-            await _svSer.DangKysv(model);
+            await _svAuth.DangKysv(model);
             return RedirectToAction("Login");
         }
 

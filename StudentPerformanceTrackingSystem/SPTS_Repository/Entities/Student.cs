@@ -21,7 +21,11 @@ public partial class Student
 
     public string? Address { get; set; }
 
+    public int? DepartmentId { get; set; }
+
     public virtual ICollection<Alert> Alerts { get; set; } = new List<Alert>();
+
+    public virtual Department? Department { get; set; }
 
     public virtual ICollection<Grade> Grades { get; set; } = new List<Grade>();
 

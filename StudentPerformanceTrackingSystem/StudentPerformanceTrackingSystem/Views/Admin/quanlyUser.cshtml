@@ -1,0 +1,220 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@model SPTS_Service.ViewModels.AdminUsersVM
+
+<main class="flex-1 flex flex-col min-w-0 px-6 py-6 lg:px-10">
+    <div class="max-w-[1200px] mx-auto">
+        <!-- Page Heading -->
+        <div class="flex flex-wrap justify-between items-end gap-3 mb-8">
+            <div class="flex flex-col gap-2">
+                <p class="text-[#111418] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Quản lý Người dùng</p>
+                <p class="text-[#617589] dark:text-[#94a3b8] text-base font-normal leading-normal">Xem và cập nhật thông tin thành viên trong hệ thống. </p>
+            </div>
+            <button class="flex min-w-[160px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+                <span class="material-symbols-outlined">person_add</span>
+                <span class="truncate">Thêm người dùng</span>
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex items-center justify-between mb-6 bg-white dark:bg-[#1a2632] p-4 rounded-xl shadow-sm border border-[#dbe0e6] dark:border-[#343d48]">
+            <div class="flex gap-3 flex-wrap">
+                <a asp-action="quanlyUser" asp-route-role="" asp-route-page="1"
+                   class="flex h-9 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium @(string.IsNullOrWhiteSpace(Model.Role) ? "bg-primary text-white" : "bg-[#f0f2f4] dark:bg-[#25323f] text-[#111418] dark:text-white hover:bg-[#e2e4e7] dark:hover:bg-[#344452]")">
+                    Tất cả
+                </a>
+                <a asp-action="quanlyUser" asp-route-role="STUDENT" asp-route-page="1"
+                   class="flex h-9 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium @(Model.Role == "STUDENT" ? "bg-primary text-white" : "bg-[#f0f2f4] dark:bg-[#25323f] text-[#111418] dark:text-white hover:bg-[#e2e4e7] dark:hover:bg-[#344452]")">
+                    Sinh viên
+                </a>
+                <a asp-action="quanlyUser" asp-route-role="TEACHER" asp-route-page="1"
+                   class="flex h-9 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium @(Model.Role == "TEACHER" ? "bg-primary text-white" : "bg-[#f0f2f4] dark:bg-[#25323f] text-[#111418] dark:text-white hover: bg-[#e2e4e7] dark:hover:bg-[#344452]")">
+                    Giảng viên
+                </a>
+                <a asp-action="quanlyUser" asp-route-role="ADMIN" asp-route-page="1"
+                   class="flex h-9 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium @(Model.Role == "ADMIN" ? "bg-primary text-white" : "bg-[#f0f2f4] dark:bg-[#25323f] text-[#111418] dark:text-white hover:bg-[#e2e4e7] dark:hover:bg-[#344452]")">
+                    Quản trị viên
+                </a>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-[#617589] dark:text-[#94a3b8]">
+                <span>Hiển thị @Model.From-@Model.To trên @Model.TotalCount người dùng</span>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white dark:bg-[#1a2632] rounded-xl border border-[#dbe0e6] dark:border-[#343d48] overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-[#f8f9fa] dark:bg-[#25323f] border-b border-[#dbe0e6] dark:border-[#343d48]">
+                        <tr>
+                            <th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-semibold">Họ và tên</th>
+                            <th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-semibold">Email</th>
+                            <th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-semibold">Vai trò</th>
+                            <th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-semibold text-center">Trạng thái</th>
+                            <th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-semibold text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#dbe0e6] dark:divide-[#343d48]">
+                        @if (Model.Users == null || !Model.Users.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-[#617589] dark:text-[#94a3b8]">
+                                    Không có người dùng nào
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var user in Model.Users)
+                            {
+                                <tr class="hover:bg-gray-50 dark:hover:bg-[#212c38] transition-colors">
+                                    <!-- Họ và tên -->
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                                                @user.Initials
+                                            </div>
+                                            <span class="text-[#111418] dark:text-white font-medium">@user.FullName</span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Email -->
+                                    <td class="px-6 py-4 text-[#617589] dark:text-[#94a3b8] text-sm">@user.Email</td>
+
+                                    <!-- Vai trò -->
+                                    <td class="px-6 py-4">
+                                        @{
+                                            var roleBadgeClass = user.Role switch
+                                            {
+                                                "ADMIN" => "bg-primary/10 text-primary",
+                                                "TEACHER" => "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200",
+                                                "STUDENT" => "bg-gray-100 dark:bg-[#25323f] text-gray-800 dark:text-gray-200",
+                                                _ => "bg-gray-100 dark:bg-[#25323f] text-gray-800 dark:text-gray-200"
+                                            };
+
+                                            var roleDisplay = user.Role switch
+                                            {
+                                                "ADMIN" => "Admin",
+                                                "TEACHER" => "Giảng viên",
+                                                "STUDENT" => "Sinh viên",
+                                                _ => user.Role
+                                            };
+                                        }
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium @roleBadgeClass">
+                                            @roleDisplay
+                                        </span>
+                                    </td>
+
+                                    <!-- Trạng thái -->
+                                    <td class="px-6 py-4 text-center">
+                                        @if (user.Status == "ACTIVE")
+                                        {
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                                                Hoạt động
+                                            </span>
+                                        }
+                                        else if (user.Status == "LOCKED")
+                                        {
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+                                                Bị khóa
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400">
+                                                @user.Status
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- Thao tác -->
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <button class="p-2 text-[#617589] hover:text-primary transition-colors">
+                                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                                            </button>
+
+                                            @if (user.Status == "ACTIVE")
+                                            {
+                                                <form method="post" asp-action="LockUser" asp-route-id="@user.UserId" asp-route-returnRole="@Model.Role" asp-route-page="@Model.Page" style="display: inline;">
+                                                    <button type="submit" class="p-2 text-[#617589] hover:text-red-500 transition-colors" onclick="return confirm('Bạn có chắc muốn khóa người dùng này?')">
+                                                        <span class="material-symbols-outlined text-[20px]">lock</span>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form method="post" asp-action="UnlockUser" asp-route-id="@user.UserId" asp-route-returnRole="@Model.Role" asp-route-page="@Model.Page" style="display:inline;">
+                                                    <button type="submit" class="p-2 text-primary hover:text-primary/80 transition-colors" onclick="return confirm('Bạn có chắc muốn mở khóa người dùng này?')">
+                                                        <span class="material-symbols-outlined text-[20px]">lock_open</span>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between p-6 bg-[#f8f9fa] dark: bg-[#25323f] border-t border-[#dbe0e6] dark:border-[#343d48]">
+                <div class="text-sm text-[#617589] dark:text-[#94a3b8]">
+                    Hiển thị @Model.PageSize trong @Model.TotalCount người dùng
+                </div>
+                <div class="flex items-center gap-1">
+                    @if (Model.Page > 1)
+                    {
+                        <a asp-action="quanlyUser" asp-route-role="@Model.Role" asp-route-page="@(Model.Page - 1)"
+                           class="flex size-9 items-center justify-center rounded-lg hover:bg-gray-200 dark:hover:bg-[#344452] transition-colors text-[#111418] dark: text-white">
+                            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="flex size-9 items-center justify-center rounded-lg text-[#617589] cursor-not-allowed">
+                            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                        </span>
+                    }
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        @if (i == 1 || i == Model.TotalPages || (i >= Model.Page - 1 && i <= Model.Page + 1))
+                        {
+                            <a asp-action="quanlyUser" asp-route-role="@Model.Role" asp-route-page="@i"
+                               class="text-sm @(i == Model.Page ? "font-bold flex size-9 items-center justify-center text-white rounded-lg bg-primary" : "font-normal flex size-9 items-center justify-center text-[#111418] dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-[#344452] transition-colors")">
+                                @i
+                            </a>
+                        }
+                        else if (i == Model.Page - 2 || i == Model.Page + 2)
+                        {
+                            <span class="text-sm font-normal flex size-9 items-center justify-center text-[#617589]">... </span>
+                        }
+                    }
+
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <a asp-action="quanlyUser" asp-route-role="@Model.Role" asp-route-page="@(Model.Page + 1)"
+                           class="flex size-9 items-center justify-center rounded-lg hover: bg-gray-200 dark: hover:bg-[#344452] transition-colors text-[#111418] dark:text-white">
+                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="flex size-9 items-center justify-center rounded-lg text-[#617589] cursor-not-allowed">
+                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

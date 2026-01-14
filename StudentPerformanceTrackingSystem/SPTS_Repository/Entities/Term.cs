@@ -13,6 +13,10 @@ public partial class Term
 
     public DateOnly? EndDate { get; set; }
 
+    public int? AcademicYearId { get; set; }
+
+    public virtual AcademicYear? AcademicYear { get; set; }
+
     public virtual ICollection<Alert> Alerts { get; set; } = new List<Alert>();
 
     public virtual ICollection<Section> Sections { get; set; } = new List<Section>();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SPTS_Repository;
 using SPTS_Repository.Entities;
@@ -38,6 +39,10 @@ builder.Services.AddScoped<ISinhVienRepository, SinhVienRepository>();
 builder.Services.AddScoped<ISinhVienService, SinhVienService>();
 builder.Services.AddScoped<IGiangvienRepository, GiangvienRepository>();
 builder.Services.AddScoped<IGiangvienService, GiangvienService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

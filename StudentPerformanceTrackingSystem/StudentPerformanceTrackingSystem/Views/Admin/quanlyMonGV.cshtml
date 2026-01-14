@@ -1,0 +1,198 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@model SPTS_Service.ViewModels.AdminCourseTeacherVM
+<main class="flex-1 flex flex-col min-w-0 px-6 py-6 lg:px-10">
+    <div class="w-full max-w-[1200px] mx-auto">
+        <!-- Page Heading -->
+        <div class="flex flex-wrap justify-between items-end gap-4 mb-8">
+            <div class="flex flex-col gap-1">
+                <h2 class="text-[#111418] dark:text-white text-3xl font-black leading-tight tracking-tight">Quản lý Môn học &amp; Giảng viên</h2>
+                <p class="text-[#617589] dark:text-gray-400 text-base font-normal">Điều chỉnh thông tin học phần và phân công giảng dạy cho học kỳ hiện tại.</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-gray-800 border border-[#dbe0e6] dark:border-gray-700 text-[#111418] dark:text-white text-sm font-bold gap-2">
+                    <span class="material-symbols-outlined text-[20px]">download</span>
+                    <span>Xuất Excel</span>
+                </button>
+            </div>
+        </div>
+        <!-- Stats Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-gray-800 border border-[#dbe0e6] dark:border-gray-700 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">Tổng số môn học</p>
+                    <span class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg">
+                        <span class="material-symbols-outlined">library_books</span>
+                    </span>
+                </div>
+                <p class="text-[#111418] dark:text-white text-3xl font-bold">@Model.TotalCourses</p>
+            </div>
+            <div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-gray-800 border border-[#dbe0e6] dark:border-gray-700 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">Giảng viên đang dạy</p>
+                    <span class="p-2 bg-green-50 dark:bg-green-900/30 text-green-600 rounded-lg">
+                        <span class="material-symbols-outlined">person_check</span>
+                    </span>
+                </div>
+                <p class="text-[#111418] dark:text-white text-3xl font-bold">@Model.TeachingTeachers</p>
+                <p class="text-[#617589] dark:text-gray-400 text-xs font-medium">Đang phụ trách @Model.TotalSections lớp</p>
+            </div>
+            <div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-gray-800 border border-[#dbe0e6] dark:border-gray-700 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">Lớp chưa gán GV</p>
+                    <span class="p-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded-lg">
+                        <span class="material-symbols-outlined">warning</span>
+                    </span>
+                </div>
+                <p class="text-[#111418] dark:text-white text-3xl font-bold">@Model.UnassignedSections</p>
+                @if (Model.UnassignedSections > 0)
+                {
+                    <p class="text-red-500 text-xs font-semibold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">priority_high</span> Cần xử lý ngay
+                    </p>
+                }
+ 
+            </div>
+        </div>
+        <!-- Filters & Table Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-[#dbe0e6] dark:border-gray-700 shadow-sm overflow-hidden">
+            <!-- Chips / Filters -->
+            <div class="p-4 border-b border-[#f0f2f4] dark:border-gray-700 flex flex-wrap gap-2 items-center">
+                <form method="get" asp-action="quanlyMonGV" class="ml-auto flex gap-2 items-center">
+                    <select name="termId"
+                            class="h-9 rounded-lg bg-[#f0f2f4] dark:bg-gray-700 text-[#111418] dark:text-white px-4 text-sm font-medium"
+                            onchange="this.form.submit()">
+                        @foreach (var t in Model.Terms)
+                        {
+                            <option value="@t.TermId" selected="@(Model.TermId == t.TermId)">@t.TermName</option>
+                        }
+                    </select>
+                    <input type="hidden" name="page" value="1" />
+                </form>
+            </div>
+            <!-- Subjects Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-background-light dark:bg-gray-900/50">
+                            <th class="px-6 py-4 text-sm font-bold text-[#617589] dark:text-gray-300 uppercase tracking-wider">Mã học phần</th>
+                            <th class="px-6 py-4 text-sm font-bold text-[#617589] dark:text-gray-300 uppercase tracking-wider">Tên môn học</th>
+                            <th class="px-6 py-4 text-sm font-bold text-[#617589] dark:text-gray-300 uppercase tracking-wider">Tín chỉ</th>
+                            <th class="px-6 py-4 text-sm font-bold text-[#617589] dark:text-gray-300 uppercase tracking-wider">Giảng viên phụ trách</th>
+                            <th class="px-6 py-4 text-sm font-bold text-[#617589] dark:text-gray-300 uppercase tracking-wider">Trạng thái</th>
+                            <th class="px-6 py-4 text-sm font-bold text-[#617589] dark:text-gray-300 uppercase tracking-wider text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#f0f2f4] dark:divide-gray-700">
+                        @foreach (var row in Model.Rows)
+                        {
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                <td class="px-6 py-4 text-sm font-bold text-primary">@row.CourseCode</td>
+                                <td class="px-6 py-4 text-sm font-medium text-[#111418] dark:text-white">@row.CourseName</td>
+                                <td class="px-6 py-4 text-sm">@row.Credits</td>
+
+                                <td class="px-6 py-4">
+                                    @if (row.TeacherId == null)
+                                    {
+                                        <div class="flex items-center gap-2 text-red-500 italic">
+                                            <span class="material-symbols-outlined text-[20px]">person_off</span>
+                                            <span class="text-sm">Chưa gán GV</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="flex items-center gap-2">
+                                            <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+                                                @row.TeacherName?.Substring(0, 1)
+                                            </div>
+                                            <span class="text-sm font-medium">@row.TeacherName</span>
+                                        </div>
+                                    }
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    @if (row.StatusBadge == "GREEN")
+                                    {
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
+                                            @row.StatusText
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300">
+                                            @row.StatusText
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex justify-end gap-2">
+                                        <button class="p-2 text-[#617589] hover:text-primary hover:bg-primary/10 rounded-lg" title="Gán giảng viên">
+                                            <span class="material-symbols-outlined text-[20px]">person_add</span>
+                                        </button>
+                                        <button class="p-2 text-[#617589] hover:text-primary hover:bg-primary/10 rounded-lg" title="Chỉnh sửa">
+                                            <span class="material-symbols-outlined text-[20px]">edit</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="px-6 py-4 flex items-center justify-between border-t border-[#f0f2f4] dark:border-gray-700 bg-background-light/50 dark:bg-gray-900/30">
+                <p class="text-sm text-[#617589] dark:text-gray-400">
+                    Hiển thị @Model.From-@Model.To của @Model.TotalCount lớp/môn
+                </p>
+
+                <div class="flex items-center gap-2">
+                    <!-- Prev -->
+                    <a asp-action="quanlyMonGV"
+                       asp-route-termId="@Model.TermId"
+                       asp-route-page="@(Model.Page - 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       class="p-2 rounded-lg border border-[#dbe0e6] dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 @(Model.Page <= 1 ? "pointer-events-none opacity-50" : "")">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </a>
+
+                    @{
+                        var pages = Model.GetPageNumbers(window: 1);
+                        int prev = -1;
+                    }
+
+                    @foreach (var p in pages)
+                    {
+                        if (prev != -1 && p - prev > 1)
+                        {
+                            <span class="px-1 text-gray-400">...</span>
+                        }
+
+                        <a asp-action="quanlyMonGV"
+                           asp-route-termId="@Model.TermId"
+                           asp-route-page="@p"
+                           asp-route-pageSize="@Model.PageSize"
+                           class="h-8 w-8 rounded-lg text-sm @(p == Model.Page ? "bg-primary text-white font-bold" : "font-medium hover:bg-gray-200 dark:hover:bg-gray-700 text-[#111418] dark:text-white") flex items-center justify-center">
+                            @p
+                        </a>
+
+                        prev = p;
+                    }
+
+                    <!-- Next -->
+                    <a asp-action="quanlyMonGV"
+                       asp-route-termId="@Model.TermId"
+                       asp-route-page="@(Model.Page + 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       class="p-2 rounded-lg border border-[#dbe0e6] dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 @(Model.Page >= Model.TotalPages ? "pointer-events-none opacity-50" : "")">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

@@ -198,6 +198,127 @@ CREATE TABLE dbo.Notifications (
     CONSTRAINT FK_Notifications_Users  FOREIGN KEY (user_id) REFERENCES dbo.Users(user_id),
     CONSTRAINT FK_Notifications_Alerts FOREIGN KEY (related_alert_id) REFERENCES dbo.Alerts(alert_id)
 );
+
+ALTER TABLE Students
+ADD DateOfBirth date NULL,
+    Gender nvarchar(10) NULL,
+    Phone nvarchar(20) NULL,
+    Address nvarchar(255) NULL;
+
+	CREATE TABLE dbo.SectionSchedules (
+    schedule_id   INT IDENTITY(1,1) PRIMARY KEY,
+    section_id    INT NOT NULL,
+    day_of_week   VARCHAR(20) NOT NULL,      -- 'MONDAY', 'TUESDAY',... 
+    start_period  INT NOT NULL,              -- Tiết bắt đầu (1-12)
+    end_period    INT NOT NULL,              -- Tiết kết thúc
+    start_time    TIME NULL,                 -- 07:00:00
+    end_time      TIME NULL,                 -- 09:30:00
+    room          NVARCHAR(50) NULL,
+    
+    CONSTRAINT FK_SectionSchedules_Sections 
+        FOREIGN KEY (section_id) REFERENCES dbo.Sections(section_id),
+    CONSTRAINT CK_SectionSchedules_Periods 
+        CHECK (start_period <= end_period AND start_period BETWEEN 1 AND 12)
+);
+
+USE SPTS;
+GO
+
+-- =============================================
+-- 1. CREATE NEW TABLES
+-- =============================================
+
+-- Table: AcademicYears
+IF NOT EXISTS (SELECT * FROM sys. tables WHERE name = 'AcademicYears')
+BEGIN
+    CREATE TABLE AcademicYears (
+        academic_year_id INT IDENTITY(1,1) PRIMARY KEY,
+        year_name NVARCHAR(20) NOT NULL UNIQUE,
+        start_year INT NOT NULL,
+        end_year INT NOT NULL,
+        start_date DATE NOT NULL,
+        end_date DATE NOT NULL,
+        is_current BIT NOT NULL DEFAULT 0,
+        status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        
+        CONSTRAINT CK_AcademicYears_Years CHECK (end_year = start_year + 1),
+        CONSTRAINT CK_AcademicYears_Dates CHECK (end_date > start_date),
+        CONSTRAINT CK_AcademicYears_Status CHECK (status IN ('ACTIVE', 'INACTIVE', 'ARCHIVED'))
+    );
+    
+    CREATE INDEX IX_AcademicYears_Current ON AcademicYears(is_current) WHERE is_current = 1;
+    CREATE INDEX IX_AcademicYears_Year ON AcademicYears(start_year, end_year);
+    
+    PRINT '✓ Table AcademicYears created successfully';
+END
+GO
+
+-- Table:  Departments
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Departments')
+BEGIN
+    CREATE TABLE Departments (
+        department_id INT IDENTITY(1,1) PRIMARY KEY,
+        department_code VARCHAR(20) NOT NULL UNIQUE,
+        department_name NVARCHAR(200) NOT NULL,
+        description NVARCHAR(1000) NULL,
+        head_teacher_id INT NULL,
+        phone VARCHAR(20) NULL,
+        email VARCHAR(255) NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        
+        CONSTRAINT FK_Departments_Teachers FOREIGN KEY (head_teacher_id) 
+            REFERENCES Teachers(teacher_id),
+        CONSTRAINT CK_Departments_Status CHECK (status IN ('ACTIVE', 'INACTIVE', 'MERGED')),
+        CONSTRAINT CK_Departments_Email CHECK (email LIKE '%@%' OR email IS NULL)
+    );
+    
+    CREATE INDEX IX_Departments_Status ON Departments(status);
+    CREATE INDEX IX_Departments_HeadTeacher ON Departments(head_teacher_id);
+    
+    PRINT '✓ Table Departments created successfully';
+END
+GO
+
+-- =============================================
+-- 2. ALTER EXISTING TABLES
+-- =============================================
+
+-- Add academic_year_id to Terms
+IF NOT EXISTS (
+    SELECT * FROM sys.columns 
+    WHERE object_id = OBJECT_ID('Terms') AND name = 'academic_year_id'
+)
+BEGIN
+    ALTER TABLE Terms
+    ADD academic_year_id INT NULL,
+        CONSTRAINT FK_Terms_AcademicYears FOREIGN KEY (academic_year_id)
+            REFERENCES AcademicYears(academic_year_id);
+    
+    CREATE INDEX IX_Terms_AcademicYear ON Terms(academic_year_id);
+    
+    PRINT '✓ Added academic_year_id to Terms table';
+END
+GO
+
+-- Add department_id to Students
+IF NOT EXISTS (
+    SELECT * FROM sys.columns 
+    WHERE object_id = OBJECT_ID('Students') AND name = 'department_id'
+)
+BEGIN
+    ALTER TABLE Students
+    ADD department_id INT NULL,
+        CONSTRAINT FK_Students_Departments FOREIGN KEY (department_id)
+            REFERENCES Departments(department_id);
+    
+    CREATE INDEX IX_Students_Department ON Students(department_id);
+    
+    PRINT '✓ Added department_id to Students table';
+END
+GO
+
 GO
 
 /* Helpful indexes (optional) */

@@ -15,11 +15,15 @@ public partial class SptsContext : DbContext
     {
     }
 
+    public virtual DbSet<AcademicYear> AcademicYears { get; set; }
+
     public virtual DbSet<Advisor> Advisors { get; set; }
 
     public virtual DbSet<Alert> Alerts { get; set; }
 
     public virtual DbSet<Course> Courses { get; set; }
+
+    public virtual DbSet<Department> Departments { get; set; }
 
     public virtual DbSet<GpaScale> GpaScales { get; set; }
 
@@ -53,6 +57,35 @@ public partial class SptsContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AcademicYear>(entity =>
+        {
+            entity.HasKey(e => e.AcademicYearId).HasName("PK__Academic__11CFB9743377DA01");
+
+            entity.HasIndex(e => e.IsCurrent, "IX_AcademicYears_Current").HasFilter("([is_current]=(1))");
+
+            entity.HasIndex(e => new { e.StartYear, e.EndYear }, "IX_AcademicYears_Year");
+
+            entity.HasIndex(e => e.YearName, "UQ__Academic__252258BE78C188E5").IsUnique();
+
+            entity.Property(e => e.AcademicYearId).HasColumnName("academic_year_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysutcdatetime())")
+                .HasColumnName("created_at");
+            entity.Property(e => e.EndDate).HasColumnName("end_date");
+            entity.Property(e => e.EndYear).HasColumnName("end_year");
+            entity.Property(e => e.IsCurrent).HasColumnName("is_current");
+            entity.Property(e => e.StartDate).HasColumnName("start_date");
+            entity.Property(e => e.StartYear).HasColumnName("start_year");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("ACTIVE")
+                .HasColumnName("status");
+            entity.Property(e => e.YearName)
+                .HasMaxLength(20)
+                .HasColumnName("year_name");
+        });
+
         modelBuilder.Entity<Advisor>(entity =>
         {
             entity.HasIndex(e => e.AdvisorCode, "UQ_Advisors_Code").IsUnique();
@@ -132,6 +165,50 @@ public partial class SptsContext : DbContext
                 .HasMaxLength(200)
                 .HasColumnName("course_name");
             entity.Property(e => e.Credits).HasColumnName("credits");
+        });
+
+        modelBuilder.Entity<Department>(entity =>
+        {
+            entity.HasKey(e => e.DepartmentId).HasName("PK__Departme__C22324229968D3BF");
+
+            entity.HasIndex(e => e.HeadTeacherId, "IX_Departments_HeadTeacher");
+
+            entity.HasIndex(e => e.Status, "IX_Departments_Status");
+
+            entity.HasIndex(e => e.DepartmentCode, "UQ__Departme__EBC3495E4D14A0FE").IsUnique();
+
+            entity.Property(e => e.DepartmentId).HasColumnName("department_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysutcdatetime())")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DepartmentCode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("department_code");
+            entity.Property(e => e.DepartmentName)
+                .HasMaxLength(200)
+                .HasColumnName("department_name");
+            entity.Property(e => e.Description)
+                .HasMaxLength(1000)
+                .HasColumnName("description");
+            entity.Property(e => e.Email)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("email");
+            entity.Property(e => e.HeadTeacherId).HasColumnName("head_teacher_id");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("phone");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("ACTIVE")
+                .HasColumnName("status");
+
+            entity.HasOne(d => d.HeadTeacher).WithMany(p => p.Departments)
+                .HasForeignKey(d => d.HeadTeacherId)
+                .HasConstraintName("FK_Departments_Teachers");
         });
 
         modelBuilder.Entity<GpaScale>(entity =>
@@ -370,6 +447,8 @@ public partial class SptsContext : DbContext
 
         modelBuilder.Entity<Student>(entity =>
         {
+            entity.HasIndex(e => e.DepartmentId, "IX_Students_Department");
+
             entity.HasIndex(e => e.StudentCode, "UQ_Students_Code").IsUnique();
 
             entity.Property(e => e.StudentId)
@@ -377,6 +456,7 @@ public partial class SptsContext : DbContext
                 .HasColumnName("student_id");
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.CohortYear).HasColumnName("cohort_year");
+            entity.Property(e => e.DepartmentId).HasColumnName("department_id");
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.Major)
                 .HasMaxLength(100)
@@ -386,6 +466,10 @@ public partial class SptsContext : DbContext
                 .HasMaxLength(30)
                 .IsUnicode(false)
                 .HasColumnName("student_code");
+
+            entity.HasOne(d => d.Department).WithMany(p => p.Students)
+                .HasForeignKey(d => d.DepartmentId)
+                .HasConstraintName("FK_Students_Departments");
 
             entity.HasOne(d => d.StudentNavigation).WithOne(p => p.Student)
                 .HasForeignKey<Student>(d => d.StudentId)
@@ -413,14 +497,21 @@ public partial class SptsContext : DbContext
 
         modelBuilder.Entity<Term>(entity =>
         {
+            entity.HasIndex(e => e.AcademicYearId, "IX_Terms_AcademicYear");
+
             entity.HasIndex(e => e.TermName, "UQ_Terms_Name").IsUnique();
 
             entity.Property(e => e.TermId).HasColumnName("term_id");
+            entity.Property(e => e.AcademicYearId).HasColumnName("academic_year_id");
             entity.Property(e => e.EndDate).HasColumnName("end_date");
             entity.Property(e => e.StartDate).HasColumnName("start_date");
             entity.Property(e => e.TermName)
                 .HasMaxLength(50)
                 .HasColumnName("term_name");
+
+            entity.HasOne(d => d.AcademicYear).WithMany(p => p.Terms)
+                .HasForeignKey(d => d.AcademicYearId)
+                .HasConstraintName("FK_Terms_AcademicYears");
         });
 
         modelBuilder.Entity<TermGpa>(entity =>
