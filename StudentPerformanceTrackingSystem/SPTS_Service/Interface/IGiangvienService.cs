@@ -12,7 +12,7 @@ namespace SPTS_Service.Interface
     public interface IGiangvienService
     {
         Task<Giangvien> GetDashboardAsync(int teacherId);
-        Task<ChiTietLopVm> GetSectionDetailAsync(int sectionId);
+        Task<ChiTietLopVm> GetSectionDetailAsync(int sectionId, int page = 1, int pageSize = 10, string? search = null);
         Task SaveGradesAsync(int sectionId, List<StudentGradeRowVm> students);
 
         Task<ThongBaoPageVm> GetThongBaoPageAsync(int teacherId, int sectionId, int page = 1, int pageSize = 10);

@@ -1,8 +1,7 @@
-﻿@using SPTS_Service.ViewModel
-@model SPTS_Service.ViewModel.SinhVien
+﻿@model SPTS_Service.ViewModel.SinhVien
 
 <main class="flex flex-1 flex-col h-full overflow-hidden relative">
-    <header class="flex h-16 items-center justify-between border-b border-[#e5e7eb] dark:border-[#1f2937] bg-white dark:bg-[#111418] px-6 lg:px-10 shrink-0 z-10">
+    <header class="flex h-16 items-center justify-between border-b border-[#e5e7eb] dark:border-[#1f2937] bg-white dark: bg-[#111418] px-6 lg:px-10 shrink-0 z-10">
         <button class="lg:hidden mr-4 p-2 text-gray-600">
             <span class="material-symbols-outlined">menu</span>
         </button>
@@ -15,9 +14,10 @@
             </div>
         </div>
         <div class="flex items-center gap-4 ml-6">
-            <button class="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#f0f2f4] dark:bg-[#1f2937] hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-[#111418] dark:text-white">
-                <span class="material-symbols-outlined text-[20px]">notifications</span>
+            <button class="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#f0f2f4] dark: bg-[#1f2937] hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-[#111418] dark:text-white">
+                <a href="~/Home/CanhBao"><span class="material-symbols-outlined text-[20px]">notifications</span>
                 <span class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#111418]"></span>
+                </a>
             </button>
             <div class="flex items-center gap-3 pl-2 border-l border-gray-200 dark:border-gray-700">
                 <div class="text-right hidden sm:block">
@@ -32,10 +32,12 @@
     <div class="flex-1 overflow-y-auto p-6 lg:p-10 scroll-smooth">
         <div class="mx-auto max-w-6xl flex flex-col gap-8">
             <div>
-                <h2 class="text-[#111418] dark:text-white text-3xl font-bold tracking-tight">Welcome back, @Model.FullName.</h2>
-                <p class="text-[#617589] dark:text-[#9ca3af] mt-1">Here's an overview of your academic performance.</p>
+                <h2 class="text-[#111418] dark:text-white text-3xl font-bold tracking-tight">Welcome back, @Model.FullName. </h2>
+                <p class="text-[#617589] dark:text-[#9ca3af] mt-1">Here's an overview of your academic performance. </p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- Stats Cards - CENTERED -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto w-full">
                 <div class="flex flex-col gap-1 rounded-xl bg-white dark:bg-[#111418] p-6 border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-2">
                         <p class="text-[#617589] dark:text-[#9ca3af] text-sm font-medium">Cumulative GPA</p>
@@ -49,15 +51,6 @@
                         <span class="material-symbols-outlined text-primary bg-primary/10 p-1.5 rounded-lg text-[20px]">check_circle</span>
                     </div>
                     <p class="text-[#111418] dark:text-white text-2xl font-bold">@Model.CreditsEarned</p>
-
-                </div>
-                <div class="flex flex-col gap-1 rounded-xl bg-white dark:bg-[#111418] p-6 border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex items-center justify-between mb-2">
-                        <p class="text-[#617589] dark:text-[#9ca3af] text-sm font-medium">Attendance</p>
-                        <span class="material-symbols-outlined text-primary bg-primary/10 p-1.5 rounded-lg text-[20px]">diversity_3</span>
-                    </div>
-                    <p class="text-[#111418] dark:text-white text-2xl font-bold">-</p>
-                   
                 </div>
                 <div class="flex flex-col gap-1 rounded-xl bg-white dark:bg-[#111418] p-6 border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-2">
@@ -65,195 +58,226 @@
                         <span class="material-symbols-outlined text-red-500 bg-red-100 dark:bg-red-900/30 p-1.5 rounded-lg text-[20px]">priority_high</span>
                     </div>
                     <p class="text-[#111418] dark:text-white text-2xl font-bold">@Model.AcademicAlertCount</p>
-                        @{
-                            var topAlert = Model.Alerts?.FirstOrDefault();
-                            var alertText = topAlert != null
-                            ? $"{topAlert.AlertType}" + (string.IsNullOrWhiteSpace(topAlert.CourseCode) ? "" : $" in {topAlert.CourseCode}")
-                            : "No alerts";
-                        }
-                    <p class="text-[#d32f2f] text-xs font-medium flex items-center gap-1">
-                        @alertText
-                    </p>
                 </div>
             </div>
+            
+            <!-- Main Content Grid -->
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- Left Column - Full Width on Mobile -->
                 <div class="xl:col-span-2 flex flex-col gap-8">
+                    <!-- GPA Trend -->
                     <div class="rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] p-6 shadow-sm">
                         <div class="flex items-center justify-between mb-6">
                             <div>
                                 <h3 class="text-[#111418] dark:text-white text-lg font-bold">GPA Trend</h3>
                                 <p class="text-sm text-[#617589]">Overview of academic performance over semesters</p>
                             </div>
-                            <select class="bg-[#f0f2f4] dark:bg-[#1f2937] text-sm rounded-lg px-3 py-1.5 border-none focus:ring-1 focus:ring-primary dark:text-white cursor-pointer">
+                            <select class="bg-[#f0f2f4] dark:bg-[#1f2937] text-sm rounded-lg px-3 py-1. 5 border-none focus:ring-1 focus:ring-primary dark:text-white cursor-pointer">
                                 <option>Last 5 Semesters</option>
                                 <option>All Time</option>
                             </select>
                         </div>
                         <div class="w-full h-[220px] relative">
                             @{
-                                // GPA hệ 4.0 (0..4)
-                                var gpa = (double)(Model.TermGpa ?? 0m);
-                                gpa = Math.Clamp(gpa, 0.0, 4.0);
-
-                                // map GPA -> vị trí theo chiều dọc (top=0, bottom=100)
-                                // GPA cao thì dot nằm cao
+                                var gpa = (double)(Model. TermGpa ?? 0m);
+                                gpa = Math. Clamp(gpa, 0.0, 4.0);
                                 var topPercent = (1.0 - (gpa / 4.0)) * 100.0;
                             }
 
                             <div class="w-full h-[220px] relative">
-                                <!-- trục nền -->
+                                <!-- Grid lines -->
                                 <div class="absolute inset-0 flex flex-col justify-between py-2">
                                     <div class="border-t border-dashed border-gray-200 dark:border-gray-700"></div>
                                     <div class="border-t border-dashed border-gray-200 dark:border-gray-700"></div>
-                                    <div class="border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                                    <div class="border-t border-dashed border-gray-200 dark: border-gray-700"></div>
                                     <div class="border-t border-dashed border-gray-200 dark:border-gray-700"></div>
                                 </div>
 
-                                <!-- dot -->
-                                <div class="absolute left-1/2 -translate-x-1/2"
-                                     style="top: calc(@topPercent% - 6px);">
+                                <!-- GPA Dot -->
+                                <div class="absolute left-1/2 -translate-x-1/2" style="top: calc(@topPercent% - 6px);">
                                     <div class="h-3 w-3 rounded-full bg-primary ring-4 ring-primary/20"></div>
                                     <div class="mt-2 -translate-x-1/2 text-center text-xs font-semibold text-[#111418] dark:text-white whitespace-nowrap">
                                         GPA: @gpa.ToString("0.00")
                                     </div>
                                 </div>
 
-                                <!-- label dưới -->
+                                <!-- Bottom Label -->
                                 <div class="absolute bottom-0 left-0 right-0 flex justify-center text-xs font-medium text-[#617589] pb-2">
                                     <span>@(Model.CurrentTermName ?? "Current term")</span>
                                 </div>
 
-                                <!-- nhãn trục (tuỳ chọn) -->
+                                <!-- Y-axis labels -->
                                 <div class="absolute top-2 left-2 text-[11px] text-[#617589]">4.0</div>
                                 <div class="absolute bottom-8 left-2 text-[11px] text-[#617589]">0.0</div>
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-[#111418] dark:text-white text-lg font-bold">Current Courses Progress</h3>
-                            <a class="text-sm font-medium text-primary hover:underline" href="#">View All</a>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            @foreach (var c in Model.CurrentCourses ?? new List<CourseProgressVm>())
-                            {
-                                var score10 = c.TotalScore ?? 0m;                           // 0..10
-                                var percent = (int)Math.Clamp((double)score10 * 10, 0, 100); // 0..100
-                                var isRisk = score10 > 0 && score10 < 5;
-
-                                <div class="group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-all
-            @(isRisk ? "border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/20" : "")">
-
-                                    <div class="h-32 w-full bg-cover bg-center"
-                                         style="background-image:url('https://picsum.photos/seed/@c.CourseCode/800/300');">
-                                        <div class="absolute top-3 right-3 bg-white/90 dark:bg-black/70 px-2 py-1 rounded text-xs font-bold backdrop-blur-sm
-                    @(isRisk ? "text-red-600 dark:text-red-400" : "")">
-                                            @c.CourseCode
-                                        </div>
-                                    </div>
-
-                                    <div class="p-4 flex flex-col flex-1">
-                                        <h4 class="text-base font-bold text-[#111418] dark:text-white line-clamp-1">@c.CourseName</h4>
-                                        <p class="text-sm text-[#617589] mt-1 mb-4">@c.TeacherName</p>
-
-                                        <div class="mt-auto">
-                                            <div class="flex justify-between text-xs mb-1.5">
-                                                <span class="font-medium text-[#111418] dark:text-gray-300">Total Score</span>
-                                                <span class="font-bold @(isRisk ? "text-red-600" : "text-green-600")">
-                                                    @(c.TotalScore?.ToString("0.0") ?? "—") / 10
-                                                </span>
-                                            </div>
-
-                                            <div class="h-2 w-full rounded-full bg-[#f0f2f4] dark:bg-[#1f2937] overflow-hidden">
-                                                <div class="h-full rounded-full @(isRisk ? "bg-red-500" : "bg-green-500")" style="width:@percent%"></div>
-                                            </div>
-
-                                            @if (isRisk)
-                                            {
-                                                <p class="text-xs text-red-600 mt-2 font-medium flex items-center gap-1">
-                                                    <span class="material-symbols-outlined text-[14px]">warning</span>
-                                                    Risk of failing
-                                                </p>
-                                            }
-                                            else
-                                            {
-                                                <p class="text-xs text-[#617589] mt-2">
-                                                    GPA point: @(c.GpaPoint?.ToString("0.0") ?? "—")
-                                                </p>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </div>
                 </div>
+                
+                <!-- Right Column - Alerts & Grade Distribution -->
                 <div class="flex flex-col gap-6">
+                    <!-- Academic Alerts -->
                     <div class="rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm flex flex-col h-fit">
-                        <div class="p-5 border-b border-[#f0f2f4] dark:border-[#1f2937] flex items-center justify-between">
+                        <div class="p-5 border-b border-[#f0f2f4] dark: border-[#1f2937] flex items-center justify-between">
                             <h3 class="text-[#111418] dark:text-white text-base font-bold flex items-center gap-2">
                                 <span class="material-symbols-outlined text-yellow-500">notifications_active</span>
                                 Academic Alerts
                             </h3>
-                            <button class="text-xs text-primary font-medium hover:underline">View All</button>
+                            <a href="~/Home/CanhBao" class="text-xs text-primary font-medium hover:underline">View All</a>
                         </div>
                         <div class="p-2">
-                            @foreach (var a in Model.Alerts)
+                            @if (Model.Alerts != null && Model.Alerts.Any())
                             {
-                                <div class="group flex gap-3 p-3 rounded-lg hover:bg-[#f9fafb] ...">
-                                    <div class="flex flex-col items-center justify-center h-12 w-12 rounded-lg shrink-0
-                                @(a.Severity == "HIGH" ? "bg-red-100 dark:bg-red-900/30" : "bg-blue-50 dark:bg-blue-900/20")">
-                                        <span class="material-symbols-outlined
-                                @(a.Severity == "HIGH" ? "text-red-600 dark:text-red-400" : "text-blue-600 dark:text-blue-400")">warning</span>
+                                @foreach (var a in Model.Alerts)
+                                {
+                                    <div class="group flex gap-3 p-3 rounded-lg hover:bg-[#f9fafb] dark:hover:bg-[#1f2937] transition-colors cursor-pointer @(a.Severity == "HIGH" ? "bg-red-50 dark:bg-red-900/10" : "")">
+                                        <div class="flex flex-col items-center justify-center h-12 w-12 rounded-lg shrink-0 @(a.Severity == "HIGH" ? "bg-red-100 dark:bg-red-900/30" : "bg-blue-50 dark:bg-blue-900/20")">
+                                            <span class="material-symbols-outlined @(a.Severity == "HIGH" ? "text-red-600 dark:text-red-400" : "text-blue-600 dark:text-blue-400")">warning</span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h5 class="text-sm font-bold text-[#111418] dark:text-white group-hover:text-primary transition-colors truncate">
+                                                @{
+                                                    var tb = a.AlertType switch
+                                                    {
+                                                        "LOW_PROCESS" => "điểm quá trình",
+                                                        "LOW_FINAL" => "Điểm cuối kỳ",
+                                                        "LOW_TOTAL" => "Điểm tổng kết",
+                                                        _ => a.AlertType
+                                                };
+
+                                                }
+                                                @tb@if (!string.IsNullOrWhiteSpace(a.CourseCode))
+                                                {
+                                                    <text>:Lớp @a.CourseCode</text>
+                                                }
+                                            </h5>
+                                            <p class="text-xs text-[#617589] mt-1 line-clamp-2">@a.Reason</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h5 class="text-sm font-bold ...">
-                                            @a.AlertType@if(!string.IsNullOrWhiteSpace(a.CourseCode)){
-                                            <text>: @a.CourseCode</text>
-                                        }
-                                    </h5>
-                                    <p class="text-xs ... mt-1 line-clamp-2">@a.Reason</p>
+                                }
+                            }
+                            else
+                            {
+                                <div class="p-8 text-center">
+                                    <span class="material-symbols-outlined text-green-500 text-4xl mb-2">check_circle</span>
+                                    <p class="text-sm text-[#617589]">No academic alerts</p>
+                                    <p class="text-xs text-[#9ca3af] mt-1">Keep up the good work!</p>
                                 </div>
-                            </div>
-                                                        }
+                            }
                         </div>
                     </div>
+                    
+                    <!-- Grade Distribution -->
                     <div class="rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm flex flex-col h-fit">
                         <div class="p-5 border-b border-[#f0f2f4] dark:border-[#1f2937] flex items-center justify-between">
                             <h3 class="text-[#111418] dark:text-white text-base font-bold">Grade Distribution</h3>
                             <span class="text-xs text-[#617589]">This Semester</span>
                         </div>
                         <div class="p-5 flex flex-col gap-4">
+                            @{
+                                var totalGrades = Model.GradeDistribution.A + Model.GradeDistribution.B + Model.GradeDistribution.C + Model.GradeDistribution.DF;
+                                var aPercent = totalGrades > 0 ? (Model.GradeDistribution.A * 100.0 / totalGrades) : 0;
+                                var bPercent = totalGrades > 0 ? (Model. GradeDistribution.B * 100.0 / totalGrades) : 0;
+                                var cPercent = totalGrades > 0 ? (Model.GradeDistribution.C * 100.0 / totalGrades) : 0;
+                                var dfPercent = totalGrades > 0 ? (Model.GradeDistribution.DF * 100.0 / totalGrades) : 0;
+                            }
+                            
                             <div class="flex items-center gap-3">
                                 <div class="w-8 text-sm font-bold text-[#111418] dark:text-white">A</div>
                                 <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
-                                    <div class="h-full bg-green-500 rounded-full" style="width: 60%"></div>
+                                    <div class="h-full bg-green-500 rounded-full transition-all duration-500" style="width:@aPercent.ToString("0.0")%"></div>
                                 </div>
                                 <div class="w-8 text-xs text-right text-[#617589]">@Model.GradeDistribution.A</div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="w-8 text-sm font-bold text-[#111418] dark:text-white">B</div>
                                 <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
-                                    <div class="h-full bg-blue-500 rounded-full" style="width: 20%"></div>
+                                    <div class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: @bPercent.ToString("0.0")%"></div>
                                 </div>
                                 <div class="w-8 text-xs text-right text-[#617589]">@Model.GradeDistribution.B</div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="w-8 text-sm font-bold text-[#111418] dark:text-white">C</div>
                                 <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
-                                    <div class="h-full bg-yellow-500 rounded-full" style="width: 20%"></div>
+                                    <div class="h-full bg-yellow-500 rounded-full transition-all duration-500" style="width: @cPercent.ToString("0.0")%"></div>
                                 </div>
                                 <div class="w-8 text-xs text-right text-[#617589]">@Model.GradeDistribution.C</div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="w-8 text-sm font-bold text-[#111418] dark:text-white">D/F</div>
-                                <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
-                                    <div class="h-full bg-red-500 rounded-full" style="width: 0%"></div>
+                                <div class="flex-1 h-2 bg-[#f0f2f4] dark: bg-[#1f2937] rounded-full overflow-hidden">
+                                    <div class="h-full bg-red-500 rounded-full transition-all duration-500" style="width: @dfPercent.ToString("0.0")%"></div>
                                 </div>
                                 <div class="w-8 text-xs text-right text-[#617589]">@Model.GradeDistribution.DF</div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Current Courses Progress - FULL WIDTH -->
+            <div class="w-full">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-[#111418] dark:text-white text-lg font-bold">Current Courses Progress</h3>
+                    <a class="text-sm font-medium text-primary hover:underline" href="~/Home/BangDiemSinhVien">View All</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    @if (Model.CurrentCourses != null && Model.CurrentCourses.Any())
+                    {
+                        @foreach (var c in Model.CurrentCourses)
+                        {
+                            var score10 = c.TotalScore ??  0m;
+                            var percent = (int)Math. Clamp((double)score10 * 10, 0, 100);
+                            var isRisk = score10 > 0 && score10 < 5;
+
+                            <div class="group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark: border-[#1f2937] shadow-sm hover:shadow-md transition-all @(isRisk ? "border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/20" : "")">
+                                <div class="h-32 w-full bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/@c.CourseCode/800/300');">
+                                    <div class="absolute top-3 right-3 bg-white/90 dark:bg-black/70 px-2 py-1 rounded text-xs font-bold backdrop-blur-sm @(isRisk ? "text-red-600 dark:text-red-400" : "")">
+                                        @c.CourseCode
+                                    </div>
+                                </div>
+
+                                <div class="p-4 flex flex-col flex-1">
+                                    <h4 class="text-base font-bold text-[#111418] dark:text-white line-clamp-1">@c.CourseName</h4>
+                                    <p class="text-sm text-[#617589] mt-1 mb-4">@c.TeacherName</p>
+
+                                    <div class="mt-auto">
+                                        <div class="flex justify-between text-xs mb-1.5">
+                                            <span class="font-medium text-[#111418] dark: text-gray-300">Total Score</span>
+                                            <span class="font-bold @(isRisk ? "text-red-600" : "text-green-600")">
+                                                @(c.TotalScore?. ToString("0.0") ?? "—") / 10
+                                            </span>
+                                        </div>
+
+                                        <div class="h-2 w-full rounded-full bg-[#f0f2f4] dark:bg-[#1f2937] overflow-hidden">
+                                            <div class="h-full rounded-full transition-all duration-500 @(isRisk ? "bg-red-500" : "bg-green-500")" style="width:@percent%"></div>
+                                        </div>
+
+                                        @if (isRisk)
+                                        {
+                                            <p class="text-xs text-red-600 mt-2 font-medium flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[14px]">warning</span>
+                                                Risk of failing
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-xs text-[#617589] mt-2">
+                                                GPA point: @(c.GpaPoint?.ToString("0.0") ?? "—")
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-span-full p-12 text-center">
+                            <span class="material-symbols-outlined text-[#617589] text-5xl mb-3">school</span>
+                            <p class="text-[#617589]">No courses enrolled this semester</p>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

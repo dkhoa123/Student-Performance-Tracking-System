@@ -17,11 +17,14 @@ namespace SPTS_Service
             public async Task<Giangvien> GetDashboardAsync(int teacherId)
             {
                 // Stats
-                var totalStudents = await _repo.GetTotalStudentsByTeacherAsync(teacherId);
+                var teacherName = await _repo.GetTeacherUserAsync(teacherId);
+            var totalStudents = await _repo.GetTotalStudentsByTeacherAsync(teacherId);
                 var averageScore = await _repo.GetAverageScoreByTeacherAsync(teacherId);
                 var atRiskStudents = await _repo.GetAtRiskStudentsCountAsync(teacherId);
                 var newStudents = await _repo.GetNewStudentsThisMonthAsync(teacherId);
                 var activeSections = await _repo.GetActiveSectionsCountAsync(teacherId);
+
+                var newAlertsCount = await _repo.GetNewAlertsCountAsync(teacherId);
 
                 // Sections
                 var sections = await _repo.GetSectionsByTeacherAsync(teacherId);
@@ -53,11 +56,16 @@ namespace SPTS_Service
                     })
                     .ToList();
 
+                // THÊM MỚI - lấy danh sách học kỳ cho dropdown
+                var terms = await _repo.GetTermsByTeacherAsync(teacherId);
+                var selectedTermId = terms.FirstOrDefault().TermId;
+
                 var alerts = await _repo.GetRecentAlertsByTeacherAsync(teacherId);
                 var chart = await _repo.GetGpaChartDataByTeacherAsync(teacherId);
 
                 return new Giangvien
                 {
+                    TeacherName = teacherName,
                     TotalStudents = totalStudents,
                     AverageScore = averageScore,
                     AtRiskStudents = atRiskStudents,
@@ -65,6 +73,15 @@ namespace SPTS_Service
                     ActiveSectionsCount = activeSections, // MỚI
 
                     SectionsByTerm = sectionsByTerm, // Nhóm theo term
+
+                    // THÊM MỚI - danh sách học kỳ cho dropdown
+                    AvailableTerms = terms.Select(t => new TermOptionViewModel
+                    {
+                        TermId = t.TermId,
+                        TermName = t.TermName,
+                        IsSelected = t.TermId == selectedTermId
+                    }).ToList(),
+                    SelectedTermId = selectedTermId,
 
                     RecentAlerts = alerts.Select(a => new AlertViewModel
                     {
@@ -74,7 +91,8 @@ namespace SPTS_Service
                         Severity = a.Severity,
                         IconName = a.IconName,
                         IconColor = a.IconColor,
-                        CreatedAt = a.CreatedAt
+                        CreatedAt = a.CreatedAt,
+                        NewAlertsCount = newAlertsCount
                     }).ToList(),
 
                     ChartData = chart.Select(c => new ChartDataViewModel
@@ -86,10 +104,33 @@ namespace SPTS_Service
                 };
             }
 
-        public async Task<ChiTietLopVm> GetSectionDetailAsync(int sectionId)
+        public async Task<ChiTietLopVm> GetSectionDetailAsync(int sectionId, int page = 1, int pageSize = 10, string? search = null)
         {
             var dto = await _repo.GetSectionDetailAsync(sectionId);
             var alertCount = await _repo.GetAlertCountBySectionAsync(sectionId);
+
+            page = page <= 0 ? 1 : page;
+            pageSize = pageSize <= 0 ? 10 : pageSize;
+
+            // FILTER (search theo MSSV hoặc tên)
+            var all = dto.Students.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                all = all.Where(x =>
+                    (!string.IsNullOrEmpty(x.StudentCode) && x.StudentCode.Contains(s, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(x.FullName) && x.FullName.Contains(s, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            var total = all.Count();
+            var totalPages = (int)Math.Ceiling(total / (double)pageSize);
+            totalPages = Math.Max(totalPages, 1);
+            page = Math.Min(page, totalPages);
+
+            var studentsPaged = all
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
             var vm = new ChiTietLopVm
             {
@@ -102,7 +143,7 @@ namespace SPTS_Service
                 SectionStatus = dto.SectionStatus,
                 AlertCount = alertCount,
 
-                Students = dto.Students.Select(s => new StudentGradeRowVm
+                Students = studentsPaged.Select(s => new StudentGradeRowVm
                 {
                     StudentId = s.StudentId,
                     StudentCode = s.StudentCode,
@@ -114,17 +155,24 @@ namespace SPTS_Service
                 }).ToList()
             };
 
-            vm.StudentCount = vm.Students.Count;
+            // Stats header nên tính trên TOÀN BỘ lớp (dto.Students), không phải trang hiện tại
+            vm.StudentCount = dto.Students.Count;
 
-            var graded = vm.Students.Where(x => x.TotalScore.HasValue).ToList();
-            vm.AverageScore = graded.Any()
-                ? Math.Round(graded.Average(x => x.TotalScore!.Value), 1)
+            var gradedAll = dto.Students.Where(x => x.TotalScore.HasValue).ToList();
+            vm.AverageScore = gradedAll.Any()
+                ? Math.Round(gradedAll.Average(x => x.TotalScore!.Value), 1)
                 : (decimal?)null;
 
-            // % qua môn: tính trên những SV đã có TotalScore (cách phổ biến)
-            vm.PassRatePercent = graded.Any()
-                ? Math.Round((decimal)graded.Count(x => x.TotalScore >= 5m) * 100 / graded.Count, 0)
+            vm.PassRatePercent = gradedAll.Any()
+                ? Math.Round((decimal)gradedAll.Count(x => x.TotalScore >= 5m) * 100 / gradedAll.Count, 0)
                 : 0;
+
+            // Pagination fields (cần thêm property vào ChiTietLopVm ở bước 3)
+            vm.CurrentPage = page;
+            vm.TotalPages = totalPages;
+            vm.PageSize = pageSize;
+            vm.TotalStudents = total;
+            vm.Search = search;
 
             return vm;
         }
@@ -137,22 +185,47 @@ namespace SPTS_Service
 
             foreach (var s in students)
             {
+                var hasP = s.ProcessScore.HasValue;
+                var hasF = s.FinalScore.HasValue;
+
                 // không nhập gì thì bỏ qua
-                if (s.ProcessScore == null && s.FinalScore == null)
+                if (!hasP && !hasF)
                     continue;
 
-                decimal? total = null;
+                // ✅ CÁCH 2: chỉ tính theo phần đã nhập, rồi chuẩn hóa theo tổng weight đã nhập
+                decimal sumWeight = 0m;
+                decimal sum = 0m;
 
-                // chỉ tính total khi có đủ 2 cột (thiếu 1 cột thì total null)
-                if (s.ProcessScore.HasValue && s.FinalScore.HasValue)
+                if (hasP)
                 {
-                    var raw = s.ProcessScore.Value * rule.ProcessWeight
-                            + s.FinalScore.Value * rule.FinalWeight;
-
-                    total = Math.Round(raw, rule.RoundingScale);
+                    sum += s.ProcessScore!.Value * rule.ProcessWeight;
+                    sumWeight += rule.ProcessWeight;
                 }
 
-                await _repo.UpsertGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total);
+                if (hasF)
+                {
+                    sum += s.FinalScore!.Value * rule.FinalWeight;
+                    sumWeight += rule.FinalWeight;
+                }
+
+                decimal? total = null;
+                if (sumWeight > 0)
+                {
+                    total = Math.Round(sum / sumWeight, rule.RoundingScale);
+                }
+
+                decimal? gpaPoint = null;
+                if (total.HasValue)
+                {
+                    gpaPoint = await _repo.GetGpaPointByTotalAsync(total.Value);
+                }
+
+                await _repo.UpsertGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total, gpaPoint);
+
+                // Nếu bạn có auto-alert:
+                // - Process/Final alert vẫn chạy bình thường
+                // - Total alert chỉ nên chạy khi đủ cả 2 cột (xem note bên dưới)
+                 await _repo.SyncAlertsForGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total);
             }
         }
 

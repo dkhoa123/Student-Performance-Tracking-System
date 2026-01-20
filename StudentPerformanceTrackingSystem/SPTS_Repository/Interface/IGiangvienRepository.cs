@@ -5,16 +5,19 @@ namespace SPTS_Repository.Interface
 {
     public interface IGiangvienRepository
     {
-        Task<Teacher> GetByUserIdAsync(int userId);
-        Task<User> GetTeacherUserAsync(int teacherId);
+        Task<string> GetTeacherUserAsync(int teacherId);
         // học kỳ hiện tại
+        Task<List<(int TermId, string TermName)>> GetTermsByTeacherAsync(int teacherId);
         Task<int> GetTotalStudentsByTeacherAsync(int teacherId);
         Task<int> GetNewStudentsThisMonthAsync(int teacherId);
         Task<decimal> GetAverageScoreByTeacherAsync(int teacherId);
         Task<List<SectionCardViewModelDto>> GetSectionsByTeacherAsync(int teacherId);
+        Task<decimal?> GetGpaPointByTotalAsync(decimal totalScore); 
         //cảnh báo
+        Task SyncAlertsForGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total);
         Task<int> GetAtRiskStudentsCountAsync(int teacherId);
         Task<List<AlertViewModelDto>> GetRecentAlertsByTeacherAsync(int teacherId, int top = 3);
+        Task<int> GetNewAlertsCountAsync(int teacherId);
         //bieu do
         Task<List<ChartDataViewModelDto>> GetGpaChartDataByTeacherAsync(int teacherId, int? TermId = null);
         Task<int> GetActiveSectionsCountAsync(int teacherId);
@@ -22,7 +25,7 @@ namespace SPTS_Repository.Interface
         Task<ChiTietLopDto> GetSectionDetailAsync(int sectionId);
         Task<int> GetAlertCountBySectionAsync(int sectionId);
         Task<GradeRule?> GetActiveGradeRuleBySectionAsync(int sectionId);
-        Task UpsertGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total);
+        Task UpsertGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total, decimal? gpaPoint);
 
         Task<List<SectionOptionDto>> GetSectionsForNotificationAsync(int teacherId);
         Task<List<StudentNotificationDto>> GetStudentsWithAlertStatusAsync(int sectionId);

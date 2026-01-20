@@ -35,22 +35,12 @@ namespace StudentPerformanceTrackingSystem.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "TEACHER")]
-        public async Task<IActionResult> ChitietLop(int id)
+        [HttpGet]
+        public async Task<IActionResult> ChitietLop(int id, int page = 1, string? search = null)
         {
-            // id = SectionId
-            var vm = await _gvSer.GetSectionDetailAsync(id);
+            const int pageSize = 10;
+            var vm = await _gvSer.GetSectionDetailAsync(id, page, pageSize, search);
             return View(vm);
-        }
-        [HttpPost]
-        [Authorize(Roles = "TEACHER")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveGrades(ChiTietLopVm model)
-        {
-            await _gvSer.SaveGradesAsync(model.SectionId, model.Students);
-
-            TempData["Success"] = "Lưu bảng điểm thành công";
-            return RedirectToAction(nameof(ChitietLop), new { id = model.SectionId });
         }
         // GET: /Giangvien/ThongBao? sectionId=1&page=1
         public async Task<IActionResult> ThongBao(int sectionId, int page = 1)
@@ -110,6 +100,17 @@ namespace StudentPerformanceTrackingSystem.Controllers
         private int GetCurrentTeacherId()
         {
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "TEACHER")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveGrades(ChiTietLopVm model)
+        {
+            await _gvSer.SaveGradesAsync(model.SectionId, model.Students);
+
+            TempData["Success"] = "Lưu bảng điểm thành công";
+            return RedirectToAction(nameof(ChitietLop), new { id = model.SectionId, page = model.CurrentPage, search = model.Search });
         }
     }
 }

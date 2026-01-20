@@ -176,7 +176,7 @@ namespace SPTS_Service
         {
             return alertType switch
             {
-                "LOW_TOTAL" or "LOW_FINAL" or "LOW_GPA" => "warning",
+                "LOW_TOTAL" or "LOW_FINAL" or "LOW_PROCESS" or "LOW_GPA" => "warning",
                 "ABSENT" => "school",
                 "MISSING_ASSIGNMENT" => "assignment_late",
                 _ => "notifications"

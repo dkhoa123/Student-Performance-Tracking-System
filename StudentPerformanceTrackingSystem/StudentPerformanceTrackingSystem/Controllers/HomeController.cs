@@ -193,6 +193,12 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
         private int GetCurrentStudentId()
         {
+            // ưu tiên claim "StudentId"
+            var studentIdClaim = User.FindFirstValue("StudentId");
+            if (!string.IsNullOrWhiteSpace(studentIdClaim))
+                return int.Parse(studentIdClaim);
+
+            // fallback (nếu hệ bạn StudentId == UserId)
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
         }
 

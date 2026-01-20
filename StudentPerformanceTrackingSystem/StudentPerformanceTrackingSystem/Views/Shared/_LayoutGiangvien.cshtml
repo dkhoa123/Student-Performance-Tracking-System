@@ -76,9 +76,11 @@
             </nav>
             <!-- Bottom Action -->
             <div class="mt-auto">
-                <button class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                <button type ="submit">
+                    <a asp-controller="Home" asp-action="Login" method="post" class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                     <span class="material-symbols-outlined">logout</span>
                     Đăng xuất
+                    </a>
                 </button>
             </div>
         </aside>

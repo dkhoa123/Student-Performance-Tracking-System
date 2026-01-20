@@ -35,11 +35,6 @@ namespace SPTS_Repository
             return avgScore ?? 0;
         }
 
-        public Task<Teacher> GetByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<List<ChartDataViewModelDto>> GetGpaChartDataByTeacherAsync(int teacherId, int? TermId = null)
         {
             return await _context.TermGpas
@@ -241,9 +236,14 @@ namespace SPTS_Repository
                 .CountAsync();
         }
 
-        public Task<User> GetTeacherUserAsync(int teacherId)
+        public async Task<string> GetTeacherUserAsync(int teacherId)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users
+        .FirstOrDefaultAsync(u => u.UserId == teacherId);
+
+            return user?.FullName ?? "Giảng viên";
+
+
         }
 
         public async Task<int> GetTotalStudentsByTeacherAsync(int teacherId)
@@ -317,7 +317,7 @@ namespace SPTS_Repository
                 .CountAsync();
         }
 
-        public async Task UpsertGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total)
+        public async Task UpsertGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total, decimal? gpaPoint)
         {
             var grade = await _context.Grades
                 .SingleOrDefaultAsync(g => g.SectionId == sectionId && g.StudentId == studentId);
@@ -330,7 +330,8 @@ namespace SPTS_Repository
                     StudentId = studentId,
                     ProcessScore = process,
                     FinalScore = final,
-                    TotalScore = total
+                    TotalScore = total,
+                    GpaPoint = gpaPoint
                 };
                 _context.Grades.Add(grade);
             }
@@ -339,6 +340,7 @@ namespace SPTS_Repository
                 grade.ProcessScore = process;
                 grade.FinalScore = final;
                 grade.TotalScore = total;
+                grade.GpaPoint = gpaPoint;
             }
 
             await _context.SaveChangesAsync();
@@ -453,5 +455,164 @@ namespace SPTS_Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task<int> GetNewAlertsCountAsync(int teacherId)
+        {
+            return await _context.Alerts
+                .Where(a => a.Section.TeacherId == teacherId &&
+                            (a.Status == "NEW" || a.Status == "SENT"))
+                .CountAsync();
+        }
+
+        public async Task<List<(int TermId, string TermName)>> GetTermsByTeacherAsync(int teacherId)
+        {
+            return await _context.Sections
+                .Where(s => s.TeacherId == teacherId)
+                .Select(s => new { s.TermId, s.Term.TermName })
+                .Distinct()
+                .OrderByDescending(t => t.TermId)
+                .Select(t => ValueTuple.Create(t.TermId, t.TermName))
+                .ToListAsync();
+        }
+
+        public async Task SyncAlertsForGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total)
+        {
+            const decimal threshold = 5m;
+
+            var termId = await _context.Sections
+                .Where(s => s.SectionId == sectionId)
+                .Select(s => (int?)s.TermId)
+                .FirstOrDefaultAsync();
+
+            // helper: returns (createdNew, alertEntityIfCreatedOrUpdated)
+            async Task<(bool createdNew, Alert? alert)> UpsertOrDelete(string alertType, string severity, decimal? actualValue, string reason)
+            {
+                var existing = await _context.Alerts
+                    .Where(a => a.SectionId == sectionId
+                             && a.StudentId == studentId
+                             && a.AlertType == alertType)
+                    .OrderByDescending(a => a.CreatedAt)
+                    .ToListAsync();
+
+                if (!actualValue.HasValue || actualValue.Value >= threshold)
+                {
+                    if (existing.Count > 0)
+                        _context.Alerts.RemoveRange(existing);
+                    return (false, null);
+                }
+
+                var now = DateTime.UtcNow;
+
+                if (existing.Count == 0)
+                {
+                    var a = new Alert
+                    {
+                        StudentId = studentId,
+                        SectionId = sectionId,
+                        TermId = termId,
+                        AlertType = alertType,
+                        Severity = severity,
+                        ThresholdValue = threshold,
+                        ActualValue = actualValue,
+                        Reason = reason,
+                        Status = "NEW",
+                        CreatedAt = now
+                    };
+                    _context.Alerts.Add(a);
+                    return (true, a);
+                }
+                else
+                {
+                    var a = existing[0];
+                    a.TermId = termId;
+                    a.Severity = severity;
+                    a.ThresholdValue = threshold;
+                    a.ActualValue = actualValue;
+                    a.Reason = reason;
+                    a.Status = "NEW";
+                    a.CreatedAt = now;
+
+                    if (existing.Count > 1)
+                        _context.Alerts.RemoveRange(existing.Skip(1));
+
+                    return (false, a);
+                }
+            }
+
+            // 1) Process
+            var (newProcess, processAlert) = await UpsertOrDelete(
+                "LOW_PROCESS", "LOW", process, $"Điểm quá trình dưới {threshold:0.0}"
+            );
+
+            // 2) Final
+            var (newFinal, finalAlert) = await UpsertOrDelete(
+                "LOW_FINAL", "MEDIUM", final, $"Điểm cuối kỳ dưới {threshold:0.0}"
+            );
+
+            // 3) Total: chỉ khi đủ 2 cột
+            (bool newTotal, Alert? totalAlert) = (false, null);
+            if (process.HasValue && final.HasValue)
+            {
+                (newTotal, totalAlert) = await UpsertOrDelete(
+                    "LOW_TOTAL", "HIGH", total, $"Điểm tổng kết dưới {threshold:0.0}"
+                );
+            }
+            else
+            {
+                var existingTotal = await _context.Alerts
+                    .Where(a => a.SectionId == sectionId
+                             && a.StudentId == studentId
+                             && a.AlertType == "LOW_TOTAL")
+                    .ToListAsync();
+                if (existingTotal.Count > 0)
+                    _context.Alerts.RemoveRange(existingTotal);
+            }
+
+            // save to get AlertId for new alerts
+            await _context.SaveChangesAsync();
+
+            // gửi notification chỉ cho alerts NEWLY created
+            await CreateNotificationIfNewAsync(newProcess, processAlert);
+            await CreateNotificationIfNewAsync(newFinal, finalAlert);
+            await CreateNotificationIfNewAsync(newTotal, totalAlert);
+
+            await _context.SaveChangesAsync();
+
+            async Task CreateNotificationIfNewAsync(bool createdNew, Alert? alert)
+            {
+                if (!createdNew || alert == null) return;
+
+                // UserId của Notification chính là studentId (vì StudentId == UserId trong hệ của bạn)
+                var title = "Cảnh báo học tập";
+                var content = alert.AlertType switch
+                {
+                    "LOW_PROCESS" => $"Điểm quá trình của bạn dưới {threshold:0.0}. Vui lòng cải thiện.",
+                    "LOW_FINAL" => $"Điểm cuối kỳ của bạn dưới {threshold:0.0}. Vui lòng cải thiện.",
+                    "LOW_TOTAL" => $"Bạn đang có nguy cơ trượt môn (Tổng kết dưới {threshold:0.0}).",
+                    _ => "Bạn có một cảnh báo học tập."
+                };
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = studentId,
+                    Title = title,
+                    Content = content,
+                    RelatedAlertId = alert.AlertId, // ✅ link alert
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                await Task.CompletedTask;
+            }
+        }
+
+        public async Task<decimal?> GetGpaPointByTotalAsync(decimal totalScore)
+        {
+            var scale = await _context.GpaScales
+                .Where(sc => totalScore >= sc.MinScore && totalScore <= sc.MaxScore)
+                .Select(sc => (decimal?)sc.GpaPoint) // nếu cột tên khác thì đổi
+                .FirstOrDefaultAsync();
+
+            return scale;
+        }
     }
 }

@@ -15,9 +15,11 @@
                 <p class="text-[#617589] dark:text-[#94a3b8] text-base font-normal leading-normal">Xem và cập nhật thông tin thành viên trong hệ thống. </p>
             </div>
             <button class="flex min-w-[160px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
-                <span class="material-symbols-outlined">person_add</span>
+               <a href="~/Home/SignUp"><span class="material-symbols-outlined">person_add</span>
                 <span class="truncate">Thêm người dùng</span>
+                </a>
             </button>
+
         </div>
 
         <!-- Filters -->
@@ -203,7 +205,7 @@
                     @if (Model.Page < Model.TotalPages)
                     {
                         <a asp-action="quanlyUser" asp-route-role="@Model.Role" asp-route-page="@(Model.Page + 1)"
-                           class="flex size-9 items-center justify-center rounded-lg hover: bg-gray-200 dark: hover:bg-[#344452] transition-colors text-[#111418] dark:text-white">
+                           class="flex size-9 items-center justify-center rounded-lg hover: bg-gray-200 dark:hover:bg-[#344452] transition-colors text-[#111418] dark:text-white">
                             <span class="material-symbols-outlined text-[20px]">chevron_right</span>
                         </a>
                     }

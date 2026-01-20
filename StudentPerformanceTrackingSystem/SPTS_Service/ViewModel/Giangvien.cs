@@ -14,7 +14,9 @@ namespace SPTS_Service.ViewModel
 
         // Sections nhóm theo học kỳ
         public List<TermSectionsViewModel> SectionsByTerm { get; set; }
-
+        // THÊM MỚI - cho dropdown học kỳ
+        public List<TermOptionViewModel> AvailableTerms { get; set; } = new();
+        public int? SelectedTermId { get; set; }
         public List<AlertViewModel> RecentAlerts { get; set; }
         public List<ChartDataViewModel> ChartData { get; set; }
     }
@@ -25,6 +27,13 @@ namespace SPTS_Service.ViewModel
         public DateTime? TermStartDate { get; set; }
         public List<SectionCardViewModel> Sections { get; set; }
     }
+
+    public class TermOptionViewModel
+{
+    public int TermId { get; set; }
+    public string TermName { get; set; }
+    public bool IsSelected { get; set; }
+}
 
     public class SectionCardViewModel
     {
@@ -53,6 +62,7 @@ namespace SPTS_Service.ViewModel
         public string IconName { get; set; } = string.Empty;
         public string IconColor { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public int NewAlertsCount { get; set; }
     }
 
     public class ChartDataViewModel
@@ -78,6 +88,13 @@ namespace SPTS_Service.ViewModel
         public int AlertCount { get; set; }              // số cảnh báo của lớp
 
         public List<StudentGradeRowVm> Students { get; set; } = new();
+
+        // NEW: pagination + search
+        public int CurrentPage { get; set; } = 1;
+        public int TotalPages { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalStudents { get; set; } // tổng sau filter
+        public string? Search { get; set; }
     }
 
     public class StudentGradeRowVm
