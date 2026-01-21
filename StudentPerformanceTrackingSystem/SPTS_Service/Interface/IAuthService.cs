@@ -13,5 +13,7 @@ namespace SPTS_Service.Interface
         Task DangKysv(DangKySinhVien model);
         Task<string?> CreateStuCode(int? CohortYear);
         Task<User> DangNhap(string emailSv, string matKhau);
+
+        Task DoiMatKhauAsync(int userId, string oldPassword, string newPassword);
     }
 }

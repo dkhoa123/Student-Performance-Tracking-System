@@ -88,11 +88,12 @@
                             <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <span class="material-symbols-outlined icon-fill">hotel_class</span>
                             </div>
-                            <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">GPA Tích lũy</p>
+                            <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">GPA Học kỳ</p>
                         </div>
                         <p class="text-[#111418] dark:text-white text-3xl font-black mt-2">
-                            @(Model.CumulativeGpa?.ToString("0.00") ?? "-")
-                            <span class="text-lg text-[#617589] font-medium">/4.0</span></p>
+                            @(Model.TermGpa?.ToString("0.00") ?? "-")
+                            <span class="text-lg text-[#617589] font-medium">/4.0</span>
+                        </p>
                     </div>
                     <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-[#dbe0e6] dark:border-[#2a3441] shadow-sm flex flex-col gap-2 relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-10 dark:opacity-5 group-hover:scale-110 transition-transform duration-500">
@@ -104,7 +105,7 @@
                             </div>
                             <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">Tín chỉ đạt</p>
                         </div>
-                        <p class="text-[#111418] dark:text-white text-3xl font-black mt-2">@Model.CreditsAttempted</p>
+                        <p class="text-[#111418] dark:text-white text-3xl font-black mt-2">@Model.CreditsEarned</p>
                     </div>
                     <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-[#dbe0e6] dark:border-[#2a3441] shadow-sm flex flex-col gap-2 relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-10 dark:opacity-5 group-hover:scale-110 transition-transform duration-500">

@@ -166,11 +166,174 @@
                             <p class="text-[#617589] dark:text-gray-400 text-sm">Cập nhật mật khẩu thường xuyên để bảo vệ tài khoản của bạn.</p>
                         </div>
                     </div>
-                    <button class="px-4 py-2 rounded-lg border border-[#dbe0e6] dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-[#111418] dark:text-white font-medium whitespace-nowrap transition-colors">
+
+                    <button onclick="openPasswordModal()" type="button" class="px-4 py-2 rounded-lg border border-[#dbe0e6] dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-[#111418] dark:text-white font-medium whitespace-nowrap transition-colors">
                         Đổi mật khẩu
                     </button>
+                    
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+<!-- Modal Đổi Mật Khẩu -->
+<div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+    <div class="bg-white dark:bg-card-dark rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-4">
+            <h2 class="text-white text-xl font-bold">Đổi mật khẩu</h2>
+        </div>
+
+        <!-- Form -->
+        <form id="changePasswordForm" class="p-6">
+            <!-- Mật khẩu cũ -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="oldPassword">
+                    Mật khẩu cũ (*)
+                </label>
+                <div class="relative">
+                    <input type="password"
+                           id="oldPassword"
+                           name="oldPassword"
+                           required
+                           class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 pr-10 text-gray-900 dark:text-white placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 transition-colors"
+                           placeholder="Nhập mật khẩu cũ" />
+                    <button type="button"
+                            onclick="togglePassword('oldPassword')"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mật khẩu mới -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="newPassword">
+                    Mật khẩu mới (*)
+                </label>
+                <div class="relative">
+                    <input type="password"
+                           id="newPassword"
+                           name="newPassword"
+                           required
+                           class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 pr-10 text-gray-900 dark:text-white placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 transition-colors"
+                           placeholder="Nhập mật khẩu mới" />
+                    <button type="button"
+                            onclick="togglePassword('newPassword')"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Xác nhận mật khẩu -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="confirmPassword">
+                    Xác nhận mật khẩu (*)
+                </label>
+                <div class="relative">
+                    <input type="password"
+                           id="confirmPassword"
+                           name="confirmPassword"
+                           required
+                           class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 pr-10 text-gray-900 dark:text-white placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 transition-colors"
+                           placeholder="Nhập lại mật khẩu mới" />
+                    <button type="button"
+                            onclick="togglePassword('confirmPassword')"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3">
+                <button type="button"
+                        onclick="closePasswordModal()"
+                        class="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                    Hủy
+                </button>
+                <button type="submit"
+                        class="flex-1 px-4 py-3 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium shadow-sm transition-colors">
+                    ĐỔI MẬT KHẨU
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Mở modal
+    function openPasswordModal() {
+        document.getElementById('passwordModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+
+    // Đóng modal
+    function closePasswordModal() {
+        document.getElementById('passwordModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.getElementById('changePasswordForm').reset();
+    }
+
+    // Toggle hiện/ẩn mật khẩu
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const button = field.nextElementSibling;
+        const icon = button.querySelector('span');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.textContent = 'visibility';
+        } else {
+            field.type = 'password';
+            icon.textContent = 'visibility_off';
+        }
+    }
+
+    // Đóng modal khi click bên ngoài
+    document.getElementById('passwordModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closePasswordModal();
+        }
+    });
+
+    document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const oldPassword = document.getElementById('oldPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (newPassword !== confirmPassword) {
+        alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
+        return;
+      }
+
+      const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]').value;
+
+      fetch('@Url.Action("DoiMatKhau", "Home")', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'RequestVerificationToken': token
+        },
+        body: JSON.stringify({ oldPassword, newPassword, confirmPassword })
+      })
+      .then(async res => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || 'Đổi mật khẩu thất bại');
+        return data;
+      })
+      .then(() => {
+        alert('Đổi mật khẩu thành công!');
+        closePasswordModal();
+      })
+      .catch(err => alert('Lỗi: ' + err.message));
+    });
+</script>
+
+<form id="antiForgeryForm" style="display:none">
+    @Html.AntiForgeryToken()
+</form>

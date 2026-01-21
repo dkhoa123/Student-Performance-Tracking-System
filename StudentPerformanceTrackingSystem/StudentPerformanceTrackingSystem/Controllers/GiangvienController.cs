@@ -17,15 +17,13 @@ namespace StudentPerformanceTrackingSystem.Controllers
             _gvSer = giangvienService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? termId)
         {
             int teacherId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            var model = await _gvSer.GetDashboardAsync(teacherId);
-
+            var model = await _gvSer.GetDashboardAsync(teacherId, termId);
             return View(model);
         }
-        
+
         public async Task<IActionResult> Lophoc()
         {
             int teacherId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));

@@ -29,6 +29,8 @@ namespace SPTS_Repository.Interface
         Task<int> GetUnreadCountAsync(int studentId);
         Task MarkAsReadAsync(int notificationId, int studentId);
         Task MarkAllAsReadAsync(int studentId);
+
+        Task<List<TermGpaTrendRowDto>> GetTermGpaTrendAsync(int studentId, int take = 5);
     }
     public record StudentIdentityDto(int? StudentId, int? UserId, string StudentCode, string FullName, string Email, string Major, DateOnly? DateOfBirth, string? Gender, string? Phone, string? Address, string status);
     public record TermGpaDto(decimal? GpaValue, int? CreditsAttempted, int? CreditsEarned);
@@ -48,4 +50,5 @@ namespace SPTS_Repository.Interface
     string? AlertType,
     string? Severity
 );
+    public record TermGpaTrendRowDto(int TermId, string TermName, DateTime? StartDate, decimal? GpaValue);
 }

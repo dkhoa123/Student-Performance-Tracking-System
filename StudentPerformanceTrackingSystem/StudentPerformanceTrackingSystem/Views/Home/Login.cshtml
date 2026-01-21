@@ -124,7 +124,7 @@
                         <div class="flex flex-col gap-2">
                             <label class="text-[#111418] dark:text-gray-200 text-sm font-medium leading-normal flex justify-between">
                                 <span>Mật khẩu</span>
-                                <a class="text-primary text-sm font-semibold hover:underline" href="#">Quên mật khẩu?</a>
+                                @* <a class="text-primary text-sm font-semibold hover:underline" href="#">Quên mật khẩu?</a> *@
                             </label>
                             <div class="relative flex items-center">
                                 <input asp-for="Password" class="form-input flex w-full rounded-lg border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 h-12 px-4 pl-11 pr-11 text-[#111418] dark:text-white placeholder:text-[#617589] dark:placeholder:text-gray-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-base font-normal leading-normal" placeholder="Nhập mật khẩu của bạn" type="password" value="" />
@@ -132,7 +132,7 @@
                                     <span asp-validation-for="Password" class="material-symbols-outlined text-[20px]">lock</span>
                                 </div>
                                 <button class="absolute right-3 top-1/2 -translate-y-1/2 text-[#617589] dark:text-gray-400 hover:text-primary transition-colors flex items-center cursor-pointer" type="button">
-                                    <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+                                    <span id="toggleIcon" class="material-symbols-outlined text-[20px]">visibility_off</span>
                                 </button>
                             </div>
                         </div>
@@ -141,14 +141,14 @@
                             <span class="truncate">Đăng nhập</span>
                         </button>
                         <!-- Divider -->
-                        <div class="relative py-2">
+                        @* <div class="relative py-2">
                             <div class="absolute inset-0 flex items-center">
                                 <div class="w-full border-t border-[#e5e7eb] dark:border-gray-700"></div>
                             </div>
                             <div class="relative flex justify-center">
                                 <span class="bg-white dark:bg-[#1a2632] px-2 text-sm text-[#617589] dark:text-gray-400">hoặc</span>
                             </div>
-                        </div>
+                        </div> *@
                         <!-- Register Link -->
                         @* <div class="flex justify-center gap-2 text-sm">
                             <span class="text-[#617589] dark:text-gray-400">Chưa có tài khoản?</span>
@@ -163,5 +163,28 @@
     <footer class="py-6 text-center text-sm text-[#617589] dark:text-gray-500">
         <p>© 2024 University Performance System. Bảo lưu mọi quyền.</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.querySelector('input[asp-for="Password"]') ||
+                                 document.querySelector('input[type="password"]');
+            const toggleButton = document.querySelector('button[type="button"]');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (toggleButton && passwordInput && toggleIcon) {
+                toggleButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        toggleIcon.textContent = 'visibility';
+                    } else {
+                        passwordInput.type = 'password';
+                        toggleIcon.textContent = 'visibility_off';
+                    }
+                });
+            }
+        });
+    </script>
+
 </body>
 </html>

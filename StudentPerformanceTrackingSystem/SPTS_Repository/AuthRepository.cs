@@ -20,6 +20,14 @@ namespace SPTS_Repository
             await _db.Students.AddAsync(student);
             await _db.SaveChangesAsync();
         }
+
+        public Task<User?> FindUserByIdAsync(int userId)
+            => _db.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+
+        // NEW
+        public Task SaveChangesAsync()
+            => _db.SaveChangesAsync();
+
         public async Task<string?> LayMaLonNhat(string prefix)
         {
             return await _db.Students

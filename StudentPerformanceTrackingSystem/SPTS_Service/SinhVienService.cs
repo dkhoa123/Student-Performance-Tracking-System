@@ -42,6 +42,13 @@ namespace SPTS_Service
             var cumulative = await _SVre.GetCumulativeGpaAsync(studentId);
             var creditsEarnedCumulative = await _SVre.GetCreditsEarnedCumulativeAsync(studentId);
 
+            var trend = await _SVre.GetTermGpaTrendAsync(studentId, take: 5);
+
+            var termCreditsAttempted = courses.Sum(x => x.Credit);
+            var termCreditsEarned = courses.Where(x => x.TotalScore.HasValue && x.TotalScore.Value >= 5m)
+                                           .Sum(x => x.Credit);
+
+
             var dist = new GradeDistributionVm
             {
                 A = courses.Count(x => x.GpaPoint == 4),
@@ -65,8 +72,9 @@ namespace SPTS_Service
                 Status = info.status,
 
                 TermGpa = tg?.GpaValue,
-                CreditsAttempted = tg?.CreditsAttempted ?? 0,
-                CreditsEarned = creditsEarnedCumulative,
+                CreditsAttempted = termCreditsAttempted,
+                CreditsEarned = termCreditsEarned,
+                CreditsEarnedCumulative = creditsEarnedCumulative,
 
                 CumulativeGpa = cumulative?.GpaValue,
                 CurrentTermName = termName,
@@ -104,9 +112,15 @@ namespace SPTS_Service
                 }).ToList(),
 
                 SelectedTermId = termId,
+
+                TermGpaTrend = trend.Select(x => new TermGpaTrendVm
+                {
+                    TermId = x.TermId,
+                    TermName = x.TermName,
+                    Gpa = x.GpaValue
+                }).ToList(),
+
             };
-
-
         }
 
         public async Task CapNhatThongTinSinhVien(SinhVien model)

@@ -36,31 +36,35 @@ namespace SPTS_Repository
         }
 
         public Task<List<CourseProgressDto>> GetCourseProgressAsync(int studentId, int termId)
-        { 
+        {
             return (from g in _db.Grades
-                join s in _db.Sections on g.SectionId equals s.SectionId
-                join c in _db.Courses on s.CourseId equals c.CourseId
-                join t in _db.Teachers on s.TeacherId equals t.TeacherId
-                join tu in _db.Users on t.TeacherId equals tu.UserId
+                    join s in _db.Sections on g.SectionId equals s.SectionId
+                    join c in _db.Courses on s.CourseId equals c.CourseId
+                    join t in _db.Teachers on s.TeacherId equals t.TeacherId
+                    join tu in _db.Users on t.TeacherId equals tu.UserId
 
                     from scale in _db.GpaScales
-                   .Where(sc => g.TotalScore != null
-                             && g.TotalScore >= sc.MinScore
-                             && g.TotalScore <= sc.MaxScore)
-                   .DefaultIfEmpty()
+                        .Where(sc => g.TotalScore != null
+                                  && g.TotalScore >= sc.MinScore
+                                  && g.TotalScore <= sc.MaxScore)
+                        .DefaultIfEmpty()
 
-                where g.StudentId == studentId && s.TermId == termId
-                select new CourseProgressDto(
-                    c.CourseCode,
-                    c.CourseName,
-                    tu.FullName,
-                    c.Credits,
-                    g.ProcessScore,
-                    g.FinalScore,
-                    g.TotalScore,
-                    g.GpaPoint,
-                    scale.Letter
-                )).ToListAsync();
+                    where g.StudentId == studentId && s.TermId == termId
+                    select new CourseProgressDto(
+                        c.CourseCode,
+                        c.CourseName,
+                        tu.FullName,
+                        c.Credits,
+                        g.ProcessScore,
+                        g.FinalScore,
+                        g.TotalScore,
+
+                        // GPA hệ 4 lấy từ scale (đủ TotalScore là có)
+                        scale != null ? (decimal?)scale.GpaPoint : null,
+
+                        // Letter cũng từ scale
+                        scale.Letter
+                    )).ToListAsync();
         }
 
         public async Task<CumulativeGpaDto?> GetCumulativeGpaAsync(int studentId)
@@ -114,12 +118,35 @@ namespace SPTS_Repository
                 x.FullName, x.Email, x.Major, x.DateOfBirth, x.Gender, x.Phone, x.Address, x.Status);
         }
 
-        public Task<TermGpaDto?> GetTermGpaAsync(int studentId, int termId)
+        public async Task<TermGpaDto?> GetTermGpaAsync(int studentId, int termId)
         {
-            return _db.TermGpas
-                .Where(x => x.StudentId == studentId && x.TermId == termId)
-                .Select(x => new TermGpaDto(x.GpaValue, x.CreditsAttempted, x.CreditsEarned))
-                .FirstOrDefaultAsync();
+            
+            var rows = await (
+                from g in _db.Grades
+                join s in _db.Sections on g.SectionId equals s.SectionId
+                join c in _db.Courses on s.CourseId equals c.CourseId
+                from scale in _db.GpaScales
+                    .Where(sc => g.TotalScore != null
+                              && g.TotalScore >= sc.MinScore
+                              && g.TotalScore <= sc.MaxScore)
+                    .DefaultIfEmpty()
+                where g.StudentId == studentId
+                   && s.TermId == termId
+                   && scale != null
+                select new { GpaPoint = scale!.GpaPoint, Credits = c.Credits, TotalScore = g.TotalScore }
+            ).ToListAsync();
+
+            var creditsAttempted = rows.Sum(x => x.Credits);
+            if (creditsAttempted <= 0)
+                return new TermGpaDto(null, 0, 0);
+
+            var numerator = rows.Sum(x => x.GpaPoint * x.Credits);
+            var gpa = Math.Round(numerator / creditsAttempted, 2);
+
+            var creditsEarned = rows.Where(x => x.TotalScore != null && x.TotalScore >= 5m)
+                                    .Sum(x => x.Credits);
+
+            return new TermGpaDto(gpa, creditsAttempted, creditsEarned);
         }
 
         public async Task<int> GetCreditsEarnedCumulativeAsync(int studentId)
@@ -236,6 +263,48 @@ namespace SPTS_Repository
             await _db.Notifications
                 .Where(n => n.UserId == studentId && !n.IsRead)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(n => n.IsRead, true));
+        }
+
+        public async Task<List<TermGpaTrendRowDto>> GetTermGpaTrendAsync(int studentId, int take = 5)
+        {
+            var rows = await (
+                from g in _db.Grades
+                join s in _db.Sections on g.SectionId equals s.SectionId
+                join c in _db.Courses on s.CourseId equals c.CourseId
+                join t in _db.Terms on s.TermId equals t.TermId
+
+                from scale in _db.GpaScales
+                    .Where(sc => g.TotalScore != null
+                              && g.TotalScore >= sc.MinScore
+                              && g.TotalScore <= sc.MaxScore)
+                    .DefaultIfEmpty()
+
+                where g.StudentId == studentId
+                      && scale != null
+                group new { c, t, scale } by new { t.TermId, t.TermName, t.StartDate } into grp
+                select new
+                {
+                    grp.Key.TermId,
+                    grp.Key.TermName,
+                    grp.Key.StartDate,
+                    Credits = grp.Sum(x => x.c.Credits),
+                    Numerator = grp.Sum(x => x.scale!.GpaPoint * x.c.Credits)
+                }
+            )
+            .OrderByDescending(x => x.StartDate)
+            .Take(take)
+            .ToListAsync();
+
+            rows.Reverse();
+
+            return rows.Select(x =>
+                new TermGpaTrendRowDto(
+                    x.TermId,
+                    x.TermName,
+                    x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                    x.Credits > 0 ? Math.Round(x.Numerator / x.Credits, 2) : (decimal?)null
+                )
+            ).ToList();
         }
     }
 }

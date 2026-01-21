@@ -202,6 +202,31 @@ namespace StudentPerformanceTrackingSystem.Controllers
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
         }
 
+        [HttpPost]
+        [Authorize(Roles = "STUDENT")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoiMatKhau([FromBody] DoiMatKhauVm model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ." });
+
+            if (model.NewPassword != model.ConfirmPassword)
+                return BadRequest(new { success = false, message = "Mật khẩu xác nhận không khớp." });
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0)
+                return Unauthorized(new { success = false, message = "Chưa đăng nhập." });
+
+            try
+            {
+                await _svAuth.DoiMatKhauAsync(userId, model.OldPassword, model.NewPassword);
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

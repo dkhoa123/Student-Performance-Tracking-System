@@ -14,95 +14,89 @@ namespace SPTS_Service
             _repo = repo;
         }
 
-            public async Task<Giangvien> GetDashboardAsync(int teacherId)
-            {
-                // Stats
-                var teacherName = await _repo.GetTeacherUserAsync(teacherId);
-            var totalStudents = await _repo.GetTotalStudentsByTeacherAsync(teacherId);
-                var averageScore = await _repo.GetAverageScoreByTeacherAsync(teacherId);
-                var atRiskStudents = await _repo.GetAtRiskStudentsCountAsync(teacherId);
-                var newStudents = await _repo.GetNewStudentsThisMonthAsync(teacherId);
-                var activeSections = await _repo.GetActiveSectionsCountAsync(teacherId);
+        public async Task<Giangvien> GetDashboardAsync(int teacherId, int? termId = null)
+        {
+            var teacherName = await _repo.GetTeacherUserAsync(teacherId);
+            var terms = await _repo.GetTermsByTeacherAsync(teacherId);
 
-                var newAlertsCount = await _repo.GetNewAlertsCountAsync(teacherId);
+            // term đang chọn: ưu tiên query param, fallback term mới nhất trong list
+            var selectedTermId = termId ?? terms.FirstOrDefault().TermId;
 
-                // Sections
-                var sections = await _repo.GetSectionsByTeacherAsync(teacherId);
+            var totalStudents = await _repo.GetTotalStudentsByTeacherAsync(teacherId); // nếu muốn theo term thì cũng lọc term
+            var averageScore = await _repo.GetAverageScoreByTeacherAsync(teacherId, selectedTermId);
+            var atRiskStudents = await _repo.GetAtRiskStudentsCountAsync(teacherId);
+            var newStudents = await _repo.GetNewStudentsThisMonthAsync(teacherId);
+            var activeSections = await _repo.GetActiveSectionsCountAsync(teacherId);
+            var newAlertsCount = await _repo.GetNewAlertsCountAsync(teacherId);
 
-                // Nhóm sections theo học kỳ
-                var sectionsByTerm = sections
-                    .GroupBy(s => new { s.TermId, s.TermName, s.StartDate })
-                    .OrderByDescending(g => g.Key.StartDate) // Học kỳ mới nhất trước
-                    .Select(term => new TermSectionsViewModel
-                    {
-                        TermId = term.Key.TermId,
-                        TermName = term.Key.TermName,
-                        TermStartDate = term.Key.StartDate,
-                        Sections = term.Select(s => new SectionCardViewModel
-                        {
-                            SectionId = s.SectionId,
-                            CourseCode = s.CourseCode,
-                            CourseName = s.CourseName,
-                            Room = s.Room,
-                            StudentCount = s.StudentCount,
-                            CompletionRate = s.CompletionRate,
-                            ColorClass = s.ColorClass,
-                            Credits = s.Credits,
-                            Status = s.Status,
-                            Schedule = s.Schedule,
-                            TimeSlot = s.TimeSlot,
-                            AverageScore = s.AverageScore
-                        }).ToList()
-                    })
-                    .ToList();
-
-                // THÊM MỚI - lấy danh sách học kỳ cho dropdown
-                var terms = await _repo.GetTermsByTeacherAsync(teacherId);
-                var selectedTermId = terms.FirstOrDefault().TermId;
-
-                var alerts = await _repo.GetRecentAlertsByTeacherAsync(teacherId);
-                var chart = await _repo.GetGpaChartDataByTeacherAsync(teacherId);
-
-                return new Giangvien
+            var sections = await _repo.GetSectionsByTeacherAsync(teacherId);
+            var sectionsByTerm = sections
+                .GroupBy(s => new { s.TermId, s.TermName, s.StartDate })
+                .OrderByDescending(g => g.Key.StartDate)
+                .Select(termGroup => new TermSectionsViewModel
                 {
-                    TeacherName = teacherName,
-                    TotalStudents = totalStudents,
-                    AverageScore = averageScore,
-                    AtRiskStudents = atRiskStudents,
-                    NewStudentsThisMonth = newStudents,
-                    ActiveSectionsCount = activeSections, // MỚI
-
-                    SectionsByTerm = sectionsByTerm, // Nhóm theo term
-
-                    // THÊM MỚI - danh sách học kỳ cho dropdown
-                    AvailableTerms = terms.Select(t => new TermOptionViewModel
+                    TermId = termGroup.Key.TermId,
+                    TermName = termGroup.Key.TermName,
+                    TermStartDate = termGroup.Key.StartDate,
+                    Sections = termGroup.Select(s => new SectionCardViewModel
                     {
-                        TermId = t.TermId,
-                        TermName = t.TermName,
-                        IsSelected = t.TermId == selectedTermId
-                    }).ToList(),
-                    SelectedTermId = selectedTermId,
-
-                    RecentAlerts = alerts.Select(a => new AlertViewModel
-                    {
-                        StudentName = a.StudentName,
-                        AlertType = a.AlertType,
-                        Message = a.Message,
-                        Severity = a.Severity,
-                        IconName = a.IconName,
-                        IconColor = a.IconColor,
-                        CreatedAt = a.CreatedAt,
-                        NewAlertsCount = newAlertsCount
-                    }).ToList(),
-
-                    ChartData = chart.Select(c => new ChartDataViewModel
-                    {
-                        TermId = c.TermId,
-                        TermName = c.TermName,
-                        AverageGpa = c.AverageGpa
+                        SectionId = s.SectionId,
+                        CourseCode = s.CourseCode,
+                        CourseName = s.CourseName,
+                        Room = s.Room,
+                        StudentCount = s.StudentCount,
+                        CompletionRate = s.CompletionRate,
+                        ColorClass = s.ColorClass,
+                        Credits = s.Credits,
+                        Status = s.Status,
+                        Schedule = s.Schedule,
+                        TimeSlot = s.TimeSlot,
+                        AverageScore = s.AverageScore
                     }).ToList()
-                };
-            }
+                })
+                .ToList();
+
+            var alerts = await _repo.GetRecentAlertsByTeacherAsync(teacherId);
+            var chart = await _repo.GetGpaChartDataByTeacherAsync(teacherId, selectedTermId); // nếu muốn chart cũng theo term
+
+            return new Giangvien
+            {
+                TeacherName = teacherName,
+                TotalStudents = totalStudents,
+                AverageScore = averageScore,
+                AtRiskStudents = atRiskStudents,
+                NewStudentsThisMonth = newStudents,
+                ActiveSectionsCount = activeSections,
+                SectionsByTerm = sectionsByTerm,
+
+                AvailableTerms = terms.Select(t => new TermOptionViewModel
+                {
+                    TermId = t.TermId,
+                    TermName = t.TermName,
+                    IsSelected = t.TermId == selectedTermId
+                }).ToList(),
+                SelectedTermId = selectedTermId,
+
+                RecentAlerts = alerts.Select(a => new AlertViewModel
+                {
+                    StudentName = a.StudentName,
+                    AlertType = a.AlertType,
+                    Message = a.Message,
+                    Severity = a.Severity,
+                    IconName = a.IconName,
+                    IconColor = a.IconColor,
+                    CreatedAt = a.CreatedAt,
+                    NewAlertsCount = newAlertsCount
+                }).ToList(),
+
+                ChartData = chart.Select(c => new ChartDataViewModel
+                {
+                    TermId = c.TermId,
+                    TermName = c.TermName,
+                    AverageGpa = c.AverageGpa
+                }).ToList()
+            };
+        }
 
         public async Task<ChiTietLopVm> GetSectionDetailAsync(int sectionId, int page = 1, int pageSize = 10, string? search = null)
         {
@@ -183,50 +177,39 @@ namespace SPTS_Service
             if (rule == null)
                 throw new Exception("Môn học này chưa cấu hình tỉ trọng điểm (GradeRule).");
 
+            var termId = await _repo.GetTermIdBySectionAsync(sectionId);
+            var touched = new HashSet<int>();
+
             foreach (var s in students)
             {
                 var hasP = s.ProcessScore.HasValue;
                 var hasF = s.FinalScore.HasValue;
 
-                // không nhập gì thì bỏ qua
-                if (!hasP && !hasF)
-                    continue;
+                if (!hasP && !hasF) continue;
 
-                // ✅ CÁCH 2: chỉ tính theo phần đã nhập, rồi chuẩn hóa theo tổng weight đã nhập
                 decimal sumWeight = 0m;
                 decimal sum = 0m;
 
-                if (hasP)
-                {
-                    sum += s.ProcessScore!.Value * rule.ProcessWeight;
-                    sumWeight += rule.ProcessWeight;
-                }
-
-                if (hasF)
-                {
-                    sum += s.FinalScore!.Value * rule.FinalWeight;
-                    sumWeight += rule.FinalWeight;
-                }
+                if (hasP) { sum += s.ProcessScore!.Value * rule.ProcessWeight; sumWeight += rule.ProcessWeight; }
+                if (hasF) { sum += s.FinalScore!.Value * rule.FinalWeight; sumWeight += rule.FinalWeight; }
 
                 decimal? total = null;
                 if (sumWeight > 0)
-                {
                     total = Math.Round(sum / sumWeight, rule.RoundingScale);
-                }
 
                 decimal? gpaPoint = null;
                 if (total.HasValue)
-                {
                     gpaPoint = await _repo.GetGpaPointByTotalAsync(total.Value);
-                }
 
                 await _repo.UpsertGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total, gpaPoint);
+                await _repo.SyncAlertsForGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total);
 
-                // Nếu bạn có auto-alert:
-                // - Process/Final alert vẫn chạy bình thường
-                // - Total alert chỉ nên chạy khi đủ cả 2 cột (xem note bên dưới)
-                 await _repo.SyncAlertsForGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total);
+                touched.Add(s.StudentId);
             }
+
+            // ✅ Update TermGpas (A: có TotalScore là tính)
+            foreach (var studentId in touched)
+                await _repo.RecalculateAndUpsertTermGpaAsync(studentId, termId);
         }
 
         public async Task<ThongBaoPageVm> GetThongBaoPageAsync(int teacherId, int sectionId, int page = 1, int pageSize = 10)

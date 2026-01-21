@@ -10,9 +10,13 @@ namespace SPTS_Repository.Interface
         Task<List<(int TermId, string TermName)>> GetTermsByTeacherAsync(int teacherId);
         Task<int> GetTotalStudentsByTeacherAsync(int teacherId);
         Task<int> GetNewStudentsThisMonthAsync(int teacherId);
-        Task<decimal> GetAverageScoreByTeacherAsync(int teacherId);
+        Task<decimal> GetAverageScoreByTeacherAsync(int teacherId, int termId);
         Task<List<SectionCardViewModelDto>> GetSectionsByTeacherAsync(int teacherId);
-        Task<decimal?> GetGpaPointByTotalAsync(decimal totalScore); 
+        Task<decimal?> GetGpaPointByTotalAsync(decimal totalScore);
+
+        Task<int> GetTermIdBySectionAsync(int sectionId);
+        Task RecalculateAndUpsertTermGpaAsync(int studentId, int termId);
+
         //cảnh báo
         Task SyncAlertsForGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total);
         Task<int> GetAtRiskStudentsCountAsync(int teacherId);

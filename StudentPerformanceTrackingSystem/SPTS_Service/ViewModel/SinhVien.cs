@@ -18,6 +18,7 @@ namespace SPTS_Service.ViewModel
         // Cards
         public decimal? TermGpa { get; set; }          // TermGpa.gpa_value
         public decimal? CumulativeGpa { get; set; }    // tính từ Grades toàn bộ term
+        public int CreditsEarnedCumulative { get; set; }   // tín chỉ tích lũy (đậu)
         public int CreditsEarned { get; set; }         // TermGpa.credits_earned (hoặc tự tính)
         public int CreditsAttempted { get; set; }      // TermGpa.credits_attempted
         public int AcademicAlertCount { get; set; }
@@ -30,6 +31,8 @@ namespace SPTS_Service.ViewModel
 
         public List<TermOptionVm> Terms { get; set; } = [];
         public int? SelectedTermId { get; set; } // term đang chọn (để selected đúng)
+
+        public List<TermGpaTrendVm> TermGpaTrend { get; set; } = new();
     }
 
     public class CourseProgressVm
@@ -102,5 +105,12 @@ namespace SPTS_Service.ViewModel
         public string BadgeText { get; set; } = "Thông báo chung";
         public string BadgeClass { get; set; } = "bg-[#f0f2f4] text-[#617589] dark:bg-[#374151] dark:text-[#9ca3af]";
         public string TimeAgo { get; set; } = "";
+    }
+
+    public class TermGpaTrendVm
+    {
+        public int TermId { get; set; }
+        public string TermName { get; set; } = "";
+        public decimal? Gpa { get; set; } // 0..4
     }
 }

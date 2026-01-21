@@ -1,4 +1,4 @@
-﻿USE SPTS;
+USE SPTS;
 GO
 
 SET NOCOUNT ON;
@@ -6,6 +6,7 @@ SET XACT_ABORT ON;
 
 PRINT '========================================';
 PRINT 'SPTS DATABASE SEEDING - COMPLETE SYSTEM';
+PRINT 'Enhanced with Multiple Terms History';
 PRINT 'Current Date: 2026-01-14';
 PRINT '========================================';
 PRINT '';
@@ -43,7 +44,7 @@ ELSE
 
 PRINT '';
 
--- 1. SEED ACADEMIC YEARS (Fix: include start_year/end_year)
+-- 1. SEED ACADEMIC YEARS
 PRINT '1. Seeding AcademicYears...';
 
 IF NOT EXISTS (SELECT 1 FROM dbo.AcademicYears)
@@ -70,8 +71,8 @@ PRINT '2. Seeding Users...';
 -- 2.1 Admins
 INSERT INTO dbo.Users (full_name, email, password_hash, role, status)
 VALUES 
-    (N'Nguyễn Văn An', 'admin. nva@university.edu. vn', '$2a$10$hashedpassword1', 'ADMIN', 'ACTIVE'),
-    (N'Trần Thị Bình', 'admin. ttb@university.edu.vn', '$2a$10$hashedpassword2', 'ADMIN', 'ACTIVE'),
+    (N'Nguyễn Văn An', 'admin.nva@university.edu.vn', '$2a$10$hashedpassword1', 'ADMIN', 'ACTIVE'),
+    (N'Trần Thị Bình', 'admin.ttb@university.edu.vn', '$2a$10$hashedpassword2', 'ADMIN', 'ACTIVE'),
     (N'Lê Văn Cường', 'admin.lvc@university.edu.vn', '$2a$10$hashedpassword3', 'ADMIN', 'ACTIVE'),
     (N'Phạm Thị Dung', 'admin.ptd@university.edu.vn', '$2a$10$hashedpassword4', 'ADMIN', 'ACTIVE'),
     (N'Hoàng Văn Em', 'admin.hve@university.edu.vn', '$2a$10$hashedpassword5', 'ADMIN', 'ACTIVE');
@@ -112,7 +113,7 @@ DECLARE @FirstNames TABLE (name NVARCHAR(50));
 DECLARE @LastNames TABLE (name NVARCHAR(50));
 
 INSERT INTO @FirstNames VALUES
-    (N'An'), (N'B��nh'), (N'Cường'), (N'Dũng'), (N'Đạt'), (N'Giang'), (N'Hà'), (N'Hùng'),
+    (N'An'), (N'Bình'), (N'Cường'), (N'Dũng'), (N'Đạt'), (N'Giang'), (N'Hà'), (N'Hùng'),
     (N'Khánh'), (N'Linh'), (N'Minh'), (N'Nam'), (N'Phong'), (N'Quân'), (N'Sơn'), (N'Tâm'),
     (N'Thảo'), (N'Tuấn'), (N'Uyên'), (N'Vinh'), (N'Xuân'), (N'Yến'), (N'Ánh'), (N'Đức');
 
@@ -145,7 +146,7 @@ PRINT '';
 -- =============================================
 -- 3. SEED TEACHERS TABLE
 -- =============================================
-PRINT '3. Seeding Teachers... ';
+PRINT '3. Seeding Teachers...';
 
 INSERT INTO dbo.Teachers (teacher_id, teacher_code)
 SELECT user_id, 'GV' + RIGHT('0000' + CAST(ROW_NUMBER() OVER (ORDER BY user_id) AS VARCHAR), 4)
@@ -160,7 +161,7 @@ PRINT '';
 -- =============================================
 PRINT '4. Seeding Students...';
 
-INSERT INTO dbo. Students (student_id, student_code, major, cohort_year, department_id, DateOfBirth, Gender, Phone, Address)
+INSERT INTO dbo.Students (student_id, student_code, major, cohort_year, department_id, DateOfBirth, Gender, Phone, Address)
 SELECT 
     user_id,
     'SV' + RIGHT('0000' + CAST(ROW_NUMBER() OVER (ORDER BY user_id) AS VARCHAR), 4),
@@ -199,7 +200,7 @@ PRINT '';
 -- =============================================
 PRINT '5. Seeding Advisors...';
 
-INSERT INTO dbo. Advisors (advisor_id, advisor_code)
+INSERT INTO dbo.Advisors (advisor_id, advisor_code)
 SELECT TOP 10 teacher_id, 'CV' + RIGHT('0000' + CAST(ROW_NUMBER() OVER (ORDER BY teacher_id) AS VARCHAR), 4)
 FROM dbo.Teachers
 ORDER BY teacher_id;
@@ -227,7 +228,7 @@ PRINT '  ✓ Updated ' + CAST(@@ROWCOUNT AS VARCHAR) + ' departments';
 PRINT '';
 
 -- =============================================
--- 7. SEED TERMS (Fix FK AcademicYears)
+-- 7. SEED TERMS - ALL SEMESTERS FROM 2022-2026
 -- =============================================
 PRINT '7. Seeding Terms...';
 
@@ -238,7 +239,7 @@ DECLARE @AY_2025_2026 INT = (SELECT academic_year_id FROM dbo.AcademicYears WHER
 
 IF @AY_2022_2023 IS NULL OR @AY_2023_2024 IS NULL OR @AY_2024_2025 IS NULL OR @AY_2025_2026 IS NULL
 BEGIN
-    THROW 50001, 'Missing AcademicYears rows. Please seed AcademicYears first (year_name 2022-2023..2025-2026).', 1;
+    THROW 50001, 'Missing AcademicYears rows. Please seed AcademicYears first.', 1;
 END
 
 INSERT INTO dbo.Terms (term_name, start_date, end_date, academic_year_id)
@@ -249,13 +250,14 @@ VALUES
     (N'HK2 2023-2024', '2024-02-01', '2024-06-30', @AY_2023_2024),
     (N'HK1 2024-2025', '2024-09-01', '2025-01-15', @AY_2024_2025),
     (N'HK2 2024-2025', '2025-02-01', '2025-06-30', @AY_2024_2025),
-    (N'HK1 2025-2026', '2025-09-01', '2026-01-15', @AY_2025_2026);
+    (N'HK1 2025-2026', '2025-09-01', '2026-01-15', @AY_2025_2026),
+    (N'HK2 2025-2026', '2026-02-01', '2026-06-30', @AY_2025_2026);
 
-PRINT '  ✓ Inserted 7 terms';
+PRINT '  ✓ Inserted 8 terms (4 years × 2 semesters)';
 PRINT '';
 
 -- =============================================
--- 8. SEED COURSES (10 ngành × ~23 môn = 230 courses)
+-- 8. SEED COURSES (230 courses across 10 departments)
 -- =============================================
 PRINT '8. Seeding Courses...';
 
@@ -499,11 +501,11 @@ INSERT INTO dbo.Courses (course_code, course_name, credits) VALUES
 ('ENV2219', N'Công nghệ môi trường', 3),
 ('ENV2220', N'Hệ thống quản lý môi trường', 2);
 
-PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' courses';
+PRINT '  ✓ Inserted 230 courses across 10 departments';
 PRINT '';
 
 -- =============================================
--- 9. SEED GRADE RULES (quy tắc tính điểm tổng cho từng môn)
+-- 9. SEED GRADE RULES
 -- =============================================
 PRINT '9. Seeding Grade Rules...';
 
@@ -511,9 +513,9 @@ INSERT INTO dbo.GradeRules (course_id, process_weight, final_weight, rounding_sc
 SELECT 
     course_id,
     CASE (course_id % 3)
-        WHEN 0 THEN 0.3000 -- 30/70
-        WHEN 1 THEN 0.4000 -- 40/60
-        ELSE 0.5000        -- 50/50
+        WHEN 0 THEN 0.3000
+        WHEN 1 THEN 0.4000
+        ELSE 0.5000
     END AS process_weight,
     CASE (course_id % 3)
         WHEN 0 THEN 0.7000
@@ -522,55 +524,75 @@ SELECT
     END AS final_weight,
     1,
     1
-FROM dbo. Courses;
+FROM dbo.Courses;
 
-PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' grade rules (1 per course)';
+PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' grade rules';
 PRINT '';
 
 -- =============================================
--- 10. SEED SECTIONS
+-- 10. SEED SECTIONS - FOR ALL TERMS
 -- =============================================
-PRINT '10. Seeding Sections...';
+PRINT '10. Seeding Sections for all terms...';
 
 DECLARE @CourseID INT;
-DECLARE @TermID INT = (SELECT TOP 1 term_id FROM Terms ORDER BY start_date DESC);
+DECLARE @CurrentTermID INT;
 DECLARE @TeacherID INT;
-DECLARE @SectionCount INT;
 
-DECLARE course_cursor CURSOR FOR 
-SELECT course_id FROM Courses;
+-- Loop through each term
+DECLARE term_cursor CURSOR FOR 
+SELECT term_id FROM Terms ORDER BY start_date;
 
-OPEN course_cursor;
-FETCH NEXT FROM course_cursor INTO @CourseID;
+OPEN term_cursor;
+FETCH NEXT FROM term_cursor INTO @CurrentTermID;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
-    SET @SectionCount = 1 + (ABS(CHECKSUM(NEWID())) % 3); -- 1-3 sections per course
-    
-    DECLARE @i INT = 1;
-    WHILE @i <= @SectionCount
-    BEGIN
-        SELECT TOP 1 @TeacherID = teacher_id FROM Teachers ORDER BY NEWID();
-        
-        INSERT INTO dbo.Sections (term_id, course_id, teacher_id, section_code, status)
-        VALUES (
-            @TermID,
-            @CourseID,
-            @TeacherID,
-            RIGHT('000' + CAST(@CourseID AS VARCHAR), 3) + '-' + CAST(@i AS VARCHAR(2)), -- e.g., "001-1"
-            'OPEN'
-        );
-        
-        SET @i = @i + 1;
-    END
-    
+    -- For each term, create sections for a subset of courses
+    DECLARE course_cursor CURSOR FOR 
+    SELECT course_id FROM Courses 
+    WHERE (course_id + @CurrentTermID) % 2 = 0 -- Alternate courses between terms
+    ORDER BY course_id;
+
+    OPEN course_cursor;
     FETCH NEXT FROM course_cursor INTO @CourseID;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        DECLARE @SectionCount INT = 1 + (ABS(CHECKSUM(NEWID())) % 2); -- 1-2 sections per course per term
+        
+        DECLARE @i INT = 1;
+        WHILE @i <= @SectionCount
+        BEGIN
+            SELECT TOP 1 @TeacherID = teacher_id FROM Teachers ORDER BY NEWID();
+            
+            INSERT INTO dbo.Sections (term_id, course_id, teacher_id, section_code, status)
+            VALUES (
+                @CurrentTermID,
+                @CourseID,
+                @TeacherID,
+                RIGHT('000' + CAST(@CourseID AS VARCHAR), 3) + '-' + CAST(@i AS VARCHAR(2)),
+                CASE 
+                    WHEN @CurrentTermID = (SELECT MAX(term_id) FROM Terms) THEN 'OPEN'
+                    ELSE 'CLOSED'
+                END
+            );
+            
+            SET @i = @i + 1;
+        END
+        
+        FETCH NEXT FROM course_cursor INTO @CourseID;
+    END
+
+    CLOSE course_cursor;
+    DEALLOCATE course_cursor;
+    
+    FETCH NEXT FROM term_cursor INTO @CurrentTermID;
 END
 
-CLOSE course_cursor;
-DEALLOCATE course_cursor;
+CLOSE term_cursor;
+DEALLOCATE term_cursor;
 
-PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' sections';
+PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' sections across all terms';
 PRINT '';
 
 -- =============================================
@@ -641,65 +663,90 @@ PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' section schedules';
 PRINT '';
 
 -- =============================================
--- 12. SEED SECTION_STUDENTS (Students added to sections)
+-- 12. SEED SECTION_STUDENTS - HISTORICAL DATA
 -- =============================================
-PRINT '12. Seeding SectionStudents...';
+PRINT '12. Seeding SectionStudents with historical enrollments...';
 
 DECLARE @StudentID INT;
 DECLARE @StudentDeptID INT;
+DECLARE @StudentCohort INT;
 DECLARE @EnrollCount INT;
 
 DECLARE student_cursor CURSOR FOR 
-SELECT student_id, department_id FROM Students;
+SELECT student_id, department_id, cohort_year FROM Students;
 
 OPEN student_cursor;
-FETCH NEXT FROM student_cursor INTO @StudentID, @StudentDeptID;
+FETCH NEXT FROM student_cursor INTO @StudentID, @StudentDeptID, @StudentCohort;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
-    SET @EnrollCount = 5 + (ABS(CHECKSUM(NEWID())) % 3); -- 5-7 môn/SV
+    -- Enroll students in past terms based on their cohort year
+    DECLARE @TermStartYear INT;
     
-    -- Add student to random sections from their department
-    INSERT INTO dbo.SectionStudents (section_id, student_id, added_by, added_at, source, status)
-    SELECT TOP (@EnrollCount)
-        s.section_id,
-        @StudentID,
-        (SELECT TOP 1 user_id FROM Users WHERE role='ADMIN'), -- admin added
-        DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 30), '2026-01-14'),
-        'MANUAL',
-        'ACTIVE'
-    FROM Sections s
-    INNER JOIN Courses c ON s.course_id = c.course_id
-    WHERE c.course_code LIKE 
-        CASE @StudentDeptID
-            WHEN 1 THEN 'INT%'
-            WHEN 2 THEN 'ELE%'
-            WHEN 3 THEN 'MEC%'
-            WHEN 4 THEN 'BUS%'
-            WHEN 5 THEN 'ECO%'
-            WHEN 6 THEN 'LAN%'
-            WHEN 7 THEN 'MED%'
-            WHEN 8 THEN 'CIV%'
-            WHEN 9 THEN 'CHE%'
-            ELSE 'ENV%'
-        END
-    AND NOT EXISTS (
-        SELECT 1 FROM SectionStudents ss 
-        WHERE ss.section_id = s.section_id AND ss.student_id = @StudentID
-    )
-    ORDER BY NEWID();
+    DECLARE @EnrollTermID INT;
+    DECLARE enrollment_cursor CURSOR FOR
+    SELECT t.term_id, ay.start_year
+    FROM Terms t
+    INNER JOIN AcademicYears ay ON t.academic_year_id = ay.academic_year_id
+    WHERE ay.start_year >= @StudentCohort
+    ORDER BY t.start_date;
     
-    FETCH NEXT FROM student_cursor INTO @StudentID, @StudentDeptID;
+    OPEN enrollment_cursor;
+    FETCH NEXT FROM enrollment_cursor INTO @EnrollTermID, @TermStartYear;
+    
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Students take 5-7 courses per term
+        SET @EnrollCount = 5 + (ABS(CHECKSUM(NEWID())) % 3);
+        
+        INSERT INTO dbo.SectionStudents (section_id, student_id, added_by, added_at, source, status)
+        SELECT TOP (@EnrollCount)
+            s.section_id,
+            @StudentID,
+            (SELECT TOP 1 user_id FROM Users WHERE role='ADMIN'),
+            DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 30), t.start_date),
+            'MANUAL',
+            'ACTIVE'
+        FROM Sections s
+        INNER JOIN Terms t ON s.term_id = t.term_id
+        INNER JOIN Courses c ON s.course_id = c.course_id
+        WHERE s.term_id = @EnrollTermID
+        AND c.course_code LIKE 
+            CASE @StudentDeptID
+                WHEN 1 THEN 'INT%'
+                WHEN 2 THEN 'ELE%'
+                WHEN 3 THEN 'MEC%'
+                WHEN 4 THEN 'BUS%'
+                WHEN 5 THEN 'ECO%'
+                WHEN 6 THEN 'LAN%'
+                WHEN 7 THEN 'MED%'
+                WHEN 8 THEN 'CIV%'
+                WHEN 9 THEN 'CHE%'
+                ELSE 'ENV%'
+            END
+        AND NOT EXISTS (
+            SELECT 1 FROM SectionStudents ss 
+            WHERE ss.section_id = s.section_id AND ss.student_id = @StudentID
+        )
+        ORDER BY NEWID();
+        
+        FETCH NEXT FROM enrollment_cursor INTO @EnrollTermID, @TermStartYear;
+    END
+    
+    CLOSE enrollment_cursor;
+    DEALLOCATE enrollment_cursor;
+    
+    FETCH NEXT FROM student_cursor INTO @StudentID, @StudentDeptID, @StudentCohort;
 END
 
 CLOSE student_cursor;
 DEALLOCATE student_cursor;
 
-PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' section-student records';
+PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' section-student enrollments';
 PRINT '';
 
 -- =============================================
--- 13. SEED GPA SCALES (for converting total score to GPA 0-4)
+-- 13. SEED GPA SCALES
 -- =============================================
 PRINT '13. Seeding GPA Scales...';
 
@@ -715,26 +762,48 @@ PRINT '  ✓ Inserted 5 GPA scale records';
 PRINT '';
 
 -- =============================================
--- 14. SEED SAMPLE GRADES (for ~30% of section-student pairs)
+-- 14. SEED GRADES - FOR PAST TERMS (100%) AND CURRENT TERM (30%)
 -- =============================================
-PRINT '14. Seeding Sample Grades...';
+PRINT '14. Seeding Grades...';
 
--- Insert process_score and final_score for 30% of section_students
-INSERT INTO dbo. Grades (section_id, student_id, process_score, final_score, updated_by, updated_at)
-SELECT TOP (SELECT COUNT(*) * 30 / 100 FROM SectionStudents)
+-- Get current term (latest term)
+DECLARE @CurrentTerm INT = (SELECT MAX(term_id) FROM Terms);
+
+-- Insert grades for ALL past terms (100% completion)
+INSERT INTO dbo.Grades (section_id, student_id, process_score, final_score, updated_by, updated_at)
+SELECT 
     ss.section_id,
     ss.student_id,
-    -- Random process score 4. 0-10.0
     4.0 + (ABS(CHECKSUM(NEWID())) % 61) / 10.0,
-    -- Random final score 4.0-10.0
     4.0 + (ABS(CHECKSUM(NEWID())) % 61) / 10.0,
-    (SELECT TOP 1 teacher_id FROM Sections WHERE section_id = ss.section_id), -- teacher who teaches
-    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 60), '2026-01-14')
+    s.teacher_id,
+    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 30), t.end_date)
 FROM SectionStudents ss
+INNER JOIN Sections s ON ss.section_id = s.section_id
+INNER JOIN Terms t ON s.term_id = t.term_id
 WHERE ss.status = 'ACTIVE'
+AND s.term_id < @CurrentTerm;
+
+PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' grades for past terms';
+
+-- Insert grades for current term (30% completion - ongoing)
+INSERT INTO dbo.Grades (section_id, student_id, process_score, final_score, updated_by, updated_at)
+SELECT TOP (SELECT COUNT(*) * 30 / 100 FROM SectionStudents ss 
+            INNER JOIN Sections s ON ss.section_id = s.section_id
+            WHERE s.term_id = @CurrentTerm)
+    ss.section_id,
+    ss.student_id,
+    4.0 + (ABS(CHECKSUM(NEWID())) % 61) / 10.0,
+    4.0 + (ABS(CHECKSUM(NEWID())) % 61) / 10.0,
+    s.teacher_id,
+    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 30), GETDATE())
+FROM SectionStudents ss
+INNER JOIN Sections s ON ss.section_id = s.section_id
+WHERE ss.status = 'ACTIVE'
+AND s.term_id = @CurrentTerm
 ORDER BY NEWID();
 
-PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' grade records';
+PRINT '  ✓ Inserted ' + CAST(@@ROWCOUNT AS VARCHAR) + ' grades for current term (30%)';
 PRINT '';
 
 -- =============================================
@@ -742,18 +811,16 @@ PRINT '';
 -- =============================================
 PRINT '15. Calculating total_score and gpa_point...';
 
--- Calculate total_score from process + final using GradeRules
 UPDATE g
 SET total_score = ROUND(
     (ISNULL(g.process_score, 0) * gr.process_weight) +
     (ISNULL(g.final_score, 0) * gr.final_weight),
     1
 )
-FROM dbo. Grades g
-INNER JOIN dbo. Sections s ON s.section_id = g.section_id
+FROM dbo.Grades g
+INNER JOIN dbo.Sections s ON s.section_id = g.section_id
 INNER JOIN dbo.GradeRules gr ON gr.course_id = s.course_id AND gr.active = 1;
 
--- Calculate gpa_point from total_score using GpaScales
 UPDATE g
 SET gpa_point = sc.gpa_point
 FROM dbo.Grades g
@@ -765,11 +832,10 @@ PRINT '  ✓ Updated total_score and gpa_point for all grades';
 PRINT '';
 
 -- =============================================
--- 16. CALCULATE TERM_GPA (weighted by credits)
+-- 16. CALCULATE TERM_GPA FOR ALL TERMS
 -- =============================================
-PRINT '16. Calculating TermGpa...';
+PRINT '16. Calculating TermGpa for all terms...';
 
--- GPA = SUM(gpa_point * credits) / SUM(credits)
 ;WITH G AS (
     SELECT
         s.term_id,
@@ -792,7 +858,7 @@ Agg AS (
 )
 MERGE dbo.TermGpa AS tgt
 USING Agg AS src
-ON (tgt.term_id = src.term_id AND tgt. student_id = src.student_id)
+ON (tgt.term_id = src.term_id AND tgt.student_id = src.student_id)
 WHEN MATCHED THEN
   UPDATE SET
     gpa_value = CAST(ROUND(src.gpa_value, 2) AS DECIMAL(3,2)),
@@ -800,7 +866,7 @@ WHEN MATCHED THEN
     updated_at = SYSUTCDATETIME()
 WHEN NOT MATCHED THEN
   INSERT (term_id, student_id, gpa_value, credits_attempted, updated_at)
-  VALUES (src.term_id, src. student_id, CAST(ROUND(src.gpa_value, 2) AS DECIMAL(3,2)), src.credits_attempted, SYSUTCDATETIME());
+  VALUES (src.term_id, src.student_id, CAST(ROUND(src.gpa_value, 2) AS DECIMAL(3,2)), src.credits_attempted, SYSUTCDATETIME());
 
 PRINT '  ✓ Calculated TermGpa for ' + CAST(@@ROWCOUNT AS VARCHAR) + ' term-student pairs';
 PRINT '';
@@ -814,12 +880,10 @@ PRINT 'SEEDING COMPLETED SUCCESSFULLY!';
 PRINT '========================================';
 PRINT '';
 
--- Declare variables to hold counts (đổi tên để tránh trùng)
 DECLARE @CountDept INT, @CountUser INT, @CountStudent INT, @CountTeacher INT;
 DECLARE @CountAdvisor INT, @CountCourse INT, @CountTerm INT, @CountSection INT;
 DECLARE @CountSchedule INT, @CountSectionStudent INT, @CountGrade INT, @CountTermGpa INT;
 
--- Get counts
 SELECT @CountDept = COUNT(*) FROM Departments;
 SELECT @CountUser = COUNT(*) FROM Users;
 SELECT @CountStudent = COUNT(*) FROM Students;
@@ -833,24 +897,27 @@ SELECT @CountSectionStudent = COUNT(*) FROM SectionStudents;
 SELECT @CountGrade = COUNT(*) FROM Grades;
 SELECT @CountTermGpa = COUNT(*) FROM TermGpa;
 
--- Print summary
 PRINT 'Summary:';
 PRINT '  - Departments: ' + CAST(@CountDept AS VARCHAR);
 PRINT '  - Users: ' + CAST(@CountUser AS VARCHAR);
-PRINT '  - Students:  ' + CAST(@CountStudent AS VARCHAR);
+PRINT '  - Students: ' + CAST(@CountStudent AS VARCHAR);
 PRINT '  - Teachers: ' + CAST(@CountTeacher AS VARCHAR);
 PRINT '  - Advisors: ' + CAST(@CountAdvisor AS VARCHAR);
 PRINT '  - Courses: ' + CAST(@CountCourse AS VARCHAR);
-PRINT '  - Terms: ' + CAST(@CountTerm AS VARCHAR);
+PRINT '  - Terms: ' + CAST(@CountTerm AS VARCHAR) + ' (8 terms across 4 years)';
 PRINT '  - Sections: ' + CAST(@CountSection AS VARCHAR);
-PRINT '  - Section Schedules:  ' + CAST(@CountSchedule AS VARCHAR);
+PRINT '  - Section Schedules: ' + CAST(@CountSchedule AS VARCHAR);
 PRINT '  - SectionStudents: ' + CAST(@CountSectionStudent AS VARCHAR);
 PRINT '  - Grades: ' + CAST(@CountGrade AS VARCHAR);
 PRINT '  - TermGpa: ' + CAST(@CountTermGpa AS VARCHAR);
 PRINT '';
+PRINT 'Data Distribution:';
+PRINT '  - Past terms (2022-2025): 100% grades completed';
+PRINT '  - Current term (HK1 2025-2026): 30% grades (ongoing)';
+PRINT '';
 
     COMMIT TRANSACTION;
-    PRINT 'Transaction committed successfully. ';
+    PRINT 'Transaction committed successfully.';
 
 END TRY
 BEGIN CATCH

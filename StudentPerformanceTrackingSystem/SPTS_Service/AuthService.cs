@@ -80,5 +80,21 @@ namespace SPTS_Service
 
             return user;
         }
+
+        public async Task DoiMatKhauAsync(int userId, string oldPassword, string newPassword)
+        {
+            var user = await _SVre.FindUserByIdAsync(userId);
+            if (user == null)
+                throw new Exception("Không tìm thấy tài khoản.");
+
+            if (user.Status != "ACTIVE")
+                throw new Exception("Tài khoản đang bị khóa hoặc chưa kích hoạt.");
+
+            if (!BCrypt.Net.BCrypt.Verify(oldPassword, user.PasswordHash))
+                throw new Exception("Mật khẩu cũ không đúng.");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            await _SVre.SaveChangesAsync();
+        }
     }
 }
