@@ -18,7 +18,9 @@ namespace SPTS_Service
 
         public async Task<AdminVM> GetSystemStatistics(int? termId = null)
         {
-            // ✅ FIX: chạy tuần tự để tránh dùng DbContext đồng thời
+            // ✅ Khi termId = null → query toàn bộ dữ liệu
+            // ✅ Khi termId có giá trị → query theo kỳ cụ thể
+
             var kpiDto = await _adRepo.GetKPIScorecard(termId);
             var deptGPADtos = await _adRepo.GetDepartmentGPAs(termId);
             var rankingDto = await _adRepo.GetAcademicRanking(termId);
@@ -167,6 +169,90 @@ namespace SPTS_Service
                     };
                 }).ToList()
             };
+        }
+
+        public async Task<List<MajorOptionVM>> GetMajorsAsync()
+        {
+            var majors = await _adRepo.GetMajorsAsync();
+            return majors.Select(m => new MajorOptionVM
+            {
+                MajorCode = m,
+                MajorName = m
+            }).ToList();
+        }
+
+        public async Task<List<DepartmentOptionVM>> GetDepartmentsAsync()
+        {
+            var departments = await _adRepo.GetDepartmentsAsync();
+            return departments.Select(d => new DepartmentOptionVM
+            {
+                DepartmentId = d.DepartmentId,
+                DepartmentName = d.DepartmentName ?? "",
+                DepartmentCode = d.DepartmentCode ?? ""
+            }).ToList();
+        }
+        public async Task<UserDetailVM?> GetUserDetailAsync(int userId)
+        {
+            var dto = await _adRepo.GetUserDetailAsync(userId);
+            if (dto == null) return null;
+
+            return new UserDetailVM
+            {
+                UserId = dto.UserId,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                Role = dto.Role,
+                Status = dto.Status,
+                StudentCode = dto.StudentCode,
+                TeacherCode = dto.TeacherCode
+            };
+        }
+
+        public Task<bool> UpdateUserAsync(UserUpdateVM vm)
+        {
+            return _adRepo.UpdateUserAsync(new UserUpdateDto
+            {
+                UserId = vm.UserId,
+                FullName = vm.FullName,
+                Email = vm.Email,
+                Role = vm.Role,
+                Status = vm.Status,
+                StudentCode = vm.StudentCode,
+                Major = vm.Major,                  // ✅ THÊM
+                CohortYear = vm.CohortYear,        // ✅ THÊM
+                DepartmentId = vm.DepartmentId,    // ✅ THÊM
+                TeacherCode = vm.TeacherCode,
+                Degree = vm.Degree,                // ✅ THÊM
+                DepartmentName = vm.DepartmentName // ✅ THÊM
+            });
+        }
+
+        public Task<bool> DeleteUserAsync(int userId)
+        {
+            return _adRepo.DeleteUserAsync(userId);
+        }
+
+        // ✅ Dùng TermOptionVM có sẵn
+        public async Task<List<TermOptionVM>> GetTermsForDropdownAsync()
+        {
+            var terms = await _adRepo.GetTermsAsync();
+
+            var result = new List<TermOptionVM>
+            {
+                new TermOptionVM
+                {
+                    TermId = 0, // Giá trị đặc biệt cho "Tất cả"
+                    TermName = "-- Tất cả học kỳ --"
+                }
+            };
+
+            result.AddRange(terms.Select(t => new TermOptionVM
+            {
+                TermId = t.TermId,
+                TermName = t.TermName ?? $"Học kỳ {t.TermId}"
+            }));
+
+            return result;
         }
     }
 }

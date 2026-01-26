@@ -15,7 +15,5 @@ public partial class Reminder
 
     public DateTime SentAt { get; set; }
 
-    public virtual Advisor Advisor { get; set; } = null!;
-
     public virtual Alert Alert { get; set; } = null!;
 }

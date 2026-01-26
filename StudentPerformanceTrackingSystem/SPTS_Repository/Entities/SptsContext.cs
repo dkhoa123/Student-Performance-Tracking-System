@@ -17,8 +17,6 @@ public partial class SptsContext : DbContext
 
     public virtual DbSet<AcademicYear> AcademicYears { get; set; }
 
-    public virtual DbSet<Advisor> Advisors { get; set; }
-
     public virtual DbSet<Alert> Alerts { get; set; }
 
     public virtual DbSet<Course> Courses { get; set; }
@@ -84,24 +82,6 @@ public partial class SptsContext : DbContext
             entity.Property(e => e.YearName)
                 .HasMaxLength(20)
                 .HasColumnName("year_name");
-        });
-
-        modelBuilder.Entity<Advisor>(entity =>
-        {
-            entity.HasIndex(e => e.AdvisorCode, "UQ_Advisors_Code").IsUnique();
-
-            entity.Property(e => e.AdvisorId)
-                .ValueGeneratedNever()
-                .HasColumnName("advisor_id");
-            entity.Property(e => e.AdvisorCode)
-                .HasMaxLength(30)
-                .IsUnicode(false)
-                .HasColumnName("advisor_code");
-
-            entity.HasOne(d => d.AdvisorNavigation).WithOne(p => p.Advisor)
-                .HasForeignKey<Advisor>(d => d.AdvisorId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Advisors_Users");
         });
 
         modelBuilder.Entity<Alert>(entity =>
@@ -340,11 +320,6 @@ public partial class SptsContext : DbContext
                 .HasDefaultValueSql("(sysutcdatetime())")
                 .HasColumnName("sent_at");
 
-            entity.HasOne(d => d.Advisor).WithMany(p => p.Reminders)
-                .HasForeignKey(d => d.AdvisorId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Reminders_Advisors");
-
             entity.HasOne(d => d.Alert).WithMany(p => p.Reminders)
                 .HasForeignKey(d => d.AlertId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -484,6 +459,11 @@ public partial class SptsContext : DbContext
             entity.Property(e => e.TeacherId)
                 .ValueGeneratedNever()
                 .HasColumnName("teacher_id");
+            entity.Property(e => e.Degree).HasMaxLength(20);
+            entity.Property(e => e.DemparmentName)
+                .HasMaxLength(255)
+                .HasColumnName("demparment_name");
+            entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.TeacherCode)
                 .HasMaxLength(30)
                 .IsUnicode(false)

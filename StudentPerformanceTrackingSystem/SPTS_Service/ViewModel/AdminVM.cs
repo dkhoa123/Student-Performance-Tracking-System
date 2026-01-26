@@ -140,4 +140,58 @@
         public string StatusText { get; set; } = "";
         public string StatusBadge { get; set; } = ""; // GREEN / YELLOW
     }
+
+    public class UserUpdateVM
+    {
+        public int UserId { get; set; }
+        public string FullName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Role { get; set; } = "";
+        public string Status { get; set; } = "";
+        public string? StudentCode { get; set; }
+        public string? TeacherCode { get; set; }
+
+        // ✅ THÊM: Thông tin chi tiết cho Student
+        public string? Major { get; set; }
+        public int? CohortYear { get; set; }
+        public int? DepartmentId { get; set; }
+
+        // ✅ THÊM: Thông tin chi tiết cho Teacher
+        public string? Degree { get; set; }
+        public string? DepartmentName { get; set; }
+    }
+
+    public class UserDetailVM
+    {
+        public int UserId { get; set; }
+        public string FullName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Role { get; set; } = "";
+        public string Status { get; set; } = "";
+
+        // For students
+        public string? StudentCode { get; set; }
+        public string? Major { get; set; }
+        public int? CohortYear { get; set; }
+        public int? DepartmentId { get; set; }
+
+        // For teachers
+        public string? TeacherCode { get; set; }
+        public string? Degree { get; set; }
+        public string? DepartmentName { get; set; }
+    }
+
+    // ✅ THÊM: ViewModel cho dropdown options
+    public class MajorOptionVM
+    {
+        public string MajorCode { get; set; } = "";
+        public string MajorName { get; set; } = "";
+    }
+
+    public class DepartmentOptionVM
+    {
+        public int DepartmentId { get; set; }
+        public string DepartmentName { get; set; } = "";
+        public string DepartmentCode { get; set; } = "";
+    }
 }

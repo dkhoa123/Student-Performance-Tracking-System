@@ -1,14 +1,14 @@
-﻿@model SPTS_Service.ViewModels.AdminVM
-@{
+﻿@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
+@model SPTS_Service.ViewModels.AdminVM
 
 @if (Model == null)
 {
     <div class="p-6">
         <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            <p class="font-bold">Lỗi! </p>
-            <p>Không thể tải dữ liệu thống kê.  Vui lòng thử lại.</p>
+            <p class="font-bold">Lỗi!</p>
+            <p>Không thể tải dữ liệu thống kê. Vui lòng thử lại.</p>
         </div>
     </div>
     return;
@@ -16,244 +16,342 @@
 
 <main class="flex-1 flex flex-col min-w-0 px-6 py-6 lg:px-10">
     <div class="w-full max-w-[1200px] mx-auto">
-    <!-- Page Heading -->
-    <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
-        <div class="flex flex-col gap-1">
-            <h1 class="text-slate-900 dark:text-white text-3xl font-black tracking-tight">
-                Thống kê Toàn hệ thống
-            </h1>
-            <p class="text-slate-500 text-sm">
-                Báo cáo hiệu suất học tập và nhân sự
-            </p>
-        </div>
-        <div class="flex gap-2">
-            <button class="flex items-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity">
-                <span class="material-symbols-outlined text-sm">download</span>
-                <span>Xuất báo cáo PDF</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="flex gap-3 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-        <form method="get" asp-action="DashboardAdmin" class="flex gap-3">
-            <select name="termId" class="flex h-10 shrink-0 items-center gap-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm"
-                    onchange="this.form.submit()">
-                @if (ViewBag.Terms != null)
-                {
-                    @foreach (var item in ViewBag.Terms as SelectList)
+        <!-- Page Heading -->
+        <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+            <div class="flex flex-col gap-1">
+                <h1 class="text-slate-900 dark:text-white text-3xl font-black tracking-tight">
+                    Thống kê Toàn hệ thống
+                </h1>
+                <p class="text-slate-500 text-sm">
+                    <!-- ✅ Hiển thị kỳ đang xem -->
+                    Báo cáo hiệu suất học tập và nhân sự
+                    @if (ViewBag.SelectedTermName != null)
                     {
-                        <option value="@item.Value" selected="@item.Selected">@item.Text</option>
-                    }
-                }
-            </select>
-        </form>
-    </div>
-
-    <!-- KPI Scorecards Grid -->
-    @if (Model.KPI != null)
-    {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Students -->
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark: border-slate-800 shadow-sm">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                        <span class="material-symbols-outlined text-primary">groups</span>
-                    </div>
-                    @if (Model.KPI.StudentGrowthRate > 0)
-                    {
-                        <span class="text-green-500 text-xs font-bold flex items-center bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
-                            +@Model.KPI.StudentGrowthRate.ToString("F1")%
+                        <span class="font-semibold text-primary">
+                            - @ViewBag.SelectedTermName
                         </span>
                     }
-                </div>
-                <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Tổng số sinh viên</p>
-                <h3 class="text-2xl font-black text-slate-900 dark:text-white">
-                    @Model.KPI.TotalStudents.ToString("N0")
-                </h3>
-            </div>
-
-            <!-- Total Teachers -->
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-                        <span class="material-symbols-outlined text-purple-600">person_celebrate</span>
-                    </div>
-                </div>
-                <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Tổng số giảng viên</p>
-                <h3 class="text-2xl font-black text-slate-900 dark:text-white">@Model.KPI.TotalTeachers</h3>
-                <p class="text-slate-400 text-[10px] mt-2 italic">
-                    * Tỷ lệ SV/GV: @Model.KPI.StudentTeacherRatio.ToString("F1")
                 </p>
             </div>
-
-            <!-- Average GPA -->
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
-                        <span class="material-symbols-outlined text-yellow-600">star</span>
-                    </div>
-                    @if (Model.KPI.GPAChange > 0)
-                    {
-                        <span class="text-green-500 text-xs font-bold flex items-center bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
-                            +@Model.KPI.GPAChange.ToString("F2")
-                        </span>
-                    }
-                </div>
-                <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">GPA Trung bình</p>
-                <h3 class="text-2xl font-black text-slate-900 dark:text-white">
-                    @Model.KPI.AverageGPA.ToString("F2") / 4.0
-                </h3>
-            </div>
-
-            <!-- Alert Rate -->
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg">
-                        <span class="material-symbols-outlined text-red-600">error</span>
-                    </div>
-                </div>
-                <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Tỷ lệ Cảnh báo HT</p>
-                <h3 class="text-2xl font-black text-slate-900 dark:text-white">
-                    @Model.KPI.AlertRate.ToString("F1")%
-                </h3>
-                <p class="text-slate-400 text-[10px] mt-2 italic">
-                    * Đang có @Model.KPI.TotalAlerts SV trong diện CB
-                </p>
+            <div class="flex gap-2">
+                <button class="flex items-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity">
+                    <span class="material-symbols-outlined text-sm">download</span>
+                    <span>Xuất báo cáo PDF</span>
+                </button>
             </div>
         </div>
-    }
 
-    <!-- Charts Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Department GPA Chart -->
-        @if (Model.DepartmentGPAs != null && Model.DepartmentGPAs.Any())
-        {
-            <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <h4 class="text-slate-900 dark:text-white font-bold mb-6">Phổ điểm Trung bình theo Khoa</h4>
-                <div class="flex items-end gap-3 h-64 mt-4 px-2">
-                    @foreach (var dept in Model.DepartmentGPAs.Take(7))
+        <!-- Filters -->
+        <div class="mb-8">
+            <form method="get" asp-action="DashboardAdmin" class="flex gap-3 items-center flex-wrap">
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Học kỳ:</label>
+                <select name="termId"
+                        class="flex h-10 shrink-0 items-center gap-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm"
+                        onchange="this.form.submit()">
+                    @if (ViewBag.Terms != null)
                     {
-                        var heightPercent = (double)dept.AverageGPA / 4.0 * 100;
-                        <div class="flex-1 flex flex-col items-center gap-2 group">
-                            <div class="w-full bg-primary/20 rounded-t-lg group-hover:bg-primary transition-all duration-300 relative"
-                                 style="height:  @(heightPercent)%;">
-                                <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 group-hover:text-primary">
-                                    @dept.AverageGPA.ToString("F2")
-                                </span>
-                            </div>
-                            <span class="text-[10px] text-slate-500 font-medium rotate-45 origin-left whitespace-nowrap">
-                                @(dept.DepartmentName?.Replace("Khoa ", "") ?? "N/A")
-                            </span>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-
-        <!-- Academic Ranking -->
-        @if (Model.AcademicRanking != null)
-        {
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <h4 class="text-slate-900 dark:text-white font-bold mb-6">Xếp loại học lực</h4>
-                <div class="space-y-2 mt-4">
-                    <div class="flex justify-between items-center text-xs">
-                        <div class="flex items-center gap-2">
-                            <div class="size-2 rounded-full bg-green-500"></div>
-                            <span class="text-slate-600 dark:text-slate-400">Xuất sắc & Giỏi</span>
-                        </div>
-                        <span class="font-bold text-slate-900 dark:text-white">
-                            @Model.AcademicRanking.ExcellentRate.ToString("F1")%
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <div class="flex items-center gap-2">
-                            <div class="size-2 rounded-full bg-primary"></div>
-                            <span class="text-slate-600 dark:text-slate-400">Khá</span>
-                        </div>
-                        <span class="font-bold text-slate-900 dark:text-white">
-                            @Model.AcademicRanking.GoodRate.ToString("F1")%
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <div class="flex items-center gap-2">
-                            <div class="size-2 rounded-full bg-yellow-500"></div>
-                            <span class="text-slate-600 dark:text-slate-400">Trung bình</span>
-                        </div>
-                        <span class="font-bold text-slate-900 dark:text-white">
-                            @Model.AcademicRanking.AverageRate.ToString("F1")%
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <div class="flex items-center gap-2">
-                            <div class="size-2 rounded-full bg-orange-500"></div>
-                            <span class="text-slate-600 dark:text-slate-400">Yếu</span>
-                        </div>
-                        <span class="font-bold text-slate-900 dark:text-white">
-                            @Model.AcademicRanking.BelowAverageRate.ToString("F1")%
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <div class="flex items-center gap-2">
-                            <div class="size-2 rounded-full bg-red-500"></div>
-                            <span class="text-slate-600 dark:text-slate-400">Kém (Cảnh báo)</span>
-                        </div>
-                        <span class="font-bold text-slate-900 dark:text-white">
-                            @Model.AcademicRanking.PoorRate.ToString("F1")%
-                        </span>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-
-    <!-- Department Alerts Table -->
-    @if (Model.DepartmentAlerts != null && Model.DepartmentAlerts.Any())
-    {
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                <h4 class="text-slate-900 dark:text-white font-bold">Danh sách Khoa theo Tỷ lệ Cảnh báo</h4>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 dark:bg-slate-800/50">
-                        <tr>
-                            <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tên Khoa</th>
-                            <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Tổng SV</th>
-                            <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Số SV Cảnh báo</th>
-                            <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Tỷ lệ</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                        @foreach (var dept in Model.DepartmentAlerts)
+                        @foreach (var item in ViewBag.Terms as SelectList)
                         {
-                            <tr>
-                                <td class="px-6 py-4">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white">@dept.DepartmentName</span>
-                                        <span class="text-[10px] text-slate-500">Mã khoa: @dept.DepartmentCode</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300 text-center">
-                                    @dept.TotalStudents
-                                </td>
-                                <td class="px-6 py-4 text-sm text-red-500 font-bold text-center">
-                                    @dept.AlertCount
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <div class="w-20 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                            <div class="h-full bg-red-500" style="width: @(Math.Min(dept.AlertRate, 100))%;"></div>
-                                        </div>
-                                        <span class="text-xs font-medium">@dept.AlertRate.ToString("F1")%</span>
-                                    </div>
-                                </td>
-                            </tr>
+                            <option value="@item.Value" selected="@item.Selected">@item.Text</option>
                         }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </select>
+
+                <!-- ✅ Badge hiển thị filter -->
+                @if (ViewBag.SelectedTermName != null && ViewBag.SelectedTermName.ToString() != "Tất cả học kỳ")
+                {
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                        <span class="material-symbols-outlined text-sm">filter_alt</span>
+                        @ViewBag.SelectedTermName
+                    </span>
+                }
+            </form>
         </div>
-    }
+
+        <!-- ✅ Thêm thông báo nếu không có dữ liệu -->
+        @if (Model.KPI != null && Model.KPI.TotalStudents == 0)
+        {
+            <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 px-4 py-3 rounded-lg mb-6">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined">info</span>
+                    <p class="font-medium">Không có dữ liệu cho kỳ học này</p>
+                </div>
+            </div>
+        }
+
+        <!-- KPI Scorecards Grid -->
+        @if (Model.KPI != null)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Students -->
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                            <span class="material-symbols-outlined text-primary">groups</span>
+                        </div>
+                        @if (Model.KPI.StudentGrowthRate > 0)
+                        {
+                            <span class="text-green-500 text-xs font-bold flex items-center bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
+                                +@Model.KPI.StudentGrowthRate.ToString("F1")%
+                            </span>
+                        }
+                    </div>
+                    <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Tổng số sinh viên</p>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white">
+                        @Model.KPI.TotalStudents.ToString("N0")
+                    </h3>
+                </div>
+
+                <!-- Total Teachers -->
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                            <span class="material-symbols-outlined text-purple-600">person_celebrate</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Tổng số giảng viên</p>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white">@Model.KPI.TotalTeachers</h3>
+                    <p class="text-slate-400 text-[10px] mt-2 italic">
+                        * Tỷ lệ SV/GV: @Model.KPI.StudentTeacherRatio.ToString("F1")
+                    </p>
+                </div>
+
+                <!-- Average GPA -->
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
+                            <span class="material-symbols-outlined text-yellow-600">star</span>
+                        </div>
+                        @if (Model.KPI.GPAChange > 0)
+                        {
+                            <span class="text-green-500 text-xs font-bold flex items-center bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
+                                +@Model.KPI.GPAChange.ToString("F2")
+                            </span>
+                        }
+                    </div>
+                    <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">GPA Trung bình</p>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white">
+                        @Model.KPI.AverageGPA.ToString("F2") / 4.0
+                    </h3>
+                </div>
+
+                <!-- Alert Rate -->
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg">
+                            <span class="material-symbols-outlined text-red-600">error</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Tỷ lệ Cảnh báo HT</p>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white">
+                        @Model.KPI.AlertRate.ToString("F1")%
+                    </h3>
+                    <p class="text-slate-400 text-[10px] mt-2 italic">
+                        * Đang có @Model.KPI.TotalAlerts SV trong diện CB
+                    </p>
+                </div>
+            </div>
+        }
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- ✅ Department GPA Chart - SỬA THÀNH CANVAS -->
+            @if (Model.DepartmentGPAs != null && Model.DepartmentGPAs.Any())
+            {
+                <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h4 class="text-slate-900 dark:text-white font-bold mb-6">Phổ điểm Trung bình theo Khoa</h4>
+                    <div class="h-64">
+                        <canvas id="departmentGPAChart"></canvas>
+                    </div>
+                </div>
+            }
+
+            <!-- ✅ Academic Ranking - SỬA THÀNH CANVAS -->
+            @if (Model.AcademicRanking != null)
+            {
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h4 class="text-slate-900 dark:text-white font-bold mb-6">Xếp loại học lực</h4>
+                    <div class="h-64 flex items-center justify-center">
+                        <canvas id="academicRankingChart"></canvas>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Department Alerts Table -->
+        @if (Model.DepartmentAlerts != null && Model.DepartmentAlerts.Any())
+        {
+            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    <h4 class="text-slate-900 dark:text-white font-bold">Danh sách Khoa theo Tỷ lệ Cảnh báo</h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tên Khoa</th>
+                                <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Tổng SV</th>
+                                <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Số SV Cảnh báo</th>
+                                <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Tỷ lệ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            @foreach (var dept in Model.DepartmentAlerts)
+                            {
+                                <tr>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-slate-900 dark:text-white">@dept.DepartmentName</span>
+                                            <span class="text-[10px] text-slate-500">Mã khoa: @dept.DepartmentCode</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300 text-center">
+                                        @dept.TotalStudents
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-red-500 font-bold text-center">
+                                        @dept.AlertCount
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <div class="w-20 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                <div class="h-full bg-red-500" style="width: @(Math.Min(dept.AlertRate, 100))%;"></div>
+                                            </div>
+                                            <span class="text-xs font-medium">@dept.AlertRate.ToString("F1")%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
     </div>
 </main>
+
+@section Scripts {
+    <script>
+        // ✅ CHART 1: Department GPA Bar Chart
+        @if (Model.DepartmentGPAs != null && Model.DepartmentGPAs.Any())
+        {
+                <text>
+                const deptGPACtx = document.getElementById('departmentGPAChart');
+                if (deptGPACtx) {
+                    new Chart(deptGPACtx, {
+                        type: 'bar',
+                        data: {
+                            labels: [
+                                @foreach (var dept in Model.DepartmentGPAs.Take(10))
+                                {
+                                        @:@Html.Raw($"'{dept.DepartmentName?.Replace("Khoa ", "")}',")
+                                }
+                            ],
+                            datasets: [{
+                                label: 'GPA Trung bình',
+                                data: [@string.Join(",", Model.DepartmentGPAs.Take(10).Select(d => d.AverageGPA))],
+                                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                                borderColor: 'rgb(59, 130, 246)',
+                                borderWidth: 2,
+                                borderRadius: 8,
+                                hoverBackgroundColor: 'rgba(59, 130, 246, 0.8)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return 'GPA: ' + context.parsed.y.toFixed(2) + ' / 4.0';
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 4.0,
+                                    ticks: {
+                                        stepSize: 0.5,
+                                        callback: function(value) {
+                                            return value.toFixed(1);
+                                        }
+                                    },
+                                    grid: {
+                                        color: 'rgba(148, 163, 184, 0.1)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                </text>
+        }
+
+        // ✅ CHART 2: Academic Ranking Doughnut Chart
+        @if (Model.AcademicRanking != null)
+        {
+                <text>
+                const academicRankCtx = document.getElementById('academicRankingChart');
+                if (academicRankCtx) {
+                    new Chart(academicRankCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Xuất sắc & Giỏi', 'Khá', 'Trung bình', 'Yếu', 'Kém'],
+                            datasets: [{
+                                data: [
+                                    @Model.AcademicRanking.ExcellentRate,
+                                    @Model.AcademicRanking.GoodRate,
+                                    @Model.AcademicRanking.AverageRate,
+                                    @Model.AcademicRanking.BelowAverageRate,
+                                    @Model.AcademicRanking.PoorRate
+                                ],
+                                backgroundColor: [
+                                    'rgb(34, 197, 94)',   // green
+                                    'rgb(59, 130, 246)',  // blue
+                                    'rgb(234, 179, 8)',   // yellow
+                                    'rgb(249, 115, 22)',  // orange
+                                    'rgb(239, 68, 68)'    // red
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 15,
+                                        usePointStyle: true,
+                                        font: {
+                                            size: 11
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed.toFixed(1) + '%';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                </text>
+        }
+    </script>
+}

@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -65,10 +66,10 @@
                         <span class="text-sm font-medium">Quản lý Giảng viên</span>
                     </a>
                
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-[#617589] hover:bg-background-light dark:hover:bg-gray-800 transition-colors" href="#">
+                    @* <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-[#617589] hover:bg-background-light dark:hover:bg-gray-800 transition-colors" href="#">
                         <span class="material-symbols-outlined">assessment</span>
                         <span class="text-sm font-medium">Báo cáo hiệu suất</span>
-                    </a>
+                    </a> *@
                     <div class="mt-auto border-t border-[#f0f2f4] dark:border-gray-700 pt-4">
                         <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors" href="#">
                             <span class="material-symbols-outlined">logout</span>
@@ -80,6 +81,8 @@
         </aside>
     <div>
         @RenderBody()
+        @RenderSection("Scripts", required: false)
+
     </div>
     </div>
 </body>

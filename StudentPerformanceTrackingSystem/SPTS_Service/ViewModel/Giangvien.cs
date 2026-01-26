@@ -29,11 +29,11 @@ namespace SPTS_Service.ViewModel
     }
 
     public class TermOptionViewModel
-{
-    public int TermId { get; set; }
-    public string TermName { get; set; }
-    public bool IsSelected { get; set; }
-}
+    {
+        public int TermId { get; set; }
+        public string TermName { get; set; }
+        public bool IsSelected { get; set; }
+    }
 
     public class SectionCardViewModel
     {
@@ -52,7 +52,7 @@ namespace SPTS_Service.ViewModel
         public string TimeSlot { get; set; } = string.Empty;
         public decimal? AverageScore { get; set; }
     }
-    
+
     public class AlertViewModel
     {
         public string StudentName { get; set; } = string.Empty;
@@ -124,52 +124,65 @@ namespace SPTS_Service.ViewModel
         public string Content { get; set; } = "";
     }
 
-        public class ThongBaoPageVm
-        {
-            public int SectionId { get; set; }
-            public string CourseCode { get; set; } = "";
-            public string CourseName { get; set; } = "";
-            public string TermName { get; set; } = "";
-            public int StudentCount { get; set; }
+    public class ThongBaoPageVm
+    {
+        public int SectionId { get; set; }
+        public string CourseCode { get; set; } = "";
+        public string CourseName { get; set; } = "";
+        public string TermName { get; set; } = "";
+        public int StudentCount { get; set; }
 
-            // Danh sách các lớp của giảng viên (để render phần "Chọn Lớp Học")
-            public List<SectionOptionVm> AvailableSections { get; set; } = new();
+        // Danh sách các lớp của giảng viên (để render phần "Chọn Lớp Học")
+        public List<SectionOptionVm> AvailableSections { get; set; } = new();
 
-            // Gửi broadcast
-            public string? BroadcastTitle { get; set; }
-            public string? BroadcastContent { get; set; }
+        // Gửi broadcast
+        public string? BroadcastTitle { get; set; }
+        public string? BroadcastContent { get; set; }
 
-            // Danh sách sinh viên
-            public List<StudentRowVm> Students { get; set; } = new();
+        // Danh sách sinh viên
+        public List<StudentRowVm> Students { get; set; } = new();
 
-            // Phân trang
-            public int CurrentPage { get; set; } = 1;
-            public int TotalPages { get; set; } = 1;
-            public int PageSize { get; set; } = 10;
-        }
+        // Phân trang
+        public int CurrentPage { get; set; } = 1;
+        public int TotalPages { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
 
-        public class SectionOptionVm
-        {
-            public int SectionId { get; set; }
-            public string CourseCode { get; set; } = "";
-            public string CourseName { get; set; } = "";
-            public int StudentCount { get; set; }
-            public bool IsSelected { get; set; }
-        }
+    public class SectionOptionVm
+    {
+        public int SectionId { get; set; }
+        public string CourseCode { get; set; } = "";
+        public string CourseName { get; set; } = "";
+        public int StudentCount { get; set; }
+        public bool IsSelected { get; set; }
+    }
 
-        public class StudentRowVm
-        {
-            public int StudentId { get; set; }
-            public string StudentCode { get; set; } = "";
-            public string FullName { get; set; } = "";
+    public class StudentRowVm
+    {
+        public int StudentId { get; set; }
+        public string StudentCode { get; set; } = "";
+        public string FullName { get; set; } = "";
 
-            // Tình trạng học tập
-            public string StatusLabel { get; set; } = "Bình thường";
-            public string StatusBadgeClass { get; set; } = "bg-slate-100";
-            public string StatusIcon { get; set; } = "remove";
-            public string StatusDetail { get; set; } = "";
-            public string StatusColorClass { get; set; } = "bg-slate-500";
-        }
+        // Tình trạng học tập
+        public string StatusLabel { get; set; } = "Bình thường";
+        public string StatusBadgeClass { get; set; } = "bg-slate-100";
+        public string StatusIcon { get; set; } = "remove";
+        public string StatusDetail { get; set; } = "";
+        public string StatusColorClass { get; set; } = "bg-slate-500";
+    }
 
+    public class GiangVienProfileVm
+    {
+        public int TeacherId { get; set; }
+        public string FullName { get; set; } = "";
+        public string RoleLabel { get; set; } = "Giảng viên";
+        public string Email { get; set; } = "";
+        public string Status { get; set; } = "";          // Active/Inactive
 
+        public string? TeacherCode { get; set; }          // ví dụ GV-2024-0892
+        public string? Department { get; set; }           // Khoa/Bộ môn
+        public string? Degree { get; set; } = "Thạc sĩ";  // Học vị
+        public string? Phone { get; set; }
+        public DateTime? Birthday { get; set; }
+    } 
 }

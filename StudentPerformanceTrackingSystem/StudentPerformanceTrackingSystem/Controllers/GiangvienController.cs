@@ -11,10 +11,12 @@ namespace StudentPerformanceTrackingSystem.Controllers
     public class GiangvienController : Controller
     {
         private readonly IGiangvienService _gvSer;
+        private readonly IAuthService _auth;
 
-        public GiangvienController(IGiangvienService giangvienService)
+        public GiangvienController(IGiangvienService giangvienService, IAuthService auth)
         {
             _gvSer = giangvienService;
+            _auth = auth;
         }
 
         public async Task<IActionResult> Index(int? termId)
@@ -109,6 +111,38 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
             TempData["Success"] = "Lưu bảng điểm thành công";
             return RedirectToAction(nameof(ChitietLop), new { id = model.SectionId, page = model.CurrentPage, search = model.Search });
+        }
+
+        public async Task<IActionResult> CaNhanGV()
+        {
+            int teacherId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var model = await _gvSer.GetProfileAsync(teacherId);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoiMatKhau([FromBody] DoiMatKhauVm model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ." });
+
+            if (model.NewPassword != model.ConfirmPassword)
+                return BadRequest(new { success = false, message = "Mật khẩu xác nhận không khớp." });
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0)
+                return Unauthorized(new { success = false, message = "Chưa đăng nhập." });
+
+            try
+            {
+                await _auth.DoiMatKhauAsync(userId, model.OldPassword, model.NewPassword);
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
         }
     }
 }

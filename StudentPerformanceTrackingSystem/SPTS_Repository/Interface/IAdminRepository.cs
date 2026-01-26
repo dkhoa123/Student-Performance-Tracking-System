@@ -32,6 +32,14 @@ namespace SPTS_Repository.Interface
 
         Task<List<Term>> GetTermsAsync();            // NEW
         Task<Term?> GetTermByIdAsync(int termId);    // NEW
+
+
+        // Update user 
+        Task<UserDetailDto?> GetUserDetailAsync(int userId);
+        Task<bool> UpdateUserAsync(UserUpdateDto dto);
+        Task<bool> DeleteUserAsync(int userId);
+        Task<List<Department>> GetDepartmentsAsync();
+        Task<List<string>> GetMajorsAsync();
     }
 
     // Sử dụng class thay vì record (recommended cho compatibility)
@@ -68,5 +76,41 @@ namespace SPTS_Repository.Interface
         public int TotalStudents { get; set; }
         public int AlertCount { get; set; }
         public decimal AlertRate { get; set; }
+    }
+
+    public class UserUpdateDto
+    {
+        public int UserId { get; set; }
+        public string FullName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Role { get; set; } = "";
+        public string Status { get; set; } = "";
+
+        public string? StudentCode { get; set; }
+        public string? Major { get; set; }           // ✅ THÊM
+        public int? CohortYear { get; set; }         // ✅ THÊM
+        public int? DepartmentId { get; set; }       // ✅ THÊM
+
+        public string? TeacherCode { get; set; }
+        public string? Degree { get; set; }          // ✅ THÊM
+        public string? DepartmentName { get; set; }  // ✅ THÊM
+    }
+
+    public class UserDetailDto
+    {
+        public int UserId { get; set; }
+        public string FullName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Role { get; set; } = "";
+        public string Status { get; set; } = "";
+
+        public string? StudentCode { get; set; }
+        public string? Major { get; set; }
+        public int? CohortYear { get; set; }
+        public int? DepartmentId { get; set; }
+
+        public string? TeacherCode { get; set; }
+        public string? Degree { get; set; }
+        public string? DepartmentName { get; set; }
     }
 }

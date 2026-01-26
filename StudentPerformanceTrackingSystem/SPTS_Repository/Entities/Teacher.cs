@@ -9,6 +9,14 @@ public partial class Teacher
 
     public string TeacherCode { get; set; } = null!;
 
+    public DateOnly? DateOfBirth { get; set; }
+
+    public string? Degree { get; set; }
+
+    public string? Phone { get; set; }
+
+    public string? DemparmentName { get; set; }
+
     public virtual ICollection<Department> Departments { get; set; } = new List<Department>();
 
     public virtual ICollection<Grade> Grades { get; set; } = new List<Grade>();

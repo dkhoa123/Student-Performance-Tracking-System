@@ -1,4 +1,5 @@
-﻿using SPTS_Repository.Entities;
+﻿using SPTS_Repository;
+using SPTS_Repository.Entities;
 using SPTS_Repository.Interface;
 using SPTS_Service.Interface;
 using SPTS_Service.ViewModel;
@@ -13,6 +14,25 @@ namespace SPTS_Service
         {
             _repo = repo;
         }
+
+        public async Task<GiangVienProfileVm> GetProfileAsync(int teacherId)
+        {
+            var dto = await _repo.GetProfileAsync(teacherId);
+
+            return new GiangVienProfileVm
+            {
+                TeacherId = dto.TeacherId,
+                FullName = dto.TeacherName,
+                Email = dto.Email,
+                Status = dto.Status,
+                TeacherCode = dto.TeacherCode,
+                Department = dto.Department,
+                Degree = dto.Degree,
+                Phone = dto.Phone,
+                Birthday = dto.Birthday
+            };
+        }
+
 
         public async Task<Giangvien> GetDashboardAsync(int teacherId, int? termId = null)
         {
@@ -339,6 +359,8 @@ namespace SPTS_Service
 
         public Task SendToStudentAsync(int sectionId, int studentId, string title, string content)
             => _repo.SendToStudentAsync(sectionId, studentId, title, content);
+
+        
     }
 
 }

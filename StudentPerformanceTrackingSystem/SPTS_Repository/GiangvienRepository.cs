@@ -14,6 +14,43 @@ namespace SPTS_Repository
             _context = context;
         }
 
+        public async Task<GiangVienProfileDto> GetProfileAsync(int teacherId)
+        {
+            var row = await _context.Users
+                .Where(u => u.UserId == teacherId)
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.FullName,
+                    u.Email,
+                    u.Status,
+
+                    TeacherCode = u.Teacher.TeacherCode,
+                    Degree = u.Teacher.Degree,
+                    Department = u.Teacher.DemparmentName,
+                    Phone = u.Teacher.Phone,
+                    Birthday = u.Teacher.DateOfBirth
+                })
+                .FirstOrDefaultAsync();
+
+            if (row == null) throw new Exception("Không tìm thấy giảng viên.");
+
+            return new GiangVienProfileDto
+            (
+                row.UserId,
+                row.FullName,
+                row.Email,
+                row.Status == "ACTIVE" ? "Tài khoản đang hoạt động" : "Tài khoản bị khóa",
+                "Giảng viên",
+                row.TeacherCode,
+                row.Department ?? "", 
+                row.Degree ?? "",
+                row.Phone ?? "",
+                row.Birthday.HasValue
+                    ? row.Birthday.Value.ToDateTime(TimeOnly.MinValue)
+                    : DateTime.MinValue
+            );
+        }
         public async Task<int> GetAtRiskStudentsCountAsync(int teacherId)
         {
             return await _context.Alerts

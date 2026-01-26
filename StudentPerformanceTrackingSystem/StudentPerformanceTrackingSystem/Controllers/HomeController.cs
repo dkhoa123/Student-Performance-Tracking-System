@@ -146,7 +146,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             if(!ModelState.IsValid) return View();
             await _svAuth.DangKysv(model);
-            return RedirectToAction("Login");
+            return RedirectToAction("quanlyUser", "Admin");
         }
 
 

@@ -8,8 +8,14 @@ namespace SPTS_Service.Interface
         Task<AdminUsersVM> GetUsersPageAsync(string? role, string? status, string? keyword, int page, int pageSize);
         Task<bool> LockUserAsync(int userId);
         Task<bool> UnlockUserAsync(int userId);
-
+        Task<List<TermOptionVM>> GetTermsForDropdownAsync();
         // quan ly giang vien
         Task<AdminCourseTeacherVM> GetCourseTeacherPageAsync(int? termId, int page, int pageSize);
+        // update user
+        Task<UserDetailVM?> GetUserDetailAsync(int userId);
+        Task<bool> UpdateUserAsync(UserUpdateVM vm);
+        Task<bool> DeleteUserAsync(int userId);
+        Task<List<MajorOptionVM>> GetMajorsAsync();
+        Task<List<DepartmentOptionVM>> GetDepartmentsAsync();
     }
 }

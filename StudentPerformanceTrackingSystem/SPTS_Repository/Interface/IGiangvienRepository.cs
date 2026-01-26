@@ -5,6 +5,8 @@ namespace SPTS_Repository.Interface
 {
     public interface IGiangvienRepository
     {
+
+        Task<GiangVienProfileDto> GetProfileAsync(int teacherId);
         Task<string> GetTeacherUserAsync(int teacherId);
         // học kỳ hiện tại
         Task<List<(int TermId, string TermName)>> GetTermsByTeacherAsync(int teacherId);
@@ -39,6 +41,19 @@ namespace SPTS_Repository.Interface
 
     }
     //DTO
+
+    public record GiangVienProfileDto(
+        int TeacherId,
+        string TeacherName,
+        string Email,
+        string Status,
+        string Rolelabel,
+        string TeacherCode,
+        string Department,
+        string Degree,
+        string Phone,
+        DateTime Birthday
+    );
     public record SectionCardViewModelDto(
      int SectionId,
      string CourseCode,
