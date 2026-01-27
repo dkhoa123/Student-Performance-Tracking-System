@@ -132,7 +132,7 @@ namespace SPTS_Repository
 
         public async Task<List<DepartmentAlertDto>> GetDepartmentAlerts(int? termId = null)
         {
-            // ⚠️ FIX: Tách query thành 2 bước - query DB trước, process sau
+            // ✅ FIX: Tách query thành 2 bước và đếm DISTINCT sinh viên
             var rawData = termId.HasValue
                 ? await (from s in _context.Students
                          join a in _context.Alerts on s.StudentId equals a.StudentId
@@ -142,7 +142,8 @@ namespace SPTS_Repository
                          {
                              Major = g.Key,
                              TotalStudents = g.Select(x => x.StudentId).Distinct().Count(),
-                             AlertCount = g.Count()
+                             AlertedStudents = g.Select(x => x.StudentId).Distinct().Count(), // ✅ Số SV bị CB
+                             AlertCount = g.Count() // ✅ Tổng số cảnh báo
                          }).ToListAsync()
                 : await (from s in _context.Students
                          join a in _context.Alerts on s.StudentId equals a.StudentId
@@ -152,19 +153,41 @@ namespace SPTS_Repository
                          {
                              Major = g.Key,
                              TotalStudents = g.Select(x => x.StudentId).Distinct().Count(),
+                             AlertedStudents = g.Select(x => x.StudentId).Distinct().Count(),
                              AlertCount = g.Count()
                          }).ToListAsync();
 
-            // Process in memory (không còn LINQ to SQL)
-            return rawData.Select(x => new DepartmentAlertDto
+            // ✅ Thêm: Lấy tổng số sinh viên của mỗi khoa (bao gồm cả SV không bị CB)
+            var totalStudentsByMajor = await _context.Students
+                .Where(s => s.StudentNavigation.Status == "ACTIVE")
+                .GroupBy(s => s.Major)
+                .Select(g => new
+                {
+                    Major = g.Key,
+                    Total = g.Count()
+                })
+                .ToListAsync();
+
+            var totalStudentsDict = totalStudentsByMajor.ToDictionary(x => x.Major ?? "", x => x.Total);
+
+            // Process in memory
+            return rawData.Select(x =>
             {
-                DepartmentName = "Khoa " + (x.Major ?? "Chưa xác định"),
-                DepartmentCode = GenerateDepartmentCode(x.Major),  // ✅ OK vì đã ToList()
-                TotalStudents = x.TotalStudents,
-                AlertCount = x.AlertCount,
-                AlertRate = x.TotalStudents > 0
-                    ? Math.Round((decimal)x.AlertCount / x.TotalStudents * 100, 1)
-                    : 0
+                var major = x.Major ?? "Chưa xác định";
+                var totalStudentsInMajor = totalStudentsDict.ContainsKey(x.Major ?? "")
+                    ? totalStudentsDict[x.Major ?? ""]
+                    : x.TotalStudents;
+
+                return new DepartmentAlertDto
+                {
+                    DepartmentName = "Khoa " + major,
+                    DepartmentCode = GenerateDepartmentCode(x.Major),
+                    TotalStudents = totalStudentsInMajor, // ✅ Tổng SV của khoa
+                    AlertCount = x.AlertedStudents,       // ✅ Số SV bị cảnh báo
+                    AlertRate = totalStudentsInMajor > 0
+                        ? Math.Round((decimal)x.AlertedStudents / totalStudentsInMajor * 100, 1)
+                        : 0
+                };
             })
             .OrderByDescending(x => x.AlertRate)
             .ToList();
@@ -827,6 +850,86 @@ namespace SPTS_Repository
                 .Distinct()
                 .OrderBy(m => m)
                 .ToListAsync();
+        }
+
+        // Thêm vào class AdminRepository
+
+        public async Task<List<Teacher>> GetAvailableTeachersAsync(int? termId = null)
+        {
+            // ✅ Lấy TẤT CẢ giảng viên active
+            var allTeachers = await _context.Teachers
+                .AsNoTracking()
+                .Include(t => t.TeacherNavigation)
+                .Where(t => t.TeacherNavigation.Status == "ACTIVE")
+                .ToListAsync();
+
+            return allTeachers;
+        }
+
+        // ✅ THÊM: Method mới để lấy số môn đang dạy của giảng viên
+        public async Task<Dictionary<int, int>> GetTeacherSectionCountsAsync(int? termId = null)
+        {
+            var query = _context.Sections.AsNoTracking().AsQueryable();
+
+            if (termId.HasValue)
+                query = query.Where(s => s.TermId == termId.Value);
+
+            var counts = await query
+                .Where(s => s.TeacherId != null)
+                .GroupBy(s => s.TeacherId)
+                .Select(g => new { TeacherId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.TeacherId, x => x.Count);
+
+            return counts;
+        }
+
+        public async Task<bool> AssignTeacherToSectionAsync(int sectionId, int teacherId)
+        {
+            try
+            {
+                var section = await _context.Sections.FirstOrDefaultAsync(s => s.SectionId == sectionId);
+                if (section == null) return false;
+
+                // Kiểm tra teacher có tồn tại không
+                var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.TeacherId == teacherId);
+                if (teacher == null)
+                    throw new Exception("Giảng viên không tồn tại");
+
+                section.TeacherId = teacherId;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> UnassignTeacherFromSectionAsync(int sectionId)
+        {
+            try
+            {
+                var section = await _context.Sections.FirstOrDefaultAsync(s => s.SectionId == sectionId);
+                if (section == null) return false;
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<Section?> GetSectionByIdAsync(int sectionId)
+        {
+            return await _context.Sections
+                .AsNoTracking()
+                .Include(s => s.Course)
+                .Include(s => s.Teacher)
+                    .ThenInclude(t => t.TeacherNavigation)
+                .Include(s => s.Term)
+                .FirstOrDefaultAsync(s => s.SectionId == sectionId);
         }
     }
 }

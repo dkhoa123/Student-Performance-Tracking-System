@@ -17,5 +17,11 @@ namespace SPTS_Service.Interface
         Task<bool> DeleteUserAsync(int userId);
         Task<List<MajorOptionVM>> GetMajorsAsync();
         Task<List<DepartmentOptionVM>> GetDepartmentsAsync();
+
+        // section-teacher management
+        Task<List<TeacherOptionVM>> GetAvailableTeachersAsync(int? termId = null);
+        Task<bool> AssignTeacherToSectionAsync(int sectionId, int teacherId);
+        Task<bool> UnassignTeacherFromSectionAsync(int sectionId);
+        Task<SectionDetailVM?> GetSectionDetailAsync(int sectionId);
     }
 }

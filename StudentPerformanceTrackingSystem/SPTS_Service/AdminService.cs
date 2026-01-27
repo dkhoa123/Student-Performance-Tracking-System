@@ -254,5 +254,57 @@ namespace SPTS_Service
 
             return result;
         }
+
+        // Thêm vào class AdminService
+
+        public async Task<List<TeacherOptionVM>> GetAvailableTeachersAsync(int? termId = null)
+        {
+            // Lấy tất cả giảng viên
+            var teachers = await _adRepo.GetAvailableTeachersAsync(termId);
+
+            // Lấy số môn đang dạy của từng giảng viên trong kỳ này
+            var sectionCounts = await _adRepo.GetTeacherSectionCountsAsync(termId);
+
+            var result = teachers.Select(t => new TeacherOptionVM
+            {
+                TeacherId = t.TeacherId,
+                TeacherCode = t.TeacherCode ?? "",
+                FullName = t.TeacherNavigation?.FullName ?? "",
+                Email = t.TeacherNavigation?.Email ?? "",
+                Degree = t.Degree,
+                DepartmentName = t.DemparmentName,
+                SectionCount = sectionCounts.ContainsKey(t.TeacherId) ? sectionCounts[t.TeacherId] : 0
+            })
+            .OrderBy(t => t.SectionCount)  // ✅ Ưu tiên GV có ít môn (0 môn lên đầu)
+            .ThenBy(t => t.FullName)        // ✅ Sau đó sắp xếp theo tên
+            .ToList();
+
+            return result;
+        }
+
+        public Task<bool> AssignTeacherToSectionAsync(int sectionId, int teacherId)
+            => _adRepo.AssignTeacherToSectionAsync(sectionId, teacherId);
+
+        public Task<bool> UnassignTeacherFromSectionAsync(int sectionId)
+            => _adRepo.UnassignTeacherFromSectionAsync(sectionId);
+
+        public async Task<SectionDetailVM?> GetSectionDetailAsync(int sectionId)
+        {
+            var section = await _adRepo.GetSectionByIdAsync(sectionId);
+            if (section == null) return null;
+
+            return new SectionDetailVM
+            {
+                SectionId = section.SectionId,
+                SectionCode = section.SectionCode ?? "",
+                CourseCode = section.Course?.CourseCode ?? "",
+                CourseName = section.Course?.CourseName ?? "",
+                Credits = section.Course?.Credits ?? 0,
+                TermName = section.Term?.TermName ?? "",
+                TeacherId = section.TeacherId,
+                TeacherName = section.Teacher?.TeacherNavigation?.FullName,
+                TeacherCode = section.Teacher?.TeacherCode
+            };
+        }
     }
 }

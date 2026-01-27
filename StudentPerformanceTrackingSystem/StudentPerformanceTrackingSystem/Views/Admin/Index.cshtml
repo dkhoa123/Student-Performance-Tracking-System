@@ -43,7 +43,7 @@
 
         <!-- Filters -->
         <div class="mb-8">
-            <form method="get" asp-action="DashboardAdmin" class="flex gap-3 items-center flex-wrap">
+            <form method="get" asp-action="Index" class="flex gap-3 items-center flex-wrap">
                 <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Học kỳ:</label>
                 <select name="termId"
                         class="flex h-10 shrink-0 items-center gap-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm"
@@ -183,45 +183,91 @@
         {
             <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                    <h4 class="text-slate-900 dark:text-white font-bold">Danh sách Khoa theo Tỷ lệ Cảnh báo</h4>
+                    <div>
+                        <h4 class="text-slate-900 dark:text-white font-bold">Danh sách Khoa theo Tỷ lệ Cảnh báo</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            Số sinh viên bị cảnh báo học tập trên tổng số sinh viên của khoa
+                        </p>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 dark:bg-slate-800/50">
                             <tr>
                                 <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tên Khoa</th>
-                                <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Tổng SV</th>
-                                <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Số SV Cảnh báo</th>
+                                <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">
+                                    Tổng SV
+                                    <span class="material-symbols-outlined text-xs ml-1 cursor-help" title="Tổng số sinh viên của khoa">info</span>
+                                </th>
+                                <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">
+                                    SV Bị CB
+                                    <span class="material-symbols-outlined text-xs ml-1 cursor-help" title="Số sinh viên bị cảnh báo học tập">info</span>
+                                </th>
                                 <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Tỷ lệ</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                             @foreach (var dept in Model.DepartmentAlerts)
                             {
-                                <tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                     <td class="px-6 py-4">
                                         <div class="flex flex-col">
                                             <span class="text-sm font-bold text-slate-900 dark:text-white">@dept.DepartmentName</span>
                                             <span class="text-[10px] text-slate-500">Mã khoa: @dept.DepartmentCode</span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300 text-center">
+                                    <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300 text-center font-semibold">
                                         @dept.TotalStudents
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-red-500 font-bold text-center">
-                                        @dept.AlertCount
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <span class="text-sm text-red-500 font-bold">@dept.AlertCount</span>
+                                            <span class="text-[10px] text-slate-400">
+                                                (@dept.AlertRate.ToString("F1")%)
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <div class="w-20 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                                <div class="h-full bg-red-500" style="width: @(Math.Min(dept.AlertRate, 100))%;"></div>
+                                                @{
+                                                    var barColor = dept.AlertRate switch
+                                                    {
+                                                        >= 30 => "bg-red-500",
+                                                        >= 20 => "bg-orange-500",
+                                                        >= 10 => "bg-yellow-500",
+                                                        _ => "bg-green-500"
+                                                    };
+                                                }
+                                                <div class="h-full @barColor" style="width: @(Math.Min(dept.AlertRate, 100))%;"></div>
                                             </div>
-                                            <span class="text-xs font-medium">@dept.AlertRate.ToString("F1")%</span>
+                                            <span class="text-xs font-medium w-12 text-right">@dept.AlertRate.ToString("F1")%</span>
                                         </div>
                                     </td>
                                 </tr>
                             }
                         </tbody>
+                        <tfoot class="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+                            <tr>
+                                <td class="px-6 py-3 text-sm font-bold text-slate-900 dark:text-white">
+                                    Tổng cộng
+                                </td>
+                                <td class="px-6 py-3 text-sm font-bold text-slate-900 dark:text-white text-center">
+                                    @Model.DepartmentAlerts.Sum(d => d.TotalStudents)
+                                </td>
+                                <td class="px-6 py-3 text-sm font-bold text-red-500 text-center">
+                                    @Model.DepartmentAlerts.Sum(d => d.AlertCount)
+                                </td>
+                                <td class="px-6 py-3 text-sm font-bold text-slate-900 dark:text-white text-center">
+                                    @{
+                                        var totalStudents = Model.DepartmentAlerts.Sum(d => d.TotalStudents);
+                                        var totalAlerted = Model.DepartmentAlerts.Sum(d => d.AlertCount);
+                                        var overallRate = totalStudents > 0 ? Math.Round((decimal)totalAlerted / totalStudents * 100, 1) : 0;
+                                    }
+                                    @overallRate.ToString("F1")%
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>

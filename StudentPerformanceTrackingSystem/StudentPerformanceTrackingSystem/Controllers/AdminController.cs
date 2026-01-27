@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SPTS_Repository.Interface;
 using SPTS_Service.Interface;
@@ -11,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace StudentPerformanceTrackingSystem.Controllers
 {
+    [Authorize(Roles = "ADMIN")]
     public class AdminController : Controller
     {
         private readonly IAdminService _adService;
@@ -21,7 +25,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> DashboardAdmin(int? termId = null)
+        public async Task<IActionResult> Index(int? termId = null)
         {
             try
             {
@@ -74,6 +78,79 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             var vm = await _adService.GetCourseTeacherPageAsync(termId, page, pageSize);
             return View(vm);
+        }
+        // Thêm vào AdminController
+
+        [HttpGet]
+        public async Task<IActionResult> GetSectionDetail(int id)
+        {
+            try
+            {
+                var section = await _adService.GetSectionDetailAsync(id);
+                if (section == null)
+                    return NotFound();
+
+                return Json(section);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableTeachers(int? termId = null)
+        {
+            try
+            {
+                var teachers = await _adService.GetAvailableTeachersAsync(termId);
+                return Json(teachers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignTeacher([FromBody] AssignTeacherVM vm)
+        {
+            try
+            {
+                var success = await _adService.AssignTeacherToSectionAsync(vm.SectionId, vm.TeacherId);
+                if (!success)
+                    return BadRequest(new { error = "Gán giảng viên thất bại" });
+
+                return Json(new { success = true, message = "Gán giảng viên thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UnassignTeacher(int sectionId, int? termId = null, int page = 1)
+        {
+            try
+            {
+                var success = await _adService.UnassignTeacherFromSectionAsync(sectionId);
+                if (!success)
+                {
+                    TempData["Error"] = "Gỡ giảng viên thất bại!";
+                }
+                else
+                {
+                    TempData["Success"] = "Gỡ giảng viên thành công!";
+                }
+
+                return RedirectToAction(nameof(quanlyMonGV), new { termId, page });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(quanlyMonGV), new { termId, page });
+            }
         }
 
         [HttpGet]
@@ -203,6 +280,17 @@ namespace StudentPerformanceTrackingSystem.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Xóa cookie COMPASS thủ công (phòng trường hợp SignOutAsync không xóa)
+            Response.Cookies.Delete("COMPASS");
+
+            return RedirectToAction("Login");
         }
     }
 }

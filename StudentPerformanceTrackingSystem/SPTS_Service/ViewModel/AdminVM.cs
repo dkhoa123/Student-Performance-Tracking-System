@@ -194,4 +194,37 @@
         public string DepartmentName { get; set; } = "";
         public string DepartmentCode { get; set; } = "";
     }
+
+    // Thêm vào namespace SPTS_Service.ViewModels
+
+public class TeacherOptionVM
+{
+    public int TeacherId { get; set; }
+    public string TeacherCode { get; set; } = "";
+    public string FullName { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string? Degree { get; set; }
+    public string? DepartmentName { get; set; }
+    public int SectionCount { get; set; } // Số lớp đang dạy
+}
+
+public class SectionDetailVM
+{
+    public int SectionId { get; set; }
+    public string SectionCode { get; set; } = "";
+    public string CourseCode { get; set; } = "";
+    public string CourseName { get; set; } = "";
+    public int Credits { get; set; }
+    public string TermName { get; set; } = "";
+    
+    public int? TeacherId { get; set; }
+    public string? TeacherName { get; set; }
+    public string? TeacherCode { get; set; }
+}
+
+public class AssignTeacherVM
+{
+    public int SectionId { get; set; }
+    public int TeacherId { get; set; }
+}
 }

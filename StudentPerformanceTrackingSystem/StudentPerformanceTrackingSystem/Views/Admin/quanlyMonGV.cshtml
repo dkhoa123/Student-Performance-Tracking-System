@@ -1,11 +1,26 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model SPTS_Service.ViewModels.AdminCourseTeacherVM
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
-@model SPTS_Service.ViewModels.AdminCourseTeacherVM
+
 <main class="flex-1 flex flex-col min-w-0 px-6 py-6 lg:px-10">
+    <!-- ✅ TempData messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg flex items-center gap-2">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-4 p-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg flex items-center gap-2">
+            <span class="material-symbols-outlined">error</span>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
     <div class="w-full max-w-[1200px] mx-auto">
         <!-- Page Heading -->
         <div class="flex flex-wrap justify-between items-end gap-4 mb-8">
@@ -20,6 +35,7 @@
                 </button>
             </div>
         </div>
+
         <!-- Stats Section -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-gray-800 border border-[#dbe0e6] dark:border-gray-700 shadow-sm">
@@ -55,15 +71,23 @@
                         <span class="material-symbols-outlined text-sm">priority_high</span> Cần xử lý ngay
                     </p>
                 }
- 
             </div>
         </div>
+
         <!-- Filters & Table Section -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-[#dbe0e6] dark:border-gray-700 shadow-sm overflow-hidden">
             <!-- Chips / Filters -->
             <div class="p-4 border-b border-[#f0f2f4] dark:border-gray-700 flex flex-wrap gap-2 items-center">
+                <!-- ✅ Nút xem GV chưa có môn -->
+                <button onclick="showAvailableTeachers()"
+                        class="flex items-center gap-2 h-9 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/50">
+                    <span class="material-symbols-outlined text-[20px]">person_search</span>
+                    <span>Giảng viên chưa có môn</span>
+                </button>
+
                 <form method="get" asp-action="quanlyMonGV" class="ml-auto flex gap-2 items-center">
                     <select name="termId"
+                            id="termFilter"
                             class="h-9 rounded-lg bg-[#f0f2f4] dark:bg-gray-700 text-[#111418] dark:text-white px-4 text-sm font-medium"
                             onchange="this.form.submit()">
                         @foreach (var t in Model.Terms)
@@ -74,7 +98,8 @@
                     <input type="hidden" name="page" value="1" />
                 </form>
             </div>
-            <!-- Subjects Table -->
+
+            <!-- ✅ Subjects Table -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -88,63 +113,92 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#f0f2f4] dark:divide-gray-700">
-                        @foreach (var row in Model.Rows)
+                        @if (Model.Rows == null || !Model.Rows.Any())
                         {
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                <td class="px-6 py-4 text-sm font-bold text-primary">@row.CourseCode</td>
-                                <td class="px-6 py-4 text-sm font-medium text-[#111418] dark:text-white">@row.CourseName</td>
-                                <td class="px-6 py-4 text-sm">@row.Credits</td>
-
-                                <td class="px-6 py-4">
-                                    @if (row.TeacherId == null)
-                                    {
-                                        <div class="flex items-center gap-2 text-red-500 italic">
-                                            <span class="material-symbols-outlined text-[20px]">person_off</span>
-                                            <span class="text-sm">Chưa gán GV</span>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="flex items-center gap-2">
-                                            <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
-                                                @row.TeacherName?.Substring(0, 1)
-                                            </div>
-                                            <span class="text-sm font-medium">@row.TeacherName</span>
-                                        </div>
-                                    }
-                                </td>
-
-                                <td class="px-6 py-4">
-                                    @if (row.StatusBadge == "GREEN")
-                                    {
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
-                                            @row.StatusText
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300">
-                                            @row.StatusText
-                                        </span>
-                                    }
-                                </td>
-
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex justify-end gap-2">
-                                        <button class="p-2 text-[#617589] hover:text-primary hover:bg-primary/10 rounded-lg" title="Gán giảng viên">
-                                            <span class="material-symbols-outlined text-[20px]">person_add</span>
-                                        </button>
-                                        <button class="p-2 text-[#617589] hover:text-primary hover:bg-primary/10 rounded-lg" title="Chỉnh sửa">
-                                            <span class="material-symbols-outlined text-[20px]">edit</span>
-                                        </button>
-                                    </div>
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-[#617589] dark:text-gray-400">
+                                    Không có lớp học phần nào
                                 </td>
                             </tr>
+                        }
+                        else
+                        {
+                            @foreach (var row in Model.Rows)
+                            {
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-bold text-primary">@row.CourseCode</td>
+                                    <td class="px-6 py-4 text-sm font-medium text-[#111418] dark:text-white">@row.CourseName</td>
+                                    <td class="px-6 py-4 text-sm">@row.Credits</td>
+
+                                    <td class="px-6 py-4">
+                                        @if (row.TeacherId == null)
+                                        {
+                                            <div class="flex items-center gap-2 text-red-500 italic">
+                                                <span class="material-symbols-outlined text-[20px]">person_off</span>
+                                                <span class="text-sm">Chưa gán GV</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="flex items-center gap-2">
+                                                <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+                                                    @row.TeacherName?.Substring(0, 1)
+                                                </div>
+                                                <span class="text-sm font-medium">@row.TeacherName</span>
+                                            </div>
+                                        }
+                                    </td>
+
+                                    <td class="px-6 py-4">
+                                        @if (row.StatusBadge == "GREEN")
+                                        {
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
+                                                @row.StatusText
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300">
+                                                @row.StatusText
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <!-- Nút gán/đổi GV -->
+                                            <button onclick="openAssignModal(@row.SectionId)"
+                                                    class="p-2 text-[#617589] hover:text-primary hover:bg-primary/10 rounded-lg"
+                                                    title="@(row.TeacherId == null ? "Gán giảng viên" : "Đổi giảng viên")">
+                                                <span class="material-symbols-outlined text-[20px]">person_add</span>
+                                            </button>
+
+                                            <!-- Nút gỡ GV -->
+                                            @if (row.TeacherId != null)
+                                            {
+                                                <form method="post" asp-action="UnassignTeacher"
+                                                      asp-route-sectionId="@row.SectionId"
+                                                      asp-route-termId="@Model.TermId"
+                                                      asp-route-page="@Model.Page"
+                                                      style="display: inline;">
+                                                    <button type="submit"
+                                                            class="p-2 text-[#617589] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                                                            title="Gỡ giảng viên"
+                                                            onclick="return confirm('Bạn có chắc muốn gỡ giảng viên khỏi lớp này?')">
+                                                        <span class="material-symbols-outlined text-[20px]">person_remove</span>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
             </div>
-            <!-- Pagination -->
+
+            <!-- ✅ Pagination -->
             <div class="px-6 py-4 flex items-center justify-between border-t border-[#f0f2f4] dark:border-gray-700 bg-background-light/50 dark:bg-gray-900/30">
                 <p class="text-sm text-[#617589] dark:text-gray-400">
                     Hiển thị @Model.From-@Model.To của @Model.TotalCount lớp/môn
@@ -196,3 +250,332 @@
         </div>
     </div>
 </main>
+
+<!-- ✅ Modal Gán Giảng viên -->
+<div id="assignModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Gán Giảng viên</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Chọn giảng viên để phụ trách lớp học phần này</p>
+                </div>
+                <button onclick="closeAssignModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <span class="material-symbols-outlined text-[24px]">close</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <!-- Section Info -->
+            <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Thông tin lớp học phần</h4>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Mã HP:</span>
+                        <span class="font-medium text-gray-900 dark:text-white ml-2" id="modal_courseCode">-</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Tín chỉ:</span>
+                        <span class="font-medium text-gray-900 dark:text-white ml-2" id="modal_credits">-</span>
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-gray-600 dark:text-gray-400">Tên môn:</span>
+                        <span class="font-medium text-gray-900 dark:text-white ml-2" id="modal_courseName">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Search -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Chọn giảng viên <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" id="teacherSearch"
+                           placeholder="Tìm kiếm theo tên hoặc mã giảng viên..."
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary"
+                           oninput="filterTeachers()">
+                    <span class="material-symbols-outlined absolute right-3 top-2.5 text-gray-400">search</span>
+                </div>
+            </div>
+
+            <div id="teacherList" class="space-y-2 max-h-96 overflow-y-auto">
+                <!-- Động load bằng JS -->
+            </div>
+
+            <div id="errorMessage" class="hidden mt-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm"></div>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+            <button type="button" onclick="closeAssignModal()"
+                    class="px-6 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                Hủy
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Modal Giảng viên chưa có môn -->
+<div id="availableTeachersModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Giảng viên chưa có môn</h3>
+                <button onclick="closeAvailableTeachersModal()" class="text-gray-500 hover:text-gray-700">
+                    <span class="material-symbols-outlined text-[24px]">close</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div id="availableTeachersList">
+                <!-- Động load bằng JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentSectionId = null;
+        let allTeachers = [];
+        let currentTermId = @(Model.TermId ?? 0);
+
+        function openAssignModal(sectionId) {
+            currentSectionId = sectionId;
+
+            fetch(`/Admin/GetSectionDetail?id=${sectionId}`)
+                .then(response => response.json())
+                .then(section => {
+                    document.getElementById('modal_courseCode').textContent = section.courseCode;
+                    document.getElementById('modal_courseName').textContent = section.courseName;
+                    document.getElementById('modal_credits').textContent = section.credits;
+
+                    return fetch(`/Admin/GetAvailableTeachers?termId=${currentTermId}`);
+                })
+                .then(response => response.json())
+                .then(teachers => {
+                    allTeachers = teachers;
+                    renderTeachers(teachers);
+                    document.getElementById('assignModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    alert('Lỗi khi tải dữ liệu: ' + error.message);
+                });
+        }
+
+        function closeAssignModal() {
+            document.getElementById('assignModal').classList.add('hidden');
+            document.getElementById('teacherSearch').value = '';
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        function renderTeachers(teachers) {
+            const container = document.getElementById('teacherList');
+
+            if (teachers.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">Không có giảng viên nào</p>';
+                return;
+            }
+
+            const noSections = teachers.filter(t => t.sectionCount === 0);
+            const hasSections = teachers.filter(t => t.sectionCount > 0);
+
+            let html = '';
+
+            if (noSections.length > 0) {
+                html += `
+                    <div class="mb-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-symbols-outlined text-green-600">check_circle</span>
+                            <h4 class="font-semibold text-gray-900 dark:text-white">
+                                Giảng viên chưa có môn (${noSections.length})
+                            </h4>
+                        </div>
+                        <div class="space-y-2">
+                            ${noSections.map(t => renderTeacherCard(t, true)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (hasSections.length > 0) {
+                html += `
+                    <div class="mb-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-symbols-outlined text-blue-600">groups</span>
+                            <h4 class="font-semibold text-gray-900 dark:text-white">
+                                Giảng viên đang dạy (${hasSections.length})
+                            </h4>
+                        </div>
+                        <div class="space-y-2">
+                            ${hasSections.map(t => renderTeacherCard(t, false)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderTeacherCard(teacher, isPriority) {
+            let sectionBadge = '';
+            if (teacher.sectionCount === 0) {
+                sectionBadge = `
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
+                        <span class="material-symbols-outlined text-sm mr-1">check</span>
+                        Chưa có môn
+                    </span>
+                `;
+            } else {
+                sectionBadge = `
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
+                        Đang dạy ${teacher.sectionCount} môn
+                    </span>
+                `;
+            }
+
+            const cardClass = isPriority
+                ? 'border-2 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-900/10'
+                : 'border border-gray-200 dark:border-gray-700';
+
+            return `
+                <div class="p-4 ${cardClass} rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all"
+                     onclick="selectTeacher(${teacher.teacherId})">
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">
+                            ${teacher.fullName.substring(0, 1)}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <p class="font-medium text-gray-900 dark:text-white truncate">${teacher.fullName}</p>
+                                ${sectionBadge}
+                            </div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                <span class="font-mono">${teacher.teacherCode}</span> | ${teacher.email}
+                                ${teacher.degree ? ` | ${teacher.degree}` : ''}
+                                ${teacher.departmentName ? ` | ${teacher.departmentName}` : ''}
+                            </p>
+                        </div>
+                        <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 flex-shrink-0">
+                            Chọn
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterTeachers() {
+            const keyword = document.getElementById('teacherSearch').value.toLowerCase();
+            const filtered = allTeachers.filter(t =>
+                t.fullName.toLowerCase().includes(keyword) ||
+                t.teacherCode.toLowerCase().includes(keyword) ||
+                t.email.toLowerCase().includes(keyword) ||
+                (t.departmentName && t.departmentName.toLowerCase().includes(keyword))
+            );
+            renderTeachers(filtered);
+        }
+
+        function selectTeacher(teacherId) {
+            if (!currentSectionId) return;
+
+            const data = {
+                sectionId: currentSectionId,
+                teacherId: teacherId
+            };
+
+            fetch('/Admin/AssignTeacher', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        showError(data.error || 'Gán giảng viên thất bại');
+                    }
+                })
+                .catch(error => {
+                    showError('Có lỗi xảy ra: ' + error.message);
+                });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function showAvailableTeachers() {
+            fetch(`/Admin/GetAvailableTeachers?termId=${currentTermId}`)
+                .then(response => response.json())
+                .then(teachers => {
+                    const container = document.getElementById('availableTeachersList');
+                    const noSectionTeachers = teachers.filter(t => t.sectionCount === 0);
+
+                    if (noSectionTeachers.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-12">
+                                <span class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600">person_check</span>
+                                <p class="mt-4 text-gray-500 dark:text-gray-400">Tất cả giảng viên đã được phân công</p>
+                                <p class="mt-2 text-sm text-gray-400">Tổng số giảng viên: ${teachers.length}</p>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = `
+                            <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-700 dark:text-blue-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined">info</span>
+                                    <span>
+                                        <strong>${noSectionTeachers.length}</strong> giảng viên chưa được phân công môn học trong kỳ này
+                                        (Tổng số: ${teachers.length} giảng viên)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-gray-50 dark:bg-gray-900">
+                                        <tr>
+                                            <th class="px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Mã GV</th>
+                                            <th class="px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Họ tên</th>
+                                            <th class="px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Email</th>
+                                            <th class="px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Học vị</th>
+                                            <th class="px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Khoa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                        ${noSectionTeachers.map(t => `
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                <td class="px-4 py-3 font-medium text-primary font-mono">${t.teacherCode}</td>
+                                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${t.fullName}</td>
+                                                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">${t.email}</td>
+                                                <td class="px-4 py-3 text-sm">
+                                                    ${t.degree ? `<span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs">${t.degree}</span>` : '-'}
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">${t.departmentName || '-'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+
+                    document.getElementById('availableTeachersModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    alert('Lỗi khi tải dữ liệu: ' + error.message);
+                });
+        }
+
+        function closeAvailableTeachersModal() {
+            document.getElementById('availableTeachersModal').classList.add('hidden');
+        }
+    </script>
+}

@@ -71,10 +71,12 @@
                         <span class="text-sm font-medium">Báo cáo hiệu suất</span>
                     </a> *@
                     <div class="mt-auto border-t border-[#f0f2f4] dark:border-gray-700 pt-4">
-                        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors" href="#">
-                            <span class="material-symbols-outlined">logout</span>
-                            <span class="text-sm font-medium">Đăng xuất</span>
-                        </a>
+                        <button type="submit">
+                            <a asp-controller="Home" asp-action="Login" method="post" class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                <span class="material-symbols-outlined">logout</span>
+                                Đăng xuất
+                            </a>
+                        </button>
                     </div>
                 </nav>
             </div>

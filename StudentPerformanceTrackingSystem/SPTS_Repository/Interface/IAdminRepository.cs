@@ -40,6 +40,13 @@ namespace SPTS_Repository.Interface
         Task<bool> DeleteUserAsync(int userId);
         Task<List<Department>> GetDepartmentsAsync();
         Task<List<string>> GetMajorsAsync();
+
+        // ✅ THÊM: Quản lý Section-Teacher
+        Task<List<Teacher>> GetAvailableTeachersAsync(int? termId = null);
+        Task<Dictionary<int, int>> GetTeacherSectionCountsAsync(int? termId = null); // ✅ THÊM
+        Task<bool> AssignTeacherToSectionAsync(int sectionId, int teacherId);
+        Task<bool> UnassignTeacherFromSectionAsync(int sectionId);
+        Task<Section?> GetSectionByIdAsync(int sectionId);
     }
 
     // Sử dụng class thay vì record (recommended cho compatibility)
@@ -71,11 +78,11 @@ namespace SPTS_Repository.Interface
 
     public class DepartmentAlertDto
     {
-        public string DepartmentName { get; set; } = string.Empty;
-        public string DepartmentCode { get; set; } = string.Empty;
-        public int TotalStudents { get; set; }
-        public int AlertCount { get; set; }
-        public decimal AlertRate { get; set; }
+        public string DepartmentName { get; set; } = "";
+        public string DepartmentCode { get; set; } = "";
+        public int TotalStudents { get; set; }      // Tổng SV của khoa
+        public int AlertCount { get; set; }         // Số SV bị cảnh báo (distinct)
+        public decimal AlertRate { get; set; }      // Tỷ lệ % SV bị CB
     }
 
     public class UserUpdateDto
