@@ -281,6 +281,11 @@ namespace SPTS_Repository
 
                 where g.StudentId == studentId
                       && scale != null
+                // THAY ĐỔI: Thêm điều kiện g.TotalScore >= 5m trong trend
+                //where g.StudentId == studentId
+                //      && scale != null
+                //      && g.TotalScore != null
+                //      && g.TotalScore >= 5m  // CHỈ LẤY MÔN ĐẠT
                 group new { c, t, scale } by new { t.TermId, t.TermName, t.StartDate } into grp
                 select new
                 {

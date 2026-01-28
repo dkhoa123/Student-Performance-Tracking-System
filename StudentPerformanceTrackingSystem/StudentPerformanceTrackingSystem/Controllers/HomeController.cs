@@ -136,11 +136,13 @@ namespace StudentPerformanceTrackingSystem.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         public IActionResult SignUp()
         {
             return View(new DangKySinhVien());
         }
         [HttpPost]
+        [Authorize(Roles = "ADMIN")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignUp(DangKySinhVien model)
         {

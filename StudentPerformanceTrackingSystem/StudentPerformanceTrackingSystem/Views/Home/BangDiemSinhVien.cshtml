@@ -118,13 +118,13 @@
                             <p class="text-[#617589] dark:text-gray-400 text-sm font-medium">Xếp loại</p>
                         </div>
                         @{
-                            string xepLoai = Model.CumulativeGpa switch
+                            string xepLoai = Model.TermGpa switch
                             {
                                 null => "-",
                                 >= 3.6m => "Xuất sắc",
                                 >= 3.2m => "Giỏi",
-                                >= 2.5m => "Khá",
-                                >= 2.0m => "Trung bình",
+                                >= 2.8m => "Khá",
+                                >= 2.5m => "Trung bình",
                                 _ => "Yếu"
                             };
                         }
