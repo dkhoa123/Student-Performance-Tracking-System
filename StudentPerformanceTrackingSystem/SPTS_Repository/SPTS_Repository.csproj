@@ -19,4 +19,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SPTS_Shared\SPTS_Shared.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -16,10 +16,12 @@ namespace SPTS_Repository.Repositories.Giangvien
         {
             _context = context;
         }
-        public async Task<int> GetActiveSectionsCountAsync(int teacherId)
+        public async Task<int> GetActiveSectionsCountAsync(int teacherId, int termId)
         {
             return await _context.Sections
-                .Where(sec => sec.TeacherId == teacherId && sec.Status == "OPEN")
+                .Where(sec => sec.TeacherId == teacherId
+                           && sec.TermId == termId
+                           && sec.Status == "OPEN")
                 .CountAsync();
         }
 
@@ -45,13 +47,18 @@ namespace SPTS_Repository.Repositories.Giangvien
         }
 
 
-        public async Task<int> GetTotalStudentsByTeacherAsync(int teacherId)
+        public async Task<int> GetTotalStudentsByTeacherAsync(int teacherId, int termId)
         {
             return await _context.SectionStudents
-                .Where(ss => ss.Section.TeacherId == teacherId && ss.Status == "ACTIVE")
+                .Where(ss =>
+                    ss.Section.TeacherId == teacherId &&
+                    ss.Section.TermId == termId &&
+                    ss.Status == "ACTIVE"
+                )
                 .Select(ss => ss.StudentId)
                 .Distinct()
                 .CountAsync();
         }
+
     }
 }

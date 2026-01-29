@@ -3,6 +3,7 @@ using SPTS_Repository.DTOs.Quantrivien;
 using SPTS_Repository.Entities;
 using SPTS_Repository.Interface;
 using SPTS_Repository.Interface.Admin;
+using SPTS_Shared.Constants;
 
 namespace SPTS_Repository.Repositories.Admin
 {
@@ -54,11 +55,11 @@ namespace SPTS_Repository.Repositories.Admin
         public async Task<KPIScorecardDto> GetKPIScorecard(int? termId = null)
         {
             var totalStudents = await _context.Students
-                .Where(s => s.StudentNavigation.Status == "ACTIVE")
+                .Where(s => s.StudentNavigation.Status == UserStatus.Active)
                 .CountAsync();
 
             var totalTeachers = await _context.Teachers
-                .Where(t => t.TeacherNavigation.Status == "ACTIVE")
+                .Where(t => t.TeacherNavigation.Status == UserStatus.Active)
                 .CountAsync();
 
             var gpasQuery = _context.TermGpas.AsQueryable();
@@ -68,7 +69,7 @@ namespace SPTS_Repository.Repositories.Admin
             var averageGPA = await gpasQuery.AverageAsync(tg => tg.GpaValue) ?? 0;
 
             var alertsQuery = _context.Alerts
-              .Where(a => a.Status == "NEW" || a.Status == "IN_PROGRESS");
+              .Where(a => a.Status == AlertStatus.New || a.Status == AlertStatus.InProgress);
 
 
             // ✅ Chỉ filter khi termId có giá trị
@@ -94,7 +95,7 @@ namespace SPTS_Repository.Repositories.Admin
         public async Task<(int currentStudents, int previousStudents)> GetStudentComparison(int? currentTermId, int? previousTermId)
         {
             var current = await _context.Students
-                .CountAsync(s => s.StudentNavigation.Status == "ACTIVE");
+                .CountAsync(s => s.StudentNavigation.Status == UserStatus.Active);
 
             var previous = current;
 

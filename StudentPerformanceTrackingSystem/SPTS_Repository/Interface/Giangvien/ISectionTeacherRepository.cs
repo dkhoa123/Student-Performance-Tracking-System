@@ -9,7 +9,7 @@ namespace SPTS_Repository.Interface.Giangvien
 {
     public interface ISectionTeacherRepository
     {
-        Task<List<SectionCardViewModelDto>> GetSectionsByTeacherAsync(int teacherId);
+        Task<List<SectionCardViewModelDto>> GetSectionsByTeacherAsync(int teacherId, int? termId = null);
         Task<ChiTietLopDto> GetSectionDetailAsync(int sectionId);
         Task<int> GetAlertCountBySectionAsync(int sectionId);
     }

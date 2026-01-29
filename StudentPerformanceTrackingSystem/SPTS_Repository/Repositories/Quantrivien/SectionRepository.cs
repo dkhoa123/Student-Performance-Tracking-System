@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SPTS_Repository.Entities;
 using SPTS_Repository.Interface.Admin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SPTS_Shared.Constants;
 
 namespace SPTS_Repository.Repositories.Admin
 {
@@ -45,7 +41,7 @@ namespace SPTS_Repository.Repositories.Admin
             var allTeachers = await _context.Teachers
                 .AsNoTracking()
                 .Include(t => t.TeacherNavigation)
-                .Where(t => t.TeacherNavigation.Status == "ACTIVE")
+                .Where(t => t.TeacherNavigation.Status == UserStatus.Active)
                 .ToListAsync();
 
             return allTeachers;

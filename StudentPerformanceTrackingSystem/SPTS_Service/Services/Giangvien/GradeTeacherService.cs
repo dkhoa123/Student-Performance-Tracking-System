@@ -1,10 +1,12 @@
 ﻿using SPTS_Repository.Interface.Giangvien;
+using SPTS_Repository.Interface.Shared;
+using SPTS_Service.Interface.Domain;
 using SPTS_Service.Interface.Giangvien;
+using SPTS_Service.Services.Domain;
 using SPTS_Service.ViewModel.GiangvienVm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SPTS_Service.Services.Giangvien
@@ -13,17 +15,24 @@ namespace SPTS_Service.Services.Giangvien
     {
         private readonly IGradeTeacherRepository _gradeRepo;
         private readonly ITermTeacherRepository _termRepo;
-        private readonly IAlertTeacherRepository _alertRepo;
+        private readonly IAlertSyncService _alertSyncService;           // ✅ Domain Service
+        private readonly IGpaCalculationService _gpaCalcService;        // ✅ Domain Service
+        private readonly ITermGpaRepository _termGpaRepo;               // ✅ New repository
 
         public GradeTeacherService(
             IGradeTeacherRepository gradeRepo,
             ITermTeacherRepository termRepo,
-            IAlertTeacherRepository alertRepo)
+            IAlertSyncService alertSyncService,
+            IGpaCalculationService gpaCalcService,
+            ITermGpaRepository termGpaRepo)
         {
             _gradeRepo = gradeRepo;
             _termRepo = termRepo;
-            _alertRepo = alertRepo;
+            _alertSyncService = alertSyncService;
+            _gpaCalcService = gpaCalcService;
+            _termGpaRepo = termGpaRepo;
         }
+
         public async Task SaveGradesAsync(int sectionId, List<StudentGradeRowVm> students)
         {
             var rule = await _gradeRepo.GetActiveGradeRuleBySectionAsync(sectionId);
@@ -33,18 +42,26 @@ namespace SPTS_Service.Services.Giangvien
             var termId = await _termRepo.GetTermIdBySectionAsync(sectionId);
             var touched = new HashSet<int>();
 
-            foreach (var s in students)
+            foreach (var student in students)
             {
-                var hasP = s.ProcessScore.HasValue;
-                var hasF = s.FinalScore.HasValue;
+                if (!student.ProcessScore.HasValue && !student.FinalScore.HasValue)
+                    continue;
 
-                if (!hasP && !hasF) continue;
-
+                // Calculate total score
                 decimal sumWeight = 0m;
                 decimal sum = 0m;
 
-                if (hasP) { sum += s.ProcessScore!.Value * rule.ProcessWeight; sumWeight += rule.ProcessWeight; }
-                if (hasF) { sum += s.FinalScore!.Value * rule.FinalWeight; sumWeight += rule.FinalWeight; }
+                if (student.ProcessScore.HasValue)
+                {
+                    sum += student.ProcessScore.Value * rule.ProcessWeight;
+                    sumWeight += rule.ProcessWeight;
+                }
+
+                if (student.FinalScore.HasValue)
+                {
+                    sum += student.FinalScore.Value * rule.FinalWeight;
+                    sumWeight += rule.FinalWeight;
+                }
 
                 decimal? total = null;
                 if (sumWeight > 0)
@@ -54,15 +71,32 @@ namespace SPTS_Service.Services.Giangvien
                 if (total.HasValue)
                     gpaPoint = await _gradeRepo.GetGpaPointByTotalAsync(total.Value);
 
-                await _gradeRepo.UpsertGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total, gpaPoint);
-                await _alertRepo.SyncAlertsForGradeAsync(sectionId, s.StudentId, s.ProcessScore, s.FinalScore, total);
+                // Save grade
+                await _gradeRepo.UpsertGradeAsync(
+                    sectionId,
+                    student.StudentId,
+                    student.ProcessScore,
+                    student.FinalScore,
+                    total,
+                    gpaPoint);
 
-                touched.Add(s.StudentId);
+                // ✅ Sync alerts using Domain Service
+                await _alertSyncService.SyncAlertsForGradeAsync(
+                    sectionId,
+                    student.StudentId,
+                    student.ProcessScore,
+                    student.FinalScore,
+                    total);
+
+                touched.Add(student.StudentId);
             }
 
-            // ✅ Update TermGpas (A: có TotalScore là tính)
+            // ✅ Recalculate Term GPA using Domain Service
             foreach (var studentId in touched)
-                await _gradeRepo.RecalculateAndUpsertTermGpaAsync(studentId, termId);
+            {
+                var result = await _gpaCalcService.CalculateForTermAsync(studentId, termId);
+                await _termGpaRepo.UpsertAsync(studentId, termId, result);
+            }
         }
     }
 }

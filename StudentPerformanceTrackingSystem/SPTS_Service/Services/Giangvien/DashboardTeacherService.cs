@@ -42,14 +42,14 @@ namespace SPTS_Service.Services.Giangvien
             // term đang chọn: ưu tiên query param, fallback term mới nhất trong list
             var selectedTermId = termId ?? terms.FirstOrDefault().TermId;
 
-            var totalStudents = await _repo.GetTotalStudentsByTeacherAsync(teacherId); // nếu muốn theo term thì cũng lọc term
+            var totalStudents = await _repo.GetTotalStudentsByTeacherAsync(teacherId, selectedTermId); // nếu muốn theo term thì cũng lọc term
             var averageScore = await _repo.GetAverageScoreByTeacherAsync(teacherId, selectedTermId);
             var atRiskStudents = await _alertRepo.GetAtRiskStudentsCountAsync(teacherId);
             var newStudents = await _repo.GetNewStudentsThisMonthAsync(teacherId);
-            var activeSections = await _repo.GetActiveSectionsCountAsync(teacherId);
+            var activeSections = await _repo.GetActiveSectionsCountAsync(teacherId, selectedTermId);
             var newAlertsCount = await _alertRepo.GetNewAlertsCountAsync(teacherId);
 
-            var sections = await _sectionRepo.GetSectionsByTeacherAsync(teacherId);
+            var sections = await _sectionRepo.GetSectionsByTeacherAsync(teacherId, selectedTermId);
             var sectionsByTerm = sections
                 .GroupBy(s => new { s.TermId, s.TermName, s.StartDate })
                 .OrderByDescending(g => g.Key.StartDate)

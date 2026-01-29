@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SPTS_Repository.Entities;
 using SPTS_Service;
 using SPTS_Service.Interface;
 using SPTS_Service.Interface.Auth;
@@ -38,16 +39,18 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
         public async Task<IActionResult> Index(int? termId)
         {
-            int teacherId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var teacherId = GetCurrentTeacherId(); // Implement method này theo logic auth của bạn
+
             var model = await _dashSer.GetDashboardAsync(teacherId, termId);
+
             return View(model);
         }
 
-        public async Task<IActionResult> Lophoc()
+        public async Task<IActionResult> Lophoc(int? termId)
         {
-            int teacherId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var teacherId = GetCurrentTeacherId(); // Implement method này theo logic auth của bạn
 
-            var model = await _dashSer.GetDashboardAsync(teacherId);
+            var model = await _dashSer.GetDashboardAsync(teacherId, termId);
 
             return View(model);
         }

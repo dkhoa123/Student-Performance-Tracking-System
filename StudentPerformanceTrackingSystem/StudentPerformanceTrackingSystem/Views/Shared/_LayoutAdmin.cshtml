@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+}
+<!DOCTYPE html>
 
 <html class="light" lang="vi">
 <head>
@@ -53,26 +57,28 @@
                     </div>
                 </div>
                 <nav class="flex flex-col gap-2 grow">
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary border border-primary/20" href="~/Admin/DashboardAdmin">
-                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">dashboard</span>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg @(currentAction == "Index" ? "bg-primary/10 text-primary border border-primary/20" : "text-[#617589] hover:bg-background-light dark:hover:bg-gray-800") transition-colors"
+                       href="~/Admin/Index">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' @(currentAction == "Index" ? "1" : "0")">dashboard</span>
                         <span class="text-sm font-medium">Bảng điều khiển</span>
                     </a>
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-[#617589] hover:bg-background-light dark:hover:bg-gray-800 transition-colors" href="~/Admin/quanlyUser">
-                        <span class="material-symbols-outlined">menu_book</span>
+
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg @(currentAction == "quanlyUser" ? "bg-primary/10 text-primary border border-primary/20" : "text-[#617589] hover:bg-background-light dark:hover:bg-gray-800") transition-colors"
+                       href="~/Admin/quanlyUser">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' @(currentAction == "quanlyUser" ? "1" : "0")">menu_book</span>
                         <span class="text-sm font-medium">Quản lý User</span>
                     </a>
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-[#617589] hover:bg-background-light dark:hover:bg-gray-800 transition-colors" href="~/Admin/quanlyMonGV">
-                        <span class="material-symbols-outlined">group</span>
+
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg @(currentAction == "quanlyMonGV" ? "bg-primary/10 text-primary border border-primary/20" : "text-[#617589] hover:bg-background-light dark:hover:bg-gray-800") transition-colors"
+                       href="~/Admin/quanlyMonGV">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' @(currentAction == "quanlyMonGV" ? "1" : "0")">group</span>
                         <span class="text-sm font-medium">Quản lý Giảng viên</span>
                     </a>
-               
-                    @* <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-[#617589] hover:bg-background-light dark:hover:bg-gray-800 transition-colors" href="#">
-                        <span class="material-symbols-outlined">assessment</span>
-                        <span class="text-sm font-medium">Báo cáo hiệu suất</span>
-                    </a> *@
+
                     <div class="mt-auto border-t border-[#f0f2f4] dark:border-gray-700 pt-4">
                         <button type="submit">
-                            <a asp-controller="Home" asp-action="Login" method="post" class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            <a asp-controller="Home" asp-action="Login" method="post"
+                               class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                 <span class="material-symbols-outlined">logout</span>
                                 Đăng xuất
                             </a>
@@ -81,11 +87,10 @@
                 </nav>
             </div>
         </aside>
-    <div>
-        @RenderBody()
-        @RenderSection("Scripts", required: false)
-
-    </div>
+        <div>
+            @RenderBody()
+            @RenderSection("Scripts", required: false)
+        </div>
     </div>
 </body>
 </html>

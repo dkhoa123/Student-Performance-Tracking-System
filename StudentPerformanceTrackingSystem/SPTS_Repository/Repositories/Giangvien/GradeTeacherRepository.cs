@@ -36,65 +36,6 @@ namespace SPTS_Repository.Repositories.Giangvien
             return scale;
         }
 
-        public async Task RecalculateAndUpsertTermGpaAsync(int studentId, int termId)
-        {
-            // A) Có TotalScore là tính
-            var rows = await (
-                from g in _context.Grades
-                join s in _context.Sections on g.SectionId equals s.SectionId
-                join c in _context.Courses on s.CourseId equals c.CourseId
-
-                from scale in _context.GpaScales
-                    .Where(sc => g.TotalScore != null
-                              && g.TotalScore >= sc.MinScore
-                              && g.TotalScore <= sc.MaxScore)
-                    .DefaultIfEmpty()
-
-                where g.StudentId == studentId
-                      && s.TermId == termId
-                      && g.TotalScore != null
-                      && scale != null
-                select new
-                {
-                    c.Credits,
-                    TotalScore = g.TotalScore!.Value,
-                    scale!.GpaPoint
-                }
-            ).ToListAsync();
-
-            var creditsAttempted = rows.Sum(x => x.Credits);
-            var creditsEarned = rows.Where(x => x.TotalScore >= 5m).Sum(x => x.Credits);
-
-            decimal? gpaValue = null;
-            if (creditsAttempted > 0)
-            {
-                var numerator = rows.Sum(x => x.GpaPoint * x.Credits);
-                gpaValue = Math.Round(numerator / creditsAttempted, 2);
-            }
-
-            var existing = await _context.TermGpas
-                .SingleOrDefaultAsync(x => x.StudentId == studentId && x.TermId == termId);
-
-            if (existing == null)
-            {
-                _context.TermGpas.Add(new TermGpa
-                {
-                    StudentId = studentId,
-                    TermId = termId,
-                    GpaValue = gpaValue,
-                    CreditsAttempted = creditsAttempted,
-                    CreditsEarned = creditsEarned
-                });
-            }
-            else
-            {
-                existing.GpaValue = gpaValue;
-                existing.CreditsAttempted = creditsAttempted;
-                existing.CreditsEarned = creditsEarned;
-            }
-
-            await _context.SaveChangesAsync();
-        }
 
         public async Task UpsertGradeAsync(int sectionId, int studentId, decimal? process, decimal? final, decimal? total, decimal? gpaPoint)
         {

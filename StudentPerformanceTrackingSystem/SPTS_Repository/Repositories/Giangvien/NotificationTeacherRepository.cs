@@ -65,55 +65,5 @@ namespace SPTS_Repository.Repositories.Giangvien
             )).ToList();
         }
 
-        public async Task<int> SendToSectionAsync(int sectionId, string title, string content)
-        {
-            // StudentId == UserId
-            var studentUserIds = await _context.SectionStudents
-                .Where(x => x.SectionId == sectionId)
-                .Select(x => x.StudentId)
-                .Distinct()
-                .ToListAsync();
-
-            if (studentUserIds.Count == 0) return 0;
-
-            var now = DateTime.UtcNow;
-
-            var notis = studentUserIds.Select(uid => new Notification
-            {
-                UserId = uid,
-                Title = title,
-                Content = content,
-                RelatedAlertId = null,
-                IsRead = false,
-                CreatedAt = now
-            }).ToList();
-
-            _context.Notifications.AddRange(notis);
-            await _context.SaveChangesAsync();
-            return notis.Count;
-        }
-
-        public async Task SendToStudentAsync(int sectionId, int studentId, string title, string content)
-        {
-            // optional: verify student really belongs to section
-            var isInSection = await _context.SectionStudents
-                .AnyAsync(x => x.SectionId == sectionId && x.StudentId == studentId);
-
-            if (!isInSection)
-                throw new InvalidOperationException("Student không thuộc lớp này.");
-
-            var noti = new Notification
-            {
-                UserId = studentId, // StudentId == UserId
-                Title = title,
-                Content = content,
-                RelatedAlertId = null,
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Notifications.Add(noti);
-            await _context.SaveChangesAsync();
-        }
     }
 }

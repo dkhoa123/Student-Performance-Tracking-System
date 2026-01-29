@@ -4,17 +4,21 @@ using SPTS_Repository.Entities;
 using SPTS_Repository.Interface.Admin;
 using SPTS_Repository.Interface.Auth;
 using SPTS_Repository.Interface.Giangvien;
+using SPTS_Repository.Interface.Shared;
 using SPTS_Repository.Interface.Sinhvien;
 using SPTS_Repository.Repositories.Admin;
 using SPTS_Repository.Repositories.Auth;
 using SPTS_Repository.Repositories.Giangvien;
 using SPTS_Repository.Repositories.Quantrivien;
+using SPTS_Repository.Repositories.Shared;
 using SPTS_Repository.Repositories.Sinhvien;
 using SPTS_Service.Interface.Admin;
 using SPTS_Service.Interface.Auth;
+using SPTS_Service.Interface.Domain;
 using SPTS_Service.Interface.Giangvien;
 using SPTS_Service.Interface.Student;
 using SPTS_Service.Services.Auth;
+using SPTS_Service.Services.Domain;
 using SPTS_Service.Services.Giangvien;
 using SPTS_Service.Services.Quantrivien;
 using SPTS_Service.Services.Sinhvien;
@@ -75,7 +79,7 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IAlertTeacherRepository, AlertTeacherRepository>();
 builder.Services.AddScoped<IChartTeacherRepository, ChartTeacherRepository>();
 builder.Services.AddScoped<IDashboardTeacherRepository, DashboardTeacherRepository>();
-builder.Services.AddScoped<IGradeTeacherRepository, GradeTeacherRepository>();
+builder.Services.AddScoped<IGradeTeacherRepository, GradeTeacherRepository>();  
 builder.Services.AddScoped<INotificationTeacherRepository, NotificationTeacherRepository>();
 builder.Services.AddScoped<IProfileTeacherRepository, ProfileTeacherRepository>();
 builder.Services.AddScoped<ISectionTeacherRepository, SectionTeacherRepository>();
@@ -99,6 +103,12 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+
+
+builder.Services.AddScoped<IGpaCalculationService, GpaCalculationService>();
+builder.Services.AddScoped<IAlertSyncService, AlertSyncService>();
+builder.Services.AddScoped<INotificationDomainService, NotificationDomainService>();
+builder.Services.AddScoped<ITermGpaRepository, TermGpaRepository>();
 
 var app = builder.Build();
 

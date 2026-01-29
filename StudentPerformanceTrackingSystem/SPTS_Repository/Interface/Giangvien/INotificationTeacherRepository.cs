@@ -11,8 +11,5 @@ namespace SPTS_Repository.Interface.Giangvien
     {
         Task<List<SectionOptionDto>> GetSectionsForNotificationAsync(int teacherId);
         Task<List<StudentNotificationDto>> GetStudentsWithAlertStatusAsync(int sectionId);
-
-        Task<int> SendToSectionAsync(int sectionId, string title, string content);
-        Task SendToStudentAsync(int sectionId, int studentId, string title, string content);
     }
 }

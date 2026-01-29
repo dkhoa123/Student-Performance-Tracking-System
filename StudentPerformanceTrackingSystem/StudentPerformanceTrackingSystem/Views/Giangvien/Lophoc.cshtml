@@ -99,29 +99,40 @@
         </div>
 
         <!-- Filters & Search Toolbar -->
-        <div class="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 shadow-sm sticky top-0 z-10">
-            <div class="flex flex-1 w-full lg:w-auto items-center gap-2">
-                <div class="relative flex-1 max-w-md">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span class="material-symbols-outlined text-[#617589]">search</span>
-                    </div>
-                    <input class="block w-full pl-10 pr-3 py-2.5 border border-[#dbe0e6] dark:border-gray-600 rounded-lg leading-5 bg-[#f6f7f8] dark:bg-gray-800 text-[#111418] dark:text-white placeholder-[#617589] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-all" placeholder="Tìm kiếm môn học, mã lớp..." type="text" />
-                </div>
+<div class="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 shadow-sm sticky top-0 z-10">
+    <div class="flex flex-1 w-full lg:w-auto items-center gap-2">
+        <div class="relative flex-1 max-w-md">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="material-symbols-outlined text-[#617589]">search</span>
             </div>
-            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                <div class="relative min-w-[160px] flex-1 lg:flex-none">
-                    <select class="block w-full pl-3 pr-10 py-2.5 text-base border-none focus:outline-none focus:ring-0 sm:text-sm rounded-lg bg-[#f6f7f8] dark:bg-gray-800 text-[#111418] dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors appearance-none">
-                        @foreach (var term in Model.SectionsByTerm)
+            <input class="block w-full pl-10 pr-3 py-2.5 border border-[#dbe0e6] dark:border-gray-600 rounded-lg leading-5 bg-[#f6f7f8] dark:bg-gray-800 text-[#111418] dark:text-white placeholder-[#617589] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-all" 
+                   placeholder="Tìm kiếm môn học, mã lớp..." 
+                   type="text" />
+        </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+        <div class="relative min-w-[160px] flex-1 lg:flex-none">
+            <!-- ✅ Thêm id và onchange event -->
+                    <select id="termSelector"
+                            class="block w-full pl-3 pr-10 py-2.5 text-base border-none focus:outline-none focus:ring-0 sm:text-sm rounded-lg bg-[#f6f7f8] dark:bg-gray-800 text-[#111418] dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors appearance-none">
+                        @foreach (var term in Model.AvailableTerms)
                         {
-                            <option value="@term.TermId">@term.TermName</option>
+                            @if (term.IsSelected)
+                            {
+                                <option value="@term.TermId" selected>@term.TermName</option>
+                            }
+                            else
+                            {
+                                <option value="@term.TermId">@term.TermName</option>
+                            }
                         }
                     </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#617589]">
-                        <span class="material-symbols-outlined text-[20px]">expand_more</span>
-                    </div>
-                </div>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#617589]">
+                <span class="material-symbols-outlined text-[20px]">expand_more</span>
             </div>
         </div>
+    </div>
+</div>
 
         <!-- Loop qua từng học kỳ -->
         @foreach (var term in Model.SectionsByTerm)
@@ -287,3 +298,14 @@
 
     </div>
 </main>
+@section Scripts {
+    <script>
+        document.getElementById('termSelector').addEventListener('change', function() {
+            const selectedTermId = this.value;
+            // ✅ Cách này an toàn hơn, tự động lấy đúng action/controller hiện tại
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('termId', selectedTermId);
+            window.location.href = currentUrl.toString();
+        });
+    </script>
+}

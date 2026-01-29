@@ -8,9 +8,9 @@ namespace SPTS_Repository.Interface.Giangvien
 {
     public interface IDashboardTeacherRepository
     {
-        Task<int> GetTotalStudentsByTeacherAsync(int teacherId);
+        Task<int> GetTotalStudentsByTeacherAsync(int teacherId, int termId);
         Task<int> GetNewStudentsThisMonthAsync(int teacherId);
         Task<decimal> GetAverageScoreByTeacherAsync(int teacherId, int termId);
-        Task<int> GetActiveSectionsCountAsync(int teacherId);
+        Task<int> GetActiveSectionsCountAsync(int teacherId, int termId);
     }
 }

@@ -19,6 +19,5 @@ namespace SPTS_Repository.Interface.Giangvien
             decimal? gpaPoint);
 
         Task<decimal?> GetGpaPointByTotalAsync(decimal totalScore);
-        Task RecalculateAndUpsertTermGpaAsync(int studentId, int termId);
     }
 }

@@ -2,7 +2,7 @@
 using SPTS_Repository.DTOs.Quantrivien;
 using SPTS_Repository.Entities;
 using SPTS_Repository.Interface.Admin;
-
+using SPTS_Shared.Constants;
 
 namespace SPTS_Repository.Repositories.Quantrivien
 {
@@ -50,7 +50,7 @@ namespace SPTS_Repository.Repositories.Quantrivien
             var rawData = termId.HasValue
                 ? await (from s in _context.Students
                          join a in _context.Alerts on s.StudentId equals a.StudentId
-                         where s.StudentNavigation.Status == "ACTIVE" && a.TermId == termId.Value
+                         where s.StudentNavigation.Status == UserStatus.Active && a.TermId == termId.Value
                          group new { s.StudentId, s.Major } by s.Major into g
                          select new
                          {
@@ -61,7 +61,7 @@ namespace SPTS_Repository.Repositories.Quantrivien
                          }).ToListAsync()
                 : await (from s in _context.Students
                          join a in _context.Alerts on s.StudentId equals a.StudentId
-                         where s.StudentNavigation.Status == "ACTIVE"
+                         where s.StudentNavigation.Status == UserStatus.Active
                          group new { s.StudentId, s.Major } by s.Major into g
                          select new
                          {
@@ -73,7 +73,7 @@ namespace SPTS_Repository.Repositories.Quantrivien
 
             // ✅ Thêm: Lấy tổng số sinh viên của mỗi khoa (bao gồm cả SV không bị CB)
             var totalStudentsByMajor = await _context.Students
-                .Where(s => s.StudentNavigation.Status == "ACTIVE")
+                .Where(s => s.StudentNavigation.Status == UserStatus.Active)
                 .GroupBy(s => s.Major)
                 .Select(g => new
                 {
@@ -148,7 +148,7 @@ namespace SPTS_Repository.Repositories.Quantrivien
             {
                 query = from s in _context.Students
                         join tg in _context.TermGpas on s.StudentId equals tg.StudentId
-                        where s.StudentNavigation.Status == "ACTIVE" && tg.TermId == termId.Value
+                        where s.StudentNavigation.Status == UserStatus.Active && tg.TermId == termId.Value
                         group tg by s.Major into g
                         select new DepartmentGPADto
                         {
@@ -161,7 +161,7 @@ namespace SPTS_Repository.Repositories.Quantrivien
             {
                 query = from s in _context.Students
                         join tg in _context.TermGpas on s.StudentId equals tg.StudentId
-                        where s.StudentNavigation.Status == "ACTIVE"
+                        where s.StudentNavigation.Status == UserStatus.Active
                         group tg by s.Major into g
                         select new DepartmentGPADto
                         {
