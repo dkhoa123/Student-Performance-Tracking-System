@@ -1,4 +1,6 @@
-﻿@model SPTS_Service.ViewModel.DangKySinhVien
+﻿@using SPTS_Service.ViewModel
+@using SPTS_Service.ViewModel.AuthVm
+@model DangKySinhVien
 @{
     Layout = null;
 }
@@ -33,18 +35,21 @@
     </script>
     <style>
         ::-webkit-scrollbar {
-                    width: 8px;
-                }
-                ::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                ::-webkit-scrollbar-thumb {
-                    background-color: rgba(0, 0, 0, 0.1);
-                    border-radius: 4px;
-                }
-                ::-webkit-scrollbar-thumb:hover {
-                    background-color: rgba(0, 0, 0, 0.2);
-                }
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(0, 0, 0, 0.2);
+            }
     </style>
 </head>
 <body class="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white overflow-x-hidden transition-colors duration-200">

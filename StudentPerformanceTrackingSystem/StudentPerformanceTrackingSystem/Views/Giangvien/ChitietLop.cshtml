@@ -1,4 +1,4 @@
-﻿@model SPTS_Service.ViewModel.ChiTietLopVm
+﻿@model SPTS_Service.ViewModel.GiangvienVm.ChiTietLopVm
 @{
     Layout = "~/Views/Shared/_LayoutGiangvien.cshtml";
 }
@@ -97,19 +97,19 @@
                     <input type="hidden" asp-for="CurrentPage" />
                     <input type="hidden" asp-for="Search" />
 
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-[#f6f7f8] dark:bg-gray-800 border-b border-[#dbe0e6] dark:border-gray-700">
-                            <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-16">STT</th>
-                            <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32">Mã SV</th>
-                            <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap min-w-[200px]">Họ và Tên</th>
-                            <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32 text-center">Quá trình</th>
-                            <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32 text-center">Cuối kỳ</th>
-                            <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32 text-center">Tổng kết</th>
-                            <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32">Trạng thái</th>
-                            <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-16"></th>
-                        </tr>
-                    </thead>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-[#f6f7f8] dark:bg-gray-800 border-b border-[#dbe0e6] dark:border-gray-700">
+                                <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-16">STT</th>
+                                <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32">Mã SV</th>
+                                <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap min-w-[200px]">Họ và Tên</th>
+                                <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32 text-center">Quá trình</th>
+                                <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32 text-center">Cuối kỳ</th>
+                                <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32 text-center">Tổng kết</th>
+                                <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-32">Trạng thái</th>
+                                <th class="py-3 px-4 text-xs font-semibold uppercase text-[#617589] dark:text-gray-400 whitespace-nowrap w-16"></th>
+                            </tr>
+                        </thead>
                         <tbody class="divide-y divide-[#f0f2f4] dark:divide-gray-800">
                             @for (int i = 0; i < Model.Students.Count; i++)
                             {
@@ -201,7 +201,7 @@
                                 </tr>
                             }
                         </tbody>
-                </table>
+                    </table>
                 </form>
             </div>
             @{
@@ -276,7 +276,7 @@
                     </a>
                 </div>
             </div>
-               
+
         </div>
 
     </div>

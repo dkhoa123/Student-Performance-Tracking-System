@@ -1,11 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using SPTS_Repository;
 using SPTS_Repository.Entities;
-using SPTS_Repository.Interface;
-using SPTS_Service;
-using SPTS_Service.Interface;
+using SPTS_Repository.Interface.Admin;
+using SPTS_Repository.Interface.Auth;
+using SPTS_Repository.Interface.Giangvien;
+using SPTS_Repository.Interface.Sinhvien;
+using SPTS_Repository.Repositories.Admin;
+using SPTS_Repository.Repositories.Auth;
+using SPTS_Repository.Repositories.Giangvien;
+using SPTS_Repository.Repositories.Quantrivien;
+using SPTS_Repository.Repositories.Sinhvien;
+using SPTS_Service.Interface.Admin;
+using SPTS_Service.Interface.Auth;
+using SPTS_Service.Interface.Giangvien;
+using SPTS_Service.Interface.Student;
+using SPTS_Service.Services.Auth;
+using SPTS_Service.Services.Giangvien;
+using SPTS_Service.Services.Quantrivien;
+using SPTS_Service.Services.Sinhvien;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,14 +56,50 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<ISinhVienRepository, SinhVienRepository>();
-builder.Services.AddScoped<ISinhVienService, SinhVienService>();
-builder.Services.AddScoped<IGiangvienRepository, GiangvienRepository>();
-builder.Services.AddScoped<IGiangvienService, GiangvienService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IAdminRepository, AdminRepository>();
-builder.Services.AddScoped<IAdminService, AdminService>();
+
+// repository for student
+builder.Services.AddScoped<IAlertStudentRepository, AlertStudentRepository>();
+builder.Services.AddScoped<ICourseStudentRepository, CourseStudentRepository>();
+builder.Services.AddScoped<IGPAStudentRepository, GPAStudentRepository>();
+builder.Services.AddScoped<INotificationStudentRepository, NotificationStudentRepository>();
+builder.Services.AddScoped<IProfileStudentRepository, ProfileStudentRepository>();
+builder.Services.AddScoped<ITermStudentRepository, TermStudentRepository>();
+// service for student
+builder.Services.AddScoped<IDashboardStudentService, DashboardStudentService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+
+// repository for teacher
+builder.Services.AddScoped<IAlertTeacherRepository, AlertTeacherRepository>();
+builder.Services.AddScoped<IChartTeacherRepository, ChartTeacherRepository>();
+builder.Services.AddScoped<IDashboardTeacherRepository, DashboardTeacherRepository>();
+builder.Services.AddScoped<IGradeTeacherRepository, GradeTeacherRepository>();
+builder.Services.AddScoped<INotificationTeacherRepository, NotificationTeacherRepository>();
+builder.Services.AddScoped<IProfileTeacherRepository, ProfileTeacherRepository>();
+builder.Services.AddScoped<ISectionTeacherRepository, SectionTeacherRepository>();
+builder.Services.AddScoped<ITermTeacherRepository, TermTeacherRepository>();
+// Service for teacher 
+builder.Services.AddScoped<IDashboardTeacherService, DashboardTeacherService>();
+builder.Services.AddScoped<IGradeTeacherService, GradeTeacherService>();
+builder.Services.AddScoped<INotificationTeacherService, NotificationTeacherService>();
+builder.Services.AddScoped<IProfileTeacherService, ProfileTeacherService>();
+builder.Services.AddScoped<ISectionTeacherService, SectionTeacherService>();
+
+// Repository for admin
+builder.Services.AddScoped<IKPIRepository, KPIRepositorry>();
+builder.Services.AddScoped<ISectionManagementRepository, SectionManagementRepository>();
+builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+builder.Services.AddScoped<IStatisticsRepository, StatisticsRepository>();
+builder.Services.AddScoped<ITermRepository, TermRepository>();
+builder.Services.AddScoped<IUserManagementRepository, UserManagementRepository>();
+// Service for admin
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ISectionService, SectionService>();
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SPTS_Service.Interface;
-using SPTS_Service.ViewModel;
+using SPTS_Service.Interface.Auth;
+using SPTS_Service.Interface.Student;
+using SPTS_Service.ViewModel.AuthVm;
+using SPTS_Service.ViewModel.SinhvienVm;
 using StudentPerformanceTrackingSystem.Models;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -14,13 +17,21 @@ namespace StudentPerformanceTrackingSystem.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IAuthService _svAuth;
-        private readonly ISinhVienService _svSer;
+        private readonly IDashboardStudentService _dashSer;
+        private readonly INotificationService _notiSer;
+        private readonly IProfileService _profileSer;
 
-        public HomeController(ILogger<HomeController> logger, ISinhVienService svSer, IAuthService svAuth)
+        public HomeController(ILogger<HomeController> logger,
+            IAuthService svAuth,
+            IDashboardStudentService dashSer,
+            INotificationService notiSer,
+            IProfileService profileSer)
         {
             _logger = logger;
-            _svSer = svSer;
             _svAuth = svAuth;
+            _dashSer = dashSer;
+            _notiSer = notiSer;
+            _profileSer = profileSer;
         }
         [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> Index()
@@ -31,7 +42,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
             int studentId = int.Parse(studentIdClaim);
 
-            var vm = await _svSer.GetDashboardAsync(studentId);
+            var vm = await _dashSer.GetDashboardAsync(studentId);
             return View(vm);
         }
         [Authorize(Roles = "STUDENT")]
@@ -43,7 +54,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
             int studentId = int.Parse(studentIdClaim);
 
-            var vm = await _svSer.GetDashboardAsync(studentId, termId);
+            var vm = await _dashSer.GetDashboardAsync(studentId, termId);
             return View(vm);
         }
         [HttpGet]
@@ -56,7 +67,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
 
             int studentId = int.Parse(studentIdClaim);
 
-            var vm = await _svSer.GetDashboardAsync(studentId);
+            var vm = await _dashSer.GetDashboardAsync(studentId);
             return View(vm);
         }
 
@@ -70,7 +81,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            await _svSer.CapNhatThongTinSinhVien(model);
+            await _profileSer.CapNhatThongTinSinhVien(model);
 
             TempData["Success"] = "Cập nhật thông tin thành công";
             return RedirectToAction(nameof(CaNhan));
@@ -146,7 +157,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignUp(DangKySinhVien model)
         {
-            if(!ModelState.IsValid) return View();
+            if (!ModelState.IsValid) return View();
             await _svAuth.DangKysv(model);
             return RedirectToAction("quanlyUser", "Admin");
         }
@@ -168,7 +179,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         public async Task<IActionResult> CanhBao(string filter = "all", int page = 1)
         {
             var studentId = GetCurrentStudentId();
-            var model = await _svSer.GetNotificationsPageAsync(studentId, filter, page);
+            var model = await _notiSer.GetNotificationsPageAsync(studentId, filter, page);
             return View(model);
         }
 
@@ -178,7 +189,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         public async Task<IActionResult> MarkAsRead(int id)
         {
             var studentId = GetCurrentStudentId();
-            await _svSer.MarkAsReadAsync(id, studentId);
+            await _notiSer.MarkAsReadAsync(id, studentId);
             return Ok();
         }
 
@@ -188,7 +199,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         public async Task<IActionResult> MarkAllAsRead()
         {
             var studentId = GetCurrentStudentId();
-            await _svSer.MarkAllAsReadAsync(studentId);
+            await _notiSer.MarkAllAsReadAsync(studentId);
             TempData["Success"] = "Đã đánh dấu tất cả thông báo là đã đọc. ";
             return RedirectToAction(nameof(CanhBao));
         }

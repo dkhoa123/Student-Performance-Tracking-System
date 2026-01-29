@@ -1,5 +1,4 @@
-﻿@model SPTS_Service.ViewModel.SinhVien
-
+﻿@model SPTS_Service.ViewModel.SinhvienVm.SinhVien
 <main class="flex flex-1 flex-col h-full overflow-hidden relative">
     <header class="flex h-16 items-center justify-between border-b border-[#e5e7eb] dark:border-[#1f2937] bg-white dark: bg-[#111418] px-6 lg:px-10 shrink-0 z-10">
         <button class="lg:hidden mr-4 p-2 text-gray-600">
@@ -15,8 +14,9 @@
         </div>
         <div class="flex items-center gap-4 ml-6">
             <button class="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#f0f2f4] dark: bg-[#1f2937] hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-[#111418] dark:text-white">
-                <a href="~/Home/CanhBao"><span class="material-symbols-outlined text-[20px]">notifications</span>
-                <span class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#111418]"></span>
+                <a href="~/Home/CanhBao">
+                    <span class="material-symbols-outlined text-[20px]">notifications</span>
+                    <span class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#111418]"></span>
                 </a>
             </button>
             <div class="flex items-center gap-3 pl-2 border-l border-gray-200 dark:border-gray-700">
@@ -35,7 +35,7 @@
                 <h2 class="text-[#111418] dark:text-white text-3xl font-bold tracking-tight">Welcome back, @Model.FullName </h2>
                 <p class="text-[#617589] dark:text-[#9ca3af] mt-1">Here's an overview of your academic performance. </p>
             </div>
-            
+
             <!-- Stats Cards - CENTERED -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto w-full">
                 <div class="flex flex-col gap-1 rounded-xl bg-white dark:bg-[#111418] p-6 border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm hover:shadow-md transition-shadow">
@@ -60,13 +60,13 @@
                     <p class="text-[#111418] dark:text-white text-2xl font-bold">@Model.AcademicAlertCount</p>
                 </div>
             </div>
-            
+
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 <!-- Left Column - Full Width on Mobile -->
                 <div class="xl:col-span-2 flex flex-col gap-8">
                     @{
-                        var pts = Model.TermGpaTrend ?? new List<SPTS_Service.ViewModel.TermGpaTrendVm>();
+                        var pts = Model.TermGpaTrend ?? new List<SPTS_Service.ViewModel.SinhvienVm.TermGpaTrendVm>();
 
                         // fallback: nếu chưa có trend thì dùng kỳ hiện tại
                         if (!pts.Any())
@@ -315,7 +315,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Right Column - Alerts & Grade Distribution -->
                 <div class="flex flex-col gap-6">
                     <!-- Academic Alerts -->
@@ -345,7 +345,7 @@
                                                         "LOW_FINAL" => "Điểm cuối kỳ",
                                                         "LOW_TOTAL" => "Điểm tổng kết",
                                                         _ => a.AlertType
-                                                };
+                                                    };
 
                                                 }
                                                 @tb@if (!string.IsNullOrWhiteSpace(a.CourseCode))
@@ -368,7 +368,7 @@
                             }
                         </div>
                     </div>
-                    
+
                     <!-- Grade Distribution -->
                     <div class="rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark:border-[#1f2937] shadow-sm flex flex-col h-fit">
                         <div class="p-5 border-b border-[#f0f2f4] dark:border-[#1f2937] flex items-center justify-between">
@@ -379,11 +379,11 @@
                             @{
                                 var totalGrades = Model.GradeDistribution.A + Model.GradeDistribution.B + Model.GradeDistribution.C + Model.GradeDistribution.DF;
                                 var aPercent = totalGrades > 0 ? (Model.GradeDistribution.A * 100.0 / totalGrades) : 0;
-                                var bPercent = totalGrades > 0 ? (Model. GradeDistribution.B * 100.0 / totalGrades) : 0;
+                                var bPercent = totalGrades > 0 ? (Model.GradeDistribution.B * 100.0 / totalGrades) : 0;
                                 var cPercent = totalGrades > 0 ? (Model.GradeDistribution.C * 100.0 / totalGrades) : 0;
                                 var dfPercent = totalGrades > 0 ? (Model.GradeDistribution.DF * 100.0 / totalGrades) : 0;
                             }
-                            
+
                             <div class="flex items-center gap-3">
                                 <div class="w-8 text-sm font-bold text-[#111418] dark:text-white">A</div>
                                 <div class="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#1f2937] rounded-full overflow-hidden">
@@ -416,7 +416,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Current Courses Progress - FULL WIDTH -->
             <div class="w-full">
                 <div class="flex items-center justify-between mb-4">
@@ -428,8 +428,8 @@
                     {
                         @foreach (var c in Model.CurrentCourses)
                         {
-                            var score10 = c.TotalScore ??  0m;
-                            var percent = (int)Math. Clamp((double)score10 * 10, 0, 100);
+                            var score10 = c.TotalScore ?? 0m;
+                            var percent = (int)Math.Clamp((double)score10 * 10, 0, 100);
                             var isRisk = score10 > 0 && score10 < 5;
 
                             <div class="group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-[#111418] border border-[#e5e7eb] dark: border-[#1f2937] shadow-sm hover:shadow-md transition-all @(isRisk ? "border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/20" : "")">
@@ -447,7 +447,7 @@
                                         <div class="flex justify-between text-xs mb-1.5">
                                             <span class="font-medium text-[#111418] dark: text-gray-300">Total Score</span>
                                             <span class="font-bold @(isRisk ? "text-red-600" : "text-green-600")">
-                                                @(c.TotalScore?. ToString("0.0") ?? "—") / 10
+                                                @(c.TotalScore?.ToString("0.0") ?? "—") / 10
                                             </span>
                                         </div>
 

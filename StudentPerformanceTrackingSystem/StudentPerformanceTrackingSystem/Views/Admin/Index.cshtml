@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
-@model SPTS_Service.ViewModels.AdminVM
+@model SPTS_Service.ViewModel.QuantrivienVm.AdminVM
 
 @if (Model == null)
 {
@@ -280,124 +280,124 @@
         // ✅ CHART 1: Department GPA Bar Chart
         @if (Model.DepartmentGPAs != null && Model.DepartmentGPAs.Any())
         {
-                <text>
-                const deptGPACtx = document.getElementById('departmentGPAChart');
-                if (deptGPACtx) {
-                    new Chart(deptGPACtx, {
-                        type: 'bar',
-                        data: {
-                            labels: [
-                                @foreach (var dept in Model.DepartmentGPAs.Take(10))
-                                {
-                                        @:@Html.Raw($"'{dept.DepartmentName?.Replace("Khoa ", "")}',")
-                                }
-                            ],
-                            datasets: [{
-                                label: 'GPA Trung bình',
-                                data: [@string.Join(",", Model.DepartmentGPAs.Take(10).Select(d => d.AverageGPA))],
-                                backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                                borderColor: 'rgb(59, 130, 246)',
-                                borderWidth: 2,
-                                borderRadius: 8,
-                                hoverBackgroundColor: 'rgba(59, 130, 246, 0.8)'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: false
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            return 'GPA: ' + context.parsed.y.toFixed(2) + ' / 4.0';
+                    <text>
+                    const deptGPACtx = document.getElementById('departmentGPAChart');
+                    if (deptGPACtx) {
+                        new Chart(deptGPACtx, {
+                            type: 'bar',
+                            data: {
+                                labels: [
+                                    @foreach (var dept in Model.DepartmentGPAs.Take(10))
+                                    {
+                                                @:@Html.Raw($"'{dept.DepartmentName?.Replace("Khoa ", "")}',")
+                                    }
+                                ],
+                                datasets: [{
+                                    label: 'GPA Trung bình',
+                                    data: [@string.Join(",", Model.DepartmentGPAs.Take(10).Select(d => d.AverageGPA))],
+                                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                                    borderColor: 'rgb(59, 130, 246)',
+                                    borderWidth: 2,
+                                    borderRadius: 8,
+                                    hoverBackgroundColor: 'rgba(59, 130, 246, 0.8)'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return 'GPA: ' + context.parsed.y.toFixed(2) + ' / 4.0';
+                                            }
                                         }
                                     }
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 4.0,
-                                    ticks: {
-                                        stepSize: 0.5,
-                                        callback: function(value) {
-                                            return value.toFixed(1);
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 4.0,
+                                        ticks: {
+                                            stepSize: 0.5,
+                                            callback: function(value) {
+                                                return value.toFixed(1);
+                                            }
+                                        },
+                                        grid: {
+                                            color: 'rgba(148, 163, 184, 0.1)'
                                         }
                                     },
-                                    grid: {
-                                        color: 'rgba(148, 163, 184, 0.1)'
-                                    }
-                                },
-                                x: {
-                                    grid: {
-                                        display: false
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        }
                                     }
                                 }
                             }
-                        }
-                    });
-                }
-                </text>
+                        });
+                    }
+                    </text>
         }
 
         // ✅ CHART 2: Academic Ranking Doughnut Chart
         @if (Model.AcademicRanking != null)
         {
-                <text>
-                const academicRankCtx = document.getElementById('academicRankingChart');
-                if (academicRankCtx) {
-                    new Chart(academicRankCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Xuất sắc & Giỏi', 'Khá', 'Trung bình', 'Yếu', 'Kém'],
-                            datasets: [{
-                                data: [
-                                    @Model.AcademicRanking.ExcellentRate,
-                                    @Model.AcademicRanking.GoodRate,
-                                    @Model.AcademicRanking.AverageRate,
-                                    @Model.AcademicRanking.BelowAverageRate,
-                                    @Model.AcademicRanking.PoorRate
-                                ],
-                                backgroundColor: [
-                                    'rgb(34, 197, 94)',   // green
-                                    'rgb(59, 130, 246)',  // blue
-                                    'rgb(234, 179, 8)',   // yellow
-                                    'rgb(249, 115, 22)',  // orange
-                                    'rgb(239, 68, 68)'    // red
-                                ],
-                                borderWidth: 2,
-                                borderColor: '#fff'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        padding: 15,
-                                        usePointStyle: true,
-                                        font: {
-                                            size: 11
+                    <text>
+                    const academicRankCtx = document.getElementById('academicRankingChart');
+                    if (academicRankCtx) {
+                        new Chart(academicRankCtx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Xuất sắc & Giỏi', 'Khá', 'Trung bình', 'Yếu', 'Kém'],
+                                datasets: [{
+                                    data: [
+                                        @Model.AcademicRanking.ExcellentRate,
+                                        @Model.AcademicRanking.GoodRate,
+                                        @Model.AcademicRanking.AverageRate,
+                                        @Model.AcademicRanking.BelowAverageRate,
+                                        @Model.AcademicRanking.PoorRate
+                                    ],
+                                    backgroundColor: [
+                                        'rgb(34, 197, 94)',   // green
+                                        'rgb(59, 130, 246)',  // blue
+                                        'rgb(234, 179, 8)',   // yellow
+                                        'rgb(249, 115, 22)',  // orange
+                                        'rgb(239, 68, 68)'    // red
+                                    ],
+                                    borderWidth: 2,
+                                    borderColor: '#fff'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            padding: 15,
+                                            usePointStyle: true,
+                                            font: {
+                                                size: 11
+                                            }
                                         }
-                                    }
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            return context.label + ': ' + context.parsed.toFixed(1) + '%';
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return context.label + ': ' + context.parsed.toFixed(1) + '%';
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    });
-                }
-                </text>
+                        });
+                    }
+                    </text>
         }
     </script>
 }

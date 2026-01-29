@@ -1,4 +1,5 @@
-﻿@model SPTS_Service.ViewModel.Giangvien
+﻿@model SPTS_Service.ViewModel.GiangvienVm.GiangVien
+
 @{
     Layout = "~/Views/Shared/_LayoutGiangvien.cshtml";
 }
@@ -176,9 +177,9 @@
                                         <div class="flex flex-col">
                                             <span class="text-xs text-[#617589] dark:text-gray-400">Thời gian</span>
                                             <span class="text-sm font-semibold text-[#111418] dark:text-white">
-                                                @if (! string.IsNullOrEmpty(sec.Schedule) && ! string.IsNullOrEmpty(sec.TimeSlot))
+                                                @if (!string.IsNullOrEmpty(sec.Schedule) && !string.IsNullOrEmpty(sec.TimeSlot))
                                                 {
-                                                    @($"{sec.Schedule. Split(';').FirstOrDefault()} ({sec.TimeSlot})")
+                                                    @($"{sec.Schedule.Split(';').FirstOrDefault()} ({sec.TimeSlot})")
                                                 }
                                                 else
                                                 {
@@ -201,11 +202,11 @@
                                             <div class="bg-primary h-2 rounded-full" style="width: @sec.CompletionRate%"></div>
                                         </div>
 
-                                        @if (sec.AverageScore. HasValue)
+                                        @if (sec.AverageScore.HasValue)
                                         {
                                             var avgScore = sec.AverageScore.Value;
                                             var isLowScore = avgScore < 5.0m;
-                                            
+
                                             <div class="mt-2 flex items-center justify-between p-2 rounded @(isLowScore ? "bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30" : "bg-background-light dark:bg-gray-800/50 border border-transparent dark:border-gray-700/50")">
                                                 @if (isLowScore)
                                                 {
@@ -261,10 +262,10 @@
                                         </div>
                                     }
                                     <button class="mt-auto w-full flex items-center justify-center gap-2 bg-transparent text-[#617589] hover:text-primary dark:text-gray-400 dark:hover:text-white font-medium py-2 rounded-lg transition-colors border border-transparent hover:bg-gray-100 dark:hover:bg-gray-800">
-                                        <a asp-controller ="Giangvien"
+                                        <a asp-controller="Giangvien"
                                            asp-action="ChitietLop"
-                                           asp-route-id="@sec.SectionId"> 
-                                                         <span>Xem lại báo cáo</span>
+                                           asp-route-id="@sec.SectionId">
+                                            <span>Xem lại báo cáo</span>
                                         </a>
                                     </button>
                                 }
@@ -275,7 +276,7 @@
             </div>
         }
 
-        @if (! Model.SectionsByTerm.Any())
+        @if (!Model.SectionsByTerm.Any())
         {
             <div class="flex flex-col items-center justify-center py-12 text-center">
                 <span class="material-symbols-outlined text-6xl text-gray-400 mb-4">school</span>

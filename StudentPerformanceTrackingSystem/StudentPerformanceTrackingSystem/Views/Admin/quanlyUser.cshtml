@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
-@model SPTS_Service.ViewModels.AdminUsersVM
+@model SPTS_Service.ViewModel.QuantrivienVm.AdminUsersVM
 
 <main class="flex-1 flex flex-col min-w-0 px-6 py-6 lg:px-10">
     @if (TempData["Success"] != null)
@@ -359,20 +359,20 @@
                             </select>
                         </div>
                         <div>
-                        <label class="block text-sm font-medium text-[#111418] dark:text-white mb-2">Khoa</label>
-                        <select id="edit_departmentName" name="departmentName"
-                                class="w-full px-4 py-2 rounded-lg border border-[#dbe0e6] dark:border-[#343d48] bg-white dark:bg-[#25323f] text-[#111418] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
-                            <option value="">-- Chuyên Ngành --</option>
-                            <option value="Công nghệ Thông tin">Công nghệ Thông tin</option>
-                            <option value="Điện tử Viễn thông">Điện tử Viễn thông</option>
-                            <option value="Cơ khí Động lực">Cơ khí Động lực</option>
-                            <option value="Quản trị Kinh doanh">Quản trị Kinh doanh</option>
-                            <option value="Ngoại ngữ">Ngoại ngữ</option>
-                            <option value="Y Dược">Y Dược</option>
-                            <option value="Xây dựng">Xây dựng</option>
-                            <option value="Hóa học">Hóa học</option>
-                            <option value="Môi trường">Môi trường</option>
-                        </select>
+                            <label class="block text-sm font-medium text-[#111418] dark:text-white mb-2">Khoa</label>
+                            <select id="edit_departmentName" name="departmentName"
+                                    class="w-full px-4 py-2 rounded-lg border border-[#dbe0e6] dark:border-[#343d48] bg-white dark:bg-[#25323f] text-[#111418] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="">-- Chuyên Ngành --</option>
+                                <option value="Công nghệ Thông tin">Công nghệ Thông tin</option>
+                                <option value="Điện tử Viễn thông">Điện tử Viễn thông</option>
+                                <option value="Cơ khí Động lực">Cơ khí Động lực</option>
+                                <option value="Quản trị Kinh doanh">Quản trị Kinh doanh</option>
+                                <option value="Ngoại ngữ">Ngoại ngữ</option>
+                                <option value="Y Dược">Y Dược</option>
+                                <option value="Xây dựng">Xây dựng</option>
+                                <option value="Hóa học">Hóa học</option>
+                                <option value="Môi trường">Môi trường</option>
+                            </select>
                         </div>
                     </div>
                 </div>

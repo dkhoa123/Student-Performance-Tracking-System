@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SPTS_Repository.Interface;
 using SPTS_Service.Interface;
-using SPTS_Service.ViewModels;
+using SPTS_Service.Interface.Admin;
+using SPTS_Service.ViewModel.QuantrivienVm;
 using StudentPerformanceTrackingSystem.Models;
 using System;
 using System.Collections.Generic;
@@ -17,11 +18,20 @@ namespace StudentPerformanceTrackingSystem.Controllers
     [Authorize(Roles = "ADMIN")]
     public class AdminController : Controller
     {
-        private readonly IAdminService _adService;
-
-        public AdminController(IAdminService adService)
+        private readonly IDashboardService _dashSer;
+        private readonly ICourseService _courseSer;
+        private readonly ISectionService _sectionSer;
+        private readonly IUserManagementService _usermanaSer;
+        public AdminController(
+            IDashboardService dashSer,
+            ICourseService courseSer,
+            ISectionService sectionSer,
+            IUserManagementService usermanaSer)
         {
-            _adService = adService;
+            _dashSer = dashSer;
+            _courseSer = courseSer;
+            _sectionSer = sectionSer;
+            _usermanaSer = usermanaSer;
         }
 
         [HttpGet]
@@ -30,7 +40,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
             try
             {
                 // ✅ Lấy terms từ database
-                var termsVM = await _adService.GetTermsForDropdownAsync();
+                var termsVM = await _dashSer.GetTermsForDropdownAsync();
 
                 // ✅ Xử lý termId
                 // Nếu termId = 0 hoặc null → hiển thị tất cả
@@ -53,7 +63,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
                 );
 
                 // ✅ Truyền null hoặc termId vào service
-                var viewModel = await _adService.GetSystemStatistics(selectedTermId);
+                var viewModel = await _dashSer.GetSystemStatistics(selectedTermId);
 
                 // ✅ Truyền thông tin về term đang chọn vào ViewBag
                 ViewBag.SelectedTermName = selectedTermId.HasValue
@@ -76,7 +86,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> quanlyMonGV(int? termId = null, int page = 1, int pageSize = 10)
         {
-            var vm = await _adService.GetCourseTeacherPageAsync(termId, page, pageSize);
+            var vm = await _courseSer.GetCourseTeacherPageAsync(termId, page, pageSize);
             return View(vm);
         }
         // Thêm vào AdminController
@@ -86,7 +96,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             try
             {
-                var section = await _adService.GetSectionDetailAsync(id);
+                var section = await _courseSer.GetSectionDetailAsync(id);
                 if (section == null)
                     return NotFound();
 
@@ -103,7 +113,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             try
             {
-                var teachers = await _adService.GetAvailableTeachersAsync(termId);
+                var teachers = await _sectionSer.GetAvailableTeachersAsync(termId);
                 return Json(teachers);
             }
             catch (Exception ex)
@@ -117,7 +127,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             try
             {
-                var success = await _adService.AssignTeacherToSectionAsync(vm.SectionId, vm.TeacherId);
+                var success = await _sectionSer.AssignTeacherToSectionAsync(vm.SectionId, vm.TeacherId);
                 if (!success)
                     return BadRequest(new { error = "Gán giảng viên thất bại" });
 
@@ -134,7 +144,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             try
             {
-                var success = await _adService.UnassignTeacherFromSectionAsync(sectionId);
+                var success = await _sectionSer.UnassignTeacherFromSectionAsync(sectionId);
                 if (!success)
                 {
                     TempData["Error"] = "Gỡ giảng viên thất bại!";
@@ -156,21 +166,21 @@ namespace StudentPerformanceTrackingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> quanlyUser(string? role = null, string? status = null, string? keyword = null, int page = 1, int pageSize = 10)
         {
-            var vm = await _adService.GetUsersPageAsync(role, status, keyword, page, pageSize);
+            var vm = await _usermanaSer.GetUsersPageAsync(role, status, keyword, page, pageSize);
             return View(vm);
         }
 
         [HttpPost]
         public async Task<IActionResult> LockUser(int id)
         {
-            await _adService.LockUserAsync(id);
+            await _usermanaSer.LockUserAsync(id);
             return RedirectToAction(nameof(quanlyUser));
         }
 
         [HttpPost]
         public async Task<IActionResult> UnlockUser(int id)
         {
-            await _adService.UnlockUserAsync(id);
+            await _usermanaSer.UnlockUserAsync(id);
             return RedirectToAction(nameof(quanlyUser));
         }
 
@@ -179,7 +189,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             try
             {
-                var user = await _adService.GetUserDetailAsync(id);
+                var user = await _usermanaSer.GetUserDetailAsync(id);
                 if (user == null)
                     return NotFound();
 
@@ -194,7 +204,8 @@ namespace StudentPerformanceTrackingSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateVM dto, string? returnRole = null, int page = 1)
         {
-            try { 
+            try
+            {
 
                 // Validate trước khi gọi service
                 if (dto.Role == "STUDENT" && string.IsNullOrWhiteSpace(dto.StudentCode))
@@ -207,7 +218,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
                     return BadRequest(new { error = "Mã giảng viên không được để trống" });
                 }
 
-                var success = await _adService.UpdateUserAsync(dto);
+                var success = await _usermanaSer.UpdateUserAsync(dto);
                 if (!success)
                     return BadRequest(new { error = "Cập nhật thất bại" });
 
@@ -234,7 +245,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
                     return RedirectToAction(nameof(quanlyUser), new { role = returnRole, page });
                 }
 
-                var success = await _adService.DeleteUserAsync(id);
+                var success = await _usermanaSer.DeleteUserAsync(id);
                 if (!success)
                 {
                     TempData["Error"] = "Không tìm thấy người dùng!";
@@ -259,7 +270,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             try
             {
-                var majors = await _adService.GetMajorsAsync();
+                var majors = await _usermanaSer.GetMajorsAsync();
                 return Json(majors);
             }
             catch (Exception ex)
@@ -273,7 +284,7 @@ namespace StudentPerformanceTrackingSystem.Controllers
         {
             try
             {
-                var departments = await _adService.GetDepartmentsAsync();
+                var departments = await _usermanaSer.GetDepartmentsAsync();
                 return Json(departments);
             }
             catch (Exception ex)
